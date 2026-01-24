@@ -9,70 +9,30 @@ const firebaseConfig = {
     measurementId: "G-C0QXJC0CWV"
 };
 
-// Intentar iniciar Firebase
 let dbOnline = null;
 try {
     firebase.initializeApp(firebaseConfig);
     dbOnline = firebase.firestore();
-    console.log("Firebase conectado.");
-} catch (e) {
-    console.error("Error conectando Firebase:", e);
-}
+} catch(e) { console.error("Error Firebase", e); }
 
 // ==========================================
 // 2. BASES DE DATOS (CONTENIDO)
 // ==========================================
 
 const DB_TECLADO = {
-    inicial: {
-        letras: "ASDFJKLÑQWERTYUIOPZXCVBNM".split(''), 
-        simbolos: [".", ",", ";", ":", "-", "_", "!", "?", "¿", "¡", "+", "="],
-        palabras: ["SOL","LUZ","PAN","MAR","OSO","MAMA","PAPA","GATO","PERRO","MESA","SILLA","CASA","AUTO","TREN","FLOR","RIO","LAGO","MANO","PIE","DEDO"] 
-    },
-    intermedia: {
-        palabras: ["ESCUELA", "AMIGO", "JUGUETE", "PARQUE", "CIUDAD", "VERANO", "INVIERNO", "MUSICA", "PINTURA", "COMIDA", "TIENDA"],
-        tildes: ["ÁRBOL", "CANTÓ", "AVIÓN", "NIÑO", "FELIZ", "LÁPIZ", "RATÓN", "BOTÓN", "CAFÉ", "PAPÁ", "JARDÍN", "MÚSICA", "RÁPIDO"],
-        oraciones: ["EL PERRO LADRA.", "ME GUSTA EL SOL.", "HOY ES LUNES.", "¿COMO ESTAS?", "HOLA MUNDO.", "TENGO HAMBRE.", "VAMOS AL CINE?", "LA CASA ES GRANDE.", "EL GATO DORMIDO."]
-    },
-    dificil: {
-        palabras: ["ELECTRODOMESTICO", "FERROCARRIL", "CONSTITUCION", "PARALELEPIPEDO", "DESOXIRRIBONUCLEICO", "CALIDOSCOPIO", "ESTERNOCLEIDOMASTOIDEO", "HIPOPOTAMO", "ORNITORRINCO", "ANTICONSTITUCIONALIDAD"],
-        simbolos: ["@", "#", "$", "%", "&", "/", "(", ")", "{", "}", "[", "]", "\\", "|", "°", "¬", "~", "^", "`", "*"],
-        codigo: ["width:100%", "#FFAA00", "user_name", "email@gmail.com", "http://web.com", "$dinero", "print('Hola')", "x = y + 2", "<div>TEXTO</div>"]
-    },
-    experta: {
-        oraciones: ["LA TECNOLOGIA AVANZA EXPONENCIALMENTE CADA AÑO.", "LOS ALGORITMOS DE BUSQUEDA SON FUNDAMENTALES.", "LA INTELIGENCIA ARTIFICIAL GENERATIVA CREA ARTE.", "EL DESARROLLO DE SOFTWARE REQUIERE LOGICA.", "LA CIBERSEGURIDAD PROTEGE LOS DATOS PRIVADOS."]
-    },
-    prodigio: {
-        textos: ["En un lugar de la Mancha, de cuyo nombre no quiero acordarme.", "Programar es el arte de decirle a otro humano lo que la PC debe hacer.", "El éxito no es definitivo, el fracaso no es fatal.", "La imaginación es más importante que el conocimiento.", "No he fallado, simplemente he encontrado mil maneras que no funcionan."]
-    }
+    inicial: { letras: "ASDFJKLÑQWERTYUIOPZXCVBNM".split(''), simbolos: [".", ",", ";", ":", "-", "_", "!", "?"], palabras: ["SOL","LUZ","PAN","MAR","OSO","MAMA"] },
+    intermedia: { palabras: ["ESCUELA", "AMIGO", "JUGUETE", "PARQUE"], tildes: ["ÁRBOL", "CANTÓ", "AVIÓN"], oraciones: ["EL PERRO LADRA.", "HOLA MUNDO."] },
+    dificil: { palabras: ["ELECTRODOMESTICO", "FERROCARRIL", "CONSTITUCION"], simbolos: ["@", "#", "$", "%"], codigo: ["width:100%", "#FFAA00", "user_name"] },
+    experta: { oraciones: ["LA TECNOLOGIA AVANZA EXPONENCIALMENTE.", "LOS ALGORITMOS DE BUSQUEDA SON FUNDAMENTALES."] },
+    prodigio: { textos: ["En un lugar de la Mancha, de cuyo nombre no quiero acordarme.", "Programar es el arte de decirle a otro humano lo que la PC debe hacer."] }
 };
 
 const DB_COMPUTING = {
-    inicial: [
-        {q:"¿Qué usas para hacer clic?", ans:"Mouse", opts:["Mouse", "Teclado", "Pantalla", "Cable"]},
-        {q:"¿Dónde ves las imágenes?", ans:"Monitor", opts:["Monitor", "Impresora", "Mouse", "Parlante"]},
-        {q:"El cerebro de la PC", ans:"CPU", opts:["CPU", "Botón", "Cable", "Mouse"]},
-        {q:"Para escribir usas...", ans:"Teclado", opts:["Teclado", "Mouse", "Wifi", "Luz"]}
-    ],
-    intermedia: [
-        {q:"¿Qué es Software?", ans:"Programas", opts:["Programas", "Teclado", "Cables", "Pantalla"]},
-        {q:"Navegador de internet", ans:"Chrome", opts:["Chrome", "Word", "Excel", "Paint"]},
-        {q:"Memoria Temporal", ans:"RAM", opts:["RAM", "HDD", "USB", "DVD"]}
-    ],
-    dificil: [
-        {q:"8 bits equivalen a...", ans:"1 Byte", opts:["1 Byte", "1 Kilo", "1 Bit", "1 Mega"]},
-        {q:"Binario usa...", ans:"0 y 1", opts:["0 y 1", "1 y 2", "A y B", "0 a 9"]},
-        {q:"Red mundial", ans:"WAN", opts:["WAN", "LAN", "WIFI", "Bluetooth"]}
-    ],
-    experta: [
-        {q:"¿Qué es un Algoritmo?", ans:"Pasos lógicos", opts:["Pasos lógicos", "Virus", "Pieza", "Error"]},
-        {q:"Variable sirve para...", ans:"Guardar datos", opts:["Guardar datos", "Borrar", "Imprimir", "Romper"]}
-    ],
-    prodigio: [
-        {q:"Binario: 101 es...", ans:"5", opts:["5", "3", "2", "10"]},
-        {q:"Hexadecimal: A es...", ans:"10", opts:["10", "11", "12", "15"]},
-        {q:"1024 GB son...", ans:"1 TB", opts:["1 TB", "1 PB", "1 MB", "1 KB"]}
-    ]
+    inicial: [{q:"¿Qué usas para hacer clic?", ans:"Mouse", opts:["Mouse", "Teclado", "Pantalla"]}, {q:"¿Dónde ves las imágenes?", ans:"Monitor", opts:["Monitor", "Impresora", "Mouse"]}, {q:"El cerebro de la PC", ans:"CPU", opts:["CPU", "Botón", "Cable"]}],
+    intermedia: [{q:"¿Qué es Software?", ans:"Programas", opts:["Programas", "Teclado", "Cables"]}, {q:"Navegador de internet", ans:"Chrome", opts:["Chrome", "Word", "Excel"]}, {q:"Memoria Temporal", ans:"RAM", opts:["RAM", "HDD", "USB"]}],
+    dificil: [{q:"8 bits son...", ans:"1 Byte", opts:["1 Byte", "1 Kilo", "1 Bit"]}, {q:"Binario usa...", ans:"0 y 1", opts:["0 y 1", "1 y 2", "A y B"]}, {q:"Red mundial", ans:"WAN", opts:["WAN", "LAN", "WIFI"]}],
+    experta: [{q:"¿Qué es un Algoritmo?", ans:"Pasos lógicos", opts:["Pasos lógicos", "Virus", "Pieza"]}, {q:"Variable sirve para...", ans:"Guardar datos", opts:["Guardar datos", "Borrar", "Imprimir"]}],
+    prodigio: [{q:"Binario: 101 es...", ans:"5", opts:["5", "3", "2", "10"]}, {q:"Hexadecimal: A es...", ans:"10", opts:["10", "11", "12"]}, {q:"1024 GB son...", ans:"1 TB", opts:["1 TB", "1 PB", "1 MB"]}]
 };
 
 const DB_GEOGRAFIA = {
@@ -90,45 +50,32 @@ const DB_GEOGRAFIA = {
 };
 
 const DB_INGLES = [
-    {q:"Red", ans:"Rojo", opts:["Rojo","Azul","Verde"]}, 
-    {q:"Blue", ans:"Azul", opts:["Azul","Rojo","Amarillo"]}, 
-    {q:"Dog", ans:"Perro", opts:["Perro","Gato","Pato"]}, 
-    {q:"Cat", ans:"Gato", opts:["Gato","Perro","Vaca"]}
+    {q:"Red", ans:"Rojo", opts:["Rojo","Azul","Verde"]}, {q:"Blue", ans:"Azul", opts:["Azul","Rojo","Amarillo"]}, 
+    {q:"Dog", ans:"Perro", opts:["Perro","Gato","Pato"]}, {q:"Cat", ans:"Gato", opts:["Gato","Perro","Vaca"]}
 ];
 
 const DB_ALGORITMOS = {
-    inicial: [
-        { title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] },
-        { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] }
-    ],
-    intermedia: [
-        { title: "Robot Laberinto", blocks: [{text: "Inicio", type: "blk-event"}, {text: "Avanzar 2", type: "blk-action"}, {text: "Girar Derecha", type: "blk-action"}, {text: "Avanzar 1", type: "blk-action"}] }
-    ],
-    dificil: [
-        { title: "Cuadrado", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] }
-    ],
-    experta: [
-        { title: "Semáforo", blocks: [{text: "Mirar luz", type: "blk-action"}, {text: "SI es Verde", type: "blk-control"}, {text: "  Cruzar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] }
-    ],
-    prodigio: [
-        { title: "Lluvia", blocks: [{text: "SI llueve", type: "blk-control"}, {text: "  ¿Tengo paraguas?", type: "blk-logic"}, {text: "    SI: Usarlo", type: "blk-action"}, {text: "    NO: Correr", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Caminar", type: "blk-action"}] }
-    ]
+    inicial: [{ title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] }, { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] }],
+    intermedia: [{ title: "Robot Laberinto", blocks: [{text: "Inicio", type: "blk-event"}, {text: "Avanzar 2", type: "blk-action"}, {text: "Girar Derecha", type: "blk-action"}, {text: "Avanzar 1", type: "blk-action"}] }],
+    dificil: [{ title: "Cuadrado", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] }],
+    experta: [{ title: "Semáforo", blocks: [{text: "Mirar luz", type: "blk-action"}, {text: "SI es Verde", type: "blk-control"}, {text: "  Cruzar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] }],
+    prodigio: [{ title: "Lluvia", blocks: [{text: "SI llueve", type: "blk-control"}, {text: "  ¿Tengo paraguas?", type: "blk-logic"}, {text: "    SI: Usarlo", type: "blk-action"}, {text: "    NO: Correr", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Caminar", type: "blk-action"}] }]
 };
 
 const DB_PYTHON_TASKS = {
     inicial: [
-        { mision: "Haz que diga: Hola", hint: 'print("Hola")', valid: ['print("Hola")', "print('Hola')"], output: "Hola" },
+        { mision: "Haz que diga: Hola", hint: 'print("Hola")', valid: ['print("Hola")'], output: "Hola" },
         { mision: "Imprime el número 100", hint: "print(100)", valid: ["print(100)"], output: "100" }
     ],
     intermedia: [
-        { mision: "Variable x vale 10", hint: "x = 10", valid: ["x=10", "x = 10"], output: "x guardada: 10" },
-        { mision: "Suma 20 + 30", hint: "print(20+30)", valid: ["print(20+30)", "print(20 + 30)"], output: "50" }
+        { mision: "Variable x vale 10", hint: "x = 10", valid: ["x=10"], output: "x guardada: 10" },
+        { mision: "Suma 20 + 30", hint: "print(20+30)", valid: ["print(20+30)"], output: "50" }
     ],
     dificil: [
         { mision: "Pide nombre", hint: "input()", valid: ["input()", "nombre=input()"], output: "> Esperando..." }
     ],
     experta: [
-        { mision: "Si 5 > 2 imprime Si", hint: "if 5 > 2: print('Si')", valid: ['if 5 > 2: print("Si")', "if 5>2: print('Si')"], output: "Si" }
+        { mision: "Si 5 > 2 imprime Si", hint: "if 5 > 2: print('Si')", valid: ['if 5 > 2: print("Si")'], output: "Si" }
     ],
     prodigio: [
         { mision: "Bucle de 3 veces", hint: "for i in range(3):", valid: ["for i in range(3):"], output: "0\n1\n2" }
@@ -162,29 +109,26 @@ let player = {
 let localDB = { customLevels: [], shopItems: DEFAULT_SHOP };
 let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0 };
 let timerInterval = null; 
-let currentPuzzleSolution = []; // Para Algoritmos
+let currentPuzzleSolution = []; 
 
 // 4. INICIALIZACIÓN
 window.onload = function() {
     if(localStorage.getItem('eduPlayer')) {
         try {
             let saved = JSON.parse(localStorage.getItem('eduPlayer'));
-            // Migración simple de datos antiguos
             if(saved.grade === 1) saved.grade = 'inicial';
-            if(!saved.progress.inicial.python) {
-                // Parchear claves faltantes
-                ['inicial','intermedia','dificil','experta','prodigio'].forEach(g => {
-                    if(!saved.progress[g]) saved.progress[g] = { matematica:1, compu:1, teclado:1, ingles:1, Geografia:1, claves:1, Algoritmos:1, python:1 };
-                    else {
-                        saved.progress[g].Geografia = saved.progress[g].Geografia || 1;
-                        saved.progress[g].claves = saved.progress[g].claves || 1;
-                        saved.progress[g].Algoritmos = saved.progress[g].Algoritmos || 1;
-                        saved.progress[g].python = saved.progress[g].python || 1;
-                    }
-                });
-            }
+            // Parche para nuevos niveles
+            ['inicial','intermedia','dificil','experta','prodigio'].forEach(g => {
+                if(!saved.progress[g]) saved.progress[g] = { matematica:1, compu:1, teclado:1, ingles:1, Geografia:1, claves:1, Algoritmos:1, python:1 };
+                else {
+                    saved.progress[g].Geografia = saved.progress[g].Geografia || 1;
+                    saved.progress[g].claves = saved.progress[g].claves || 1;
+                    saved.progress[g].Algoritmos = saved.progress[g].Algoritmos || 1;
+                    saved.progress[g].python = saved.progress[g].python || 1;
+                }
+            });
             player = saved;
-        } catch(e) { console.error("Error cargando save:", e); }
+        } catch(e) { console.error("Error save", e); }
     }
     if(localStorage.getItem('eduDB')) localDB = JSON.parse(localStorage.getItem('eduDB'));
     
@@ -194,12 +138,10 @@ window.onload = function() {
     if(dbOnline) syncWithCloud();
 };
 
-// 5. NAVEGACIÓN Y UI
 function updateUI() {
     document.getElementById('uiCoins').innerText = player.coins;
     const p = player.progress[player.grade];
     
-    // Actualizar etiquetas de niveles
     document.getElementById('lbl-matematica').innerText = p.matematica;
     document.getElementById('lbl-logic').innerText = p.compu;
     document.getElementById('lbl-typing').innerText = p.teclado;
@@ -208,7 +150,6 @@ function updateUI() {
     document.getElementById('lbl-algoritmos').innerText = p.Algoritmos;
     document.getElementById('lbl-python').innerText = p.python;
     
-    // Actualizar Avatar
     applyTexture('avHead', player.skin.head || '#ffcc80');
     applyTexture('avTorso', player.skin.torso);
     applyTexture('avLegL', player.skin.legs);
@@ -229,7 +170,6 @@ function applyTexture(elementId, value) {
 
 function openSubject(s) { 
     currentSession.subject = s; 
-    
     if (s === 'claves') {
         document.getElementById('gameModal').style.display = 'flex';
         document.getElementById('gameTitle').innerText = "Generador Seguro";
@@ -268,7 +208,6 @@ function renderMap() {
     }
 }
 
-// 6. MOTORES DE JUEGO
 function playLevel(lvl) {
     currentSession.level = lvl;
     currentSession.startTime = null; 
@@ -298,8 +237,9 @@ function generateProceduralLevel(container, subj, lvl) {
     // --- PYTHON IDE ---
     if (subj === 'python') {
         const pool = DB_PYTHON_TASKS[player.grade] || DB_PYTHON_TASKS['inicial'];
-        const task = pool[(lvl - 1) % pool.length]; // Ciclar tareas
+        const task = pool[(lvl - 1) % pool.length];
         const validString = encodeURIComponent(JSON.stringify(task.valid));
+        const outputString = encodeURIComponent(task.output);
         
         container.innerHTML = `
             <div class="ide-container">
@@ -308,7 +248,7 @@ function generateProceduralLevel(container, subj, lvl) {
                 </div>
                 <div>Escribe tu código:</div>
                 <textarea id="pyEditor" class="code-editor" spellcheck="false" placeholder='>>>'></textarea>
-                <button class="run-btn" onclick="runPythonCode('${validString}', '${task.output}')">▶ EJECUTAR</button>
+                <button class="run-btn" onclick="runPythonCode('${validString}', '${outputString}')">▶ EJECUTAR</button>
                 <div style="font-size:0.7rem;">Consola:</div>
                 <div id="pyConsole" class="console-output">Esperando...</div>
             </div>
@@ -317,7 +257,7 @@ function generateProceduralLevel(container, subj, lvl) {
         return; 
     }
 
-    // --- GEOGRAFÍA ---
+    // --- OTRAS MATERIAS ---
     if (subj === 'Geografia') {
         const pool = DB_GEOGRAFIA[player.grade] || DB_GEOGRAFIA['inicial'];
         const item = getRandom(pool);
@@ -332,13 +272,11 @@ function generateProceduralLevel(container, subj, lvl) {
             q = item.q; ans = item.ans; opts = item.opts.sort(() => Math.random() - 0.5);
         }
     }
-    // --- COMPUTACIÓN ---
     else if (subj === 'compu') {
         const pool = DB_COMPUTING[player.grade] || DB_COMPUTING['inicial'];
         const item = getRandom(pool);
         q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
     }
-    // --- TECLADO ---
     else if (subj === 'teclado') {
         let target = "", prompt = "", showStats = false;
         let pool = DB_TECLADO[player.grade]; 
@@ -362,20 +300,13 @@ function generateProceduralLevel(container, subj, lvl) {
         }, 50);
         return;
     }
-    // --- MATEMÁTICA ---
     else if (subj === 'matematica') {
         let a, b, opSelector = Math.random();
-        if (player.grade === 'inicial') {
-            if (opSelector < 0.4) { a=r(20); b=r(10); q=`¿${a}+${b}?`; ans=a+b; }
-            else { b=r(2)+1; ans=r(5); a=b*ans; q=`¿${a}/${b}?`; }
-        } else {
-            // Lógica genérica para niveles altos
-            let mult = player.grade==='prodigio' ? 1000 : 50;
-            a=r(mult)+10; b=r(mult)+10; q=`¿${a}+${b}?`; ans=a+b;
-        }
+        let max = (player.grade==='inicial') ? 20 : 100;
+        if (opSelector < 0.4) { a=r(max); b=r(max); q=`¿${a}+${b}?`; ans=a+b; }
+        else { b=r(5)+1; ans=r(10)+1; a=b*ans; q=`¿${a}/${b}?`; }
         opts = [ans, ans+1, ans-1, ans+5].sort(()=>Math.random()-0.5);
     }
-    // --- INGLÉS (DEFAULT) ---
     else {
         const item = getRandom(DB_INGLES); q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
     }
@@ -428,18 +359,28 @@ function checkAlgorithm() {
     }
 }
 
-// 8. LÓGICA DE PYTHON (IDE)
-function runPythonCode(validEncoded, output) {
-    const code = document.getElementById('pyEditor').value.trim();
+// 8. LÓGICA DE PYTHON (IDE - MODO ESTRICTO PERO SMART QUOTES)
+function normalizeCode(code) {
+    // Solo arregla comillas raras de celular, pero respeta mayúsculas y espacios
+    return code
+        .trim()
+        .replace(/[“”]/g, '"')   // Smart quotes dobles -> normales
+        .replace(/[‘’]/g, "'");  // Smart quotes simples -> normales
+}
+
+function runPythonCode(validEncoded, outputEncoded) {
+    const code = document.getElementById('pyEditor').value;
     const cons = document.getElementById('pyConsole');
     const valid = JSON.parse(decodeURIComponent(validEncoded));
+    const output = decodeURIComponent(outputEncoded);
     
     cons.innerText = "Procesando...";
     cons.style.color = "#ffff00";
 
     setTimeout(() => {
-        const clean = code.replace(/\s+/g, ' ').trim();
-        const match = valid.some(v => v.replace(/\s+/g, '') === code.replace(/\s+/g, ''));
+        const userClean = normalizeCode(code);
+        // Comparación estricta (salvo comillas)
+        const match = valid.some(v => normalizeCode(v) === userClean);
         
         if (match) {
             cons.style.color = "#00ff00";
@@ -447,7 +388,7 @@ function runPythonCode(validEncoded, output) {
             successAction("¡Código Funcional! +25 🪙", 25);
         } else {
             cons.style.color = "#ff4444";
-            cons.innerText = `Traceback (most recent call last):\n  File "main.py", line 1\n    ${code}\nSyntaxError: invalid syntax`;
+            cons.innerText = `Traceback (most recent call last):\n  File "main.py", line 1\n    ${code}\nSyntaxError: invalid syntax (o no cumple la misión)`;
             failAction("Error en el código");
         }
     }, 600);
@@ -515,7 +456,7 @@ function showToast(msg, type='success') { const t = document.createElement('div'
 function resetGame() { if(confirm("¿Borrar todo?")) { localStorage.removeItem('eduPlayer'); location.reload(); } }
 
 function saveData() { localStorage.setItem('eduPlayer', JSON.stringify(player)); localStorage.setItem('eduDB', JSON.stringify(localDB)); if(dbOnline) syncWithCloud(); }
-function syncWithCloud() { dbOnline.collection("players").doc(player.name).set(player).then(() => loadLeaderboard()).catch(e => console.error(e)); }
+function syncWithCloud() { if(dbOnline) dbOnline.collection("players").doc(player.name).set(player).then(() => loadLeaderboard()).catch(e => console.error(e)); }
 function loadLeaderboard() {
     if(!dbOnline) return;
     dbOnline.collection("players").orderBy("coins", "desc").limit(10).onSnapshot(snapshot => {
@@ -545,7 +486,6 @@ function renderShop() {
     });
 }
 
-// ADMIN
 function openAdminLogin() { document.getElementById('adminLoginModal').style.display = 'flex'; }
 function checkAdmin() { if(document.getElementById('adminUser').value==='admin' && document.getElementById('adminPass').value==='minecraft') { document.getElementById('adminLoginModal').style.display='none'; document.getElementById('adminPanelModal').style.display='flex'; } else showToast("Error", 'error'); }
 function closeAdmin() { document.getElementById('adminPanelModal').style.display='none'; }

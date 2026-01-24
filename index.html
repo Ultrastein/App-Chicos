@@ -14,14 +14,15 @@
 </head>
 <body>
 
+
 <div id="notification-area"></div>
 
 <div class="app-container">
     <header class="panel">
-        <div><h1 class="game-title">Web de juegos</h1></div>
+        <div><h1 style="margin:0; color:#0277bd; font-size:1.5rem;">Web de juegos</h1></div>
         <div style="text-align:right">
-            <div class="coin-display">🪙 <span id="uiCoins">0</span></div>
-            <select id="gradeSelect" onchange="changeGrade()">
+            <div style="color:#fbc02d; font-size:1.2rem; margin-bottom:5px;">🪙 <span id="uiCoins">0</span></div>
+            <select id="gradeSelect" onchange="changeGrade()" style="width:auto; font-size:0.6rem; padding:5px;">
                 <option value="inicial">Nivel: Inicial</option>
                 <option value="intermedia">Nivel: Intermedia</option>
                 <option value="dificil">Nivel: Difícil</option>
@@ -33,23 +34,20 @@
 
     <aside>
         <div class="panel center-content">
-            <h3>Jugador</h3>
-            <input type="text" id="usernameInput" placeholder="Tu Nombre" maxlength="10" onchange="updateUsername(this.value)">
-            
+            <h3 style="font-size:0.8rem;">Jugador</h3>
+            <input type="text" id="usernameInput" placeholder="Tu Nombre" maxlength="10" style="text-align:center; margin-bottom:15px; font-size:0.7rem;" onchange="updateUsername(this.value)">
             <div class="avatar-container">
                 <div class="mc-head mc-part" id="avHead"><div class="mc-eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div></div>
-                <div class="mc-body-row"><div class="mc-arm mc-part" id="avArmL"></div><div class="mc-torso mc-part" id="avTorso"></div><div class="mc-arm mc-part" id="avArmR"></div></div>
-                <div class="mc-legs-row"><div class="mc-leg mc-part" id="avLegL"></div><div class="mc-leg mc-part" id="avLegR"></div></div>
+                <div class="mc-body-row"><div class="mc-arm mc-part" id="avArmL"></div><div class="mc-torso mc-part" id="avTorso"></div><div class="mc-arm" id="avArmR"></div></div>
+                <div class="mc-legs-row"><div class="mc-leg" id="avLegL"></div><div class="mc-leg" id="avLegR"></div></div>
             </div>
-            
-            <div class="menu-buttons">
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
                 <button class="mc-btn blue" onclick="showDashboard()">🗺️ MUNDOS</button>
                 <button class="mc-btn green" onclick="showShop()">🛍️ TIENDA</button>
             </div>
-            
-            <div class="admin-zone">
+            <div style="margin-top: 30px; border-top: 2px dashed #90a4ae; padding-top: 10px;">
                 <div class="admin-tag" onclick="openAdminLogin()">Administrador</div>
-                <button class="mc-btn red small-btn" onclick="resetGame()">⚠️ BORRAR DATOS</button>
+                <button class="mc-btn red" style="width:100%; margin-top:15px; font-size:0.6rem;" onclick="resetGame()">⚠️ BORRAR DATOS</button>
             </div>
         </div>
     </aside>
@@ -59,55 +57,53 @@
             <h3 style="margin-top:0;">Elige tu Aventura</h3>
             <div class="subject-grid">
                 <button class="mc-btn blue big-btn" onclick="openSubject('matematica')">
-                    <div class="emoji">🧮</div>Matemática<br><br><small>Nivel <span id="lbl-matematica">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🧮</div>Matemática<br><br><small>Nivel <span id="lbl-matematica">1</span></small>
                 </button>
                 <button class="mc-btn green big-btn" onclick="openSubject('compu')">
-                    <div class="emoji">🤖</div>Computación<br><br><small>Nivel <span id="lbl-logic">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🤖</div>Computación<br><br><small>Nivel <span id="lbl-logic">1</span></small>
                 </button>
                 <button class="mc-btn red big-btn" onclick="openSubject('teclado')">
-                    <div class="emoji">⌨️</div>Teclado<br><br><small>Nivel <span id="lbl-typing">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">⌨️</div>Teclado<br><br><small>Nivel <span id="lbl-typing">1</span></small>
                 </button>
                 <button class="mc-btn purple big-btn" onclick="openSubject('ingles')">
-                    <div class="emoji">🗣️</div>Ingles<br><br><small>Nivel <span id="lbl-ingles">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🗣️</div>Ingles<br><br><small>Nivel <span id="lbl-ingles">1</span></small>
                 </button>
                 <button class="mc-btn pink big-btn" onclick="openSubject('Geografia')">
-                    <div class="emoji">🌍</div>Geografía<br><br><small>Nivel <span id="lbl-geografia">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🌍</div>Geografía<br><br><small>Nivel <span id="lbl-geografia">1</span></small>
                 </button>
                 <button class="mc-btn orange big-btn" onclick="openSubject('Algoritmos')">
-                    <div class="emoji">🧩</div>Lógica<br><br><small>Nivel <span id="lbl-algoritmos">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🧩</div>Lógica<br><br><small>Nivel <span id="lbl-algoritmos">1</span></small>
                 </button>
                 <button class="mc-btn blue-dark big-btn" onclick="openSubject('python')">
-                    <div class="emoji">🐍</div>Python<br><br><small>Nivel <span id="lbl-python">1</span></small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🐍</div>Python<br><br><small>Nivel <span id="lbl-python">1</span></small>
                 </button>
                 <button class="mc-btn cyan big-btn" onclick="openSubject('claves')">
-                    <div class="emoji">🔐</div>Claves<br><br><small>Herramienta</small>
+                    <div style="font-size:2rem; margin-bottom:10px;">🔐</div>Claves<br><br><small>Herramienta</small>
                 </button>
             </div>
         </div>
         
         <div id="view-map" style="display:none;">
-            <div class="map-header">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 id="mapTitle" style="margin:0;">Juegos</h3>
-                <button class="mc-btn gray auto-width" onclick="showDashboard()">← Volver</button>
+                <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Volver</button>
             </div>
             <div class="level-grid" id="mapGrid"></div>
         </div>
         
         <div id="view-shop" style="display:none;">
-            <div class="map-header">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="margin:0;">Tienda</h3>
-                <button class="mc-btn gray auto-width" onclick="showDashboard()">← Salir</button>
+                <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Salir</button>
             </div>
             <div class="subject-grid" id="shopGrid"></div>
         </div>
     </main>
 
     <aside>
-        <div class="panel padding-10">
-            <h3 class="gold-title">🏆 GLOBAL TOP 10</h3>
-            <div class="leaderboard-list" id="leaderboardList">
-                <div style="text-align:center; padding:20px;">Cargando...</div>
-            </div>
+        <div class="panel" style="padding:10px;">
+            <h3 style="font-size:0.8rem; text-align:center; color:#f9a825;">🏆 GLOBAL TOP 10</h3>
+            <div class="leaderboard-list" id="leaderboardList"><div style="text-align:center; padding:20px;">Cargando...</div></div>
         </div>
     </aside>
 </div>
@@ -121,11 +117,11 @@
 </div>
 
 <div class="overlay" id="adminLoginModal" style="display:none;">
-    <div class="modal-box small-modal">
+    <div class="modal-box" style="width:400px;">
         <h3>Zona Admin</h3>
         <input type="text" id="adminUser" placeholder="Usuario">
         <input type="password" id="adminPass" placeholder="Contraseña">
-        <div class="row-flex">
+        <div style="display:flex; gap:10px; margin-top:10px;">
             <button class="mc-btn green" onclick="checkAdmin()">Entrar</button>
             <button class="mc-btn gray" onclick="document.getElementById('adminLoginModal').style.display='none'">Cerrar</button>
         </div>
@@ -133,59 +129,41 @@
 </div>
 
 <div class="overlay" id="adminPanelModal" style="display:none;">
-    <div class="modal-box wide-modal">
-        <h3>🛠️ Panel Creador</h3>
+    <div class="modal-box" style="width:700px; text-align:left;">
+        <h3>🛠️ Creador</h3>
         
-        <div class="admin-section yellow-bg">
-            <h4>🏆 Agregar al Ranking</h4>
+        <div style="background:#fff9c4; padding:15px; border:2px solid #fbc02d; margin-bottom:15px;">
+            <h4 style="margin-top:0; color:#f57f17;">🏆 Agregar al Ranking</h4>
             <input type="text" id="manualName" placeholder="Nombre Jugador">
             <input type="number" id="manualCoins" placeholder="Monedas">
-            <button class="mc-btn orange" onclick="adminAddManualPlayer()">Inyectar</button>
+            <button class="mc-btn orange" style="margin-top:10px;" onclick="adminAddManualPlayer()">Inyectar</button>
         </div>
 
-        <div class="admin-section gray-bg">
-            <h4>Nuevo Item</h4>
+        <div style="background:#eceff1; padding:15px; border:2px solid #b0bec5; margin-bottom:15px;">
+            <h4 style="margin-top:0;">Nuevo Item</h4>
             <input type="text" id="admItemName" placeholder="Nombre">
             <input type="number" id="admPrice" placeholder="Precio">
-            <select id="admType">
-                <option value="head">Cabeza</option>
-                <option value="torso">Torso</option>
-                <option value="legs">Piernas</option>
-                <option value="arm">Brazos</option>
-            </select>
+            <select id="admType"><option value="head">Cabeza</option><option value="torso">Torso</option><option value="legs">Piernas</option><option value="arm">Brazos</option></select>
             <input type="text" id="admTexture" placeholder="URL Imagen o Color Hex">
-            <button class="mc-btn green" onclick="adminAddItem()">Crear</button>
+            <button class="mc-btn green" style="margin-top:10px;" onclick="adminAddItem()">Crear</button>
         </div>
         
-        <div class="admin-section gray-bg">
-            <h4>Nuevo Nivel (Trivia)</h4>
-            <select id="admSubj">
-                <option value="matematica">Matemática</option>
-                <option value="compu">Computación</option>
-                <option value="ingles">Ingles</option>
-                <option value="teclado">Teclado</option>
-            </select>
-            <select id="admGrade">
-                <option value="inicial">Inicial</option>
-                <option value="intermedia">Intermedia</option>
-                <option value="dificil">Difícil</option>
-                <option value="experta">Experta</option>
-                <option value="prodigio">Prodigio</option>
-            </select> 
+        <div style="background:#eceff1; padding:15px; border:2px solid #b0bec5;">
+            <h4 style="margin-top:0;">Nuevo Nivel</h4>
+            <select id="admSubj"><option value="matematica">Matemática</option><option value="compu">Computación</option><option value="ingles">Ingles</option><option value="teclado">Teclado</option></select>
+            <select id="admGrade"><option value="inicial">Inicial</option><option value="intermedia">Intermedia</option><option value="dificil">Difícil</option><option value="experta">Experta</option><option value="prodigio">Prodigio</option></select> 
             <input type="number" id="admLvlNum" placeholder="Nivel">
             <input type="text" id="admQ" placeholder="Pregunta">
-            <input type="text" id="admAns" placeholder="Respuesta Correcta">
+            <input type="text" id="admAns" placeholder="Respuesta">
             <input type="text" id="admOpts" placeholder="Opciones (sep. coma)">
-            <button class="mc-btn blue" onclick="adminAddLevel()">Guardar Nivel</button>
+            <button class="mc-btn blue" style="margin-top:10px;" onclick="adminAddLevel()">Guardar</button>
         </div>
 
-        <button class="mc-btn gray full-width" onclick="closeAdmin()">Cerrar Panel</button>
+        <button class="mc-btn gray" style="margin-top:20px; width:100%;" onclick="closeAdmin()">Cerrar</button>
     </div>
 </div>
+    <script src="script.js"></script>
 
-<script src="script.js"></script>
-
-<h5 class="footer-credit">Juego Educativo &copy; 2025</h5>
-
+    <h5 class="footer-credit">Juego Educativo creado por profe nico and kari</h5>
 </body>
 </html>
