@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juegos a Aprender virtual port</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>EduQuest: Master Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css"> <!--incorporamos css-->
-
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -22,10 +18,10 @@
 
 <div class="app-container">
     <header class="panel">
-        <div><h1 style="margin:0; color:#0277bd; font-size:1.5rem;">Web de juegos</h1></div>
+        <div><h1 class="game-title">Web de juegos</h1></div>
         <div style="text-align:right">
-            <div style="color:#fbc02d; font-size:1.2rem; margin-bottom:5px;">🪙 <span id="uiCoins">0</span></div>
-            <select id="gradeSelect" onchange="changeGrade()" style="width:auto; font-size:0.6rem; padding:5px;">
+            <div class="coin-display">🪙 <span id="uiCoins">0</span></div>
+            <select id="gradeSelect" onchange="changeGrade()">
                 <option value="inicial">Nivel: Inicial</option>
                 <option value="intermedia">Nivel: Intermedia</option>
                 <option value="dificil">Nivel: Difícil</option>
@@ -36,58 +32,82 @@
     </header>
 
     <aside>
-        <div class="panel" style="text-align:center;">
-            <h3 style="font-size:0.8rem;">Nombre</h3>
-            <input type="text" id="usernameInput" placeholder="Nombre" maxlength="10" style="text-align:center; margin-bottom:15px; font-size:0.7rem;" onchange="updateUsername(this.value)">
+        <div class="panel center-content">
+            <h3>Jugador</h3>
+            <input type="text" id="usernameInput" placeholder="Tu Nombre" maxlength="10" onchange="updateUsername(this.value)">
+            
             <div class="avatar-container">
                 <div class="mc-head mc-part" id="avHead"><div class="mc-eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div></div>
-                <div class="mc-body-row"><div class="mc-arm mc-part" id="avArmL"></div><div class="mc-torso mc-part" id="avTorso"></div><div class="mc-arm" id="avArmR"></div></div>
-                <div class="mc-legs-row"><div class="mc-leg" id="avLegL"></div><div class="mc-leg" id="avLegR"></div></div>
+                <div class="mc-body-row"><div class="mc-arm mc-part" id="avArmL"></div><div class="mc-torso mc-part" id="avTorso"></div><div class="mc-arm mc-part" id="avArmR"></div></div>
+                <div class="mc-legs-row"><div class="mc-leg mc-part" id="avLegL"></div><div class="mc-leg mc-part" id="avLegR"></div></div>
             </div>
-            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
-                <button class="mc-btn blue" onclick="showDashboard()"> 🎮JUEGOS</button>
-                <button class="mc-btn green" onclick="showShop()">🛍️ Tienda</button>
+            
+            <div class="menu-buttons">
+                <button class="mc-btn blue" onclick="showDashboard()">🗺️ MUNDOS</button>
+                <button class="mc-btn green" onclick="showShop()">🛍️ TIENDA</button>
             </div>
-            <div style="margin-top: 30px; border-top: 2px dashed #90a4ae; padding-top: 10px;">
+            
+            <div class="admin-zone">
                 <div class="admin-tag" onclick="openAdminLogin()">Administrador</div>
-                <button class="mc-btn red" style="margin-top:15px; font-size:0.6rem;" onclick="resetGame()">⚠️ Reiniciar</button>
+                <button class="mc-btn red small-btn" onclick="resetGame()">⚠️ BORRAR DATOS</button>
             </div>
         </div>
     </aside>
 
     <main class="panel">
         <div id="view-dashboard">
-            <h3 style="margin-top:0;">Selecciona Modo</h3>
+            <h3 style="margin-top:0;">Elige tu Aventura</h3>
             <div class="subject-grid">
-                <button class="mc-btn blue" onclick="openSubject('matematica')" style="height:120px;"><div style="font-size:2rem; margin-bottom:10px;">🧮</div>Matemática<br><br><small>Nivel <span id="lbl-math">1</span></small></button>
-                <button class="mc-btn green" onclick="openSubject('compu')" style="height:120px;"><div style="font-size:2rem; margin-bottom:10px;">🤖</div>Computación<br><br><small>Nivel <span id="lbl-logic">1</span></small></button>
-                <button class="mc-btn red" onclick="openSubject('teclado')" style="height:120px;"><div style="font-size:2rem; margin-bottom:10px;">⌨️</div>Teclado<br><br><small>Nivel <span id="lbl-typing">1</span></small></button>
-                <button class="mc-btn purple" onclick="openSubject('ingles')" style="height:120px;"><div style="font-size:2rem; margin-bottom:10px;">🗣️</div>Ingles<br><br><small>Nivel <span id="lbl-ingles">1</span></small></button>
-                <button class="mc-btn pink" onclick="openSubject('claves')" style="height:120px;"><div style="font-size:2rem; margin-bottom:10px;">🔐</div>Claves<br><br><small>Herramienta</small></button>
+                <button class="mc-btn blue big-btn" onclick="openSubject('matematica')">
+                    <div class="emoji">🧮</div>Matemática<br><br><small>Nivel <span id="lbl-matematica">1</span></small>
+                </button>
+                <button class="mc-btn green big-btn" onclick="openSubject('compu')">
+                    <div class="emoji">🤖</div>Computación<br><br><small>Nivel <span id="lbl-logic">1</span></small>
+                </button>
+                <button class="mc-btn red big-btn" onclick="openSubject('teclado')">
+                    <div class="emoji">⌨️</div>Teclado<br><br><small>Nivel <span id="lbl-typing">1</span></small>
+                </button>
+                <button class="mc-btn purple big-btn" onclick="openSubject('ingles')">
+                    <div class="emoji">🗣️</div>Ingles<br><br><small>Nivel <span id="lbl-ingles">1</span></small>
+                </button>
+                <button class="mc-btn pink big-btn" onclick="openSubject('Geografia')">
+                    <div class="emoji">🌍</div>Geografía<br><br><small>Nivel <span id="lbl-geografia">1</span></small>
+                </button>
+                <button class="mc-btn orange big-btn" onclick="openSubject('Algoritmos')">
+                    <div class="emoji">🧩</div>Lógica<br><br><small>Nivel <span id="lbl-algoritmos">1</span></small>
+                </button>
+                <button class="mc-btn blue-dark big-btn" onclick="openSubject('python')">
+                    <div class="emoji">🐍</div>Python<br><br><small>Nivel <span id="lbl-python">1</span></small>
+                </button>
+                <button class="mc-btn cyan big-btn" onclick="openSubject('claves')">
+                    <div class="emoji">🔐</div>Claves<br><br><small>Herramienta</small>
+                </button>
             </div>
         </div>
         
         <div id="view-map" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div class="map-header">
                 <h3 id="mapTitle" style="margin:0;">Juegos</h3>
-                <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Volver</button>
+                <button class="mc-btn gray auto-width" onclick="showDashboard()">← Volver</button>
             </div>
             <div class="level-grid" id="mapGrid"></div>
         </div>
         
         <div id="view-shop" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div class="map-header">
                 <h3 style="margin:0;">Tienda</h3>
-                <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Salir</button>
+                <button class="mc-btn gray auto-width" onclick="showDashboard()">← Salir</button>
             </div>
             <div class="subject-grid" id="shopGrid"></div>
         </div>
     </main>
 
     <aside>
-        <div class="panel" style="padding:10px;">
-            <h3 style="font-size:0.8rem; text-align:center; color:#f9a825;">🏆 TOP 10</h3>
-            <div class="leaderboard-list" id="leaderboardList"><div style="text-align:center; padding:20px;">Cargando...</div></div>
+        <div class="panel padding-10">
+            <h3 class="gold-title">🏆 GLOBAL TOP 10</h3>
+            <div class="leaderboard-list" id="leaderboardList">
+                <div style="text-align:center; padding:20px;">Cargando...</div>
+            </div>
         </div>
     </aside>
 </div>
@@ -101,11 +121,11 @@
 </div>
 
 <div class="overlay" id="adminLoginModal" style="display:none;">
-    <div class="modal-box" style="width:400px;">
+    <div class="modal-box small-modal">
         <h3>Zona Admin</h3>
         <input type="text" id="adminUser" placeholder="Usuario">
         <input type="password" id="adminPass" placeholder="Contraseña">
-        <div style="display:flex; gap:10px; margin-top:10px;">
+        <div class="row-flex">
             <button class="mc-btn green" onclick="checkAdmin()">Entrar</button>
             <button class="mc-btn gray" onclick="document.getElementById('adminLoginModal').style.display='none'">Cerrar</button>
         </div>
@@ -113,557 +133,59 @@
 </div>
 
 <div class="overlay" id="adminPanelModal" style="display:none;">
-    <div class="modal-box" style="width:700px; text-align:left;">
+    <div class="modal-box wide-modal">
         <h3>🛠️ Panel Creador</h3>
-        <div style="background:#eceff1; padding:15px; border:2px solid #b0bec5; margin-bottom:15px;">
-            <h4 style="margin-top:0;">Nuevo Item / Textura</h4>
+        
+        <div class="admin-section yellow-bg">
+            <h4>🏆 Agregar al Ranking</h4>
+            <input type="text" id="manualName" placeholder="Nombre Jugador">
+            <input type="number" id="manualCoins" placeholder="Monedas">
+            <button class="mc-btn orange" onclick="adminAddManualPlayer()">Inyectar</button>
+        </div>
+
+        <div class="admin-section gray-bg">
+            <h4>Nuevo Item</h4>
             <input type="text" id="admItemName" placeholder="Nombre">
             <input type="number" id="admPrice" placeholder="Precio">
-            <select id="admType"><option value="head">Cabeza</option><option value="torso">Torso</option><option value="legs">Piernas</option><option value="arm">Brazos</option></select>
-            <input type="text" id="admTexture" placeholder="URL Imagen o Código Hex">
-            <button class="mc-btn green" style="width:100%; margin-top:10px;" onclick="adminAddItem()">Crear Item</button>
+            <select id="admType">
+                <option value="head">Cabeza</option>
+                <option value="torso">Torso</option>
+                <option value="legs">Piernas</option>
+                <option value="arm">Brazos</option>
+            </select>
+            <input type="text" id="admTexture" placeholder="URL Imagen o Color Hex">
+            <button class="mc-btn green" onclick="adminAddItem()">Crear</button>
         </div>
-        <div style="background:#eceff1; padding:15px; border:2px solid #b0bec5;">
-            <h4 style="margin-top:0;">Nuevo Nivel</h4>
-            <select id="admSubj"><option value="matematica">Matemática</option><option value="compu">Computación</option><option value="ingles">Ingles</option><option value="teclado">Teclado</option></select>
-            <select id="admGrade"><option value="inicial">Inicial</option><option value="intermedia">Intermedia</option><option value="dificil">Difícil</option><option value="experta">Experta</option><option value="prodigio">Prodigio</option></select> 
-            <input type="number" id="admLvlNum" placeholder="Nivel (1-100)">
-            <input type="text" id="admQ" placeholder="Pregunta / Texto Typing">
+        
+        <div class="admin-section gray-bg">
+            <h4>Nuevo Nivel (Trivia)</h4>
+            <select id="admSubj">
+                <option value="matematica">Matemática</option>
+                <option value="compu">Computación</option>
+                <option value="ingles">Ingles</option>
+                <option value="teclado">Teclado</option>
+            </select>
+            <select id="admGrade">
+                <option value="inicial">Inicial</option>
+                <option value="intermedia">Intermedia</option>
+                <option value="dificil">Difícil</option>
+                <option value="experta">Experta</option>
+                <option value="prodigio">Prodigio</option>
+            </select> 
+            <input type="number" id="admLvlNum" placeholder="Nivel">
+            <input type="text" id="admQ" placeholder="Pregunta">
             <input type="text" id="admAns" placeholder="Respuesta Correcta">
             <input type="text" id="admOpts" placeholder="Opciones (sep. coma)">
-            <button class="mc-btn blue" style="width:100%; margin-top:10px;" onclick="adminAddLevel()">Guardar Nivel</button>
+            <button class="mc-btn blue" onclick="adminAddLevel()">Guardar Nivel</button>
         </div>
-        <button class="mc-btn gray" style="margin-top:20px; width:100%;" onclick="closeAdmin()">Cerrar Panel</button>
+
+        <button class="mc-btn gray full-width" onclick="closeAdmin()">Cerrar Panel</button>
     </div>
 </div>
 
-<script>
-    // 1. CONFIGURACIÓN FIREBASE
-    const firebaseConfig = {
-        apiKey: "AIzaSyD_EIqwof3YhStlpSY4PhWJLqoDtjUqsVM",
-        authDomain: "web-de-juego.firebaseapp.com",
-        projectId: "web-de-juego",
-        storageBucket: "web-de-juego.firebasestorage.app",
-        messagingSenderId: "251119316368",
-        appId: "1:251119316368:web:a755c6deb4c4b476ce9715",
-        measurementId: "G-C0QXJC0CWV"
-    };
+<script src="script.js"></script>
 
-    firebase.initializeApp(firebaseConfig);
-    const dbOnline = firebase.firestore();
+<h5 class="footer-credit">Juego Educativo &copy; 2025</h5>
 
-    // 2. BASES DE DATOS
-    const DB_TECLADO = {
-        inicial: {
-            letras: "ASDFJKLÑQWERTYUIOPZXCVBNM".split(''), 
-            simbolos: [".", ",", ";", ":", "-", "_", "!", "?", "¿", "¡", "+", "="], 
-            palabras: ["SOL","LUZ","PAN","MAR","OSO","MAMA","PAPA","GATO","PERRO","MESA","SILLA","CASA","AUTO","TREN","FLOR","RIO","LAGO","MANO","PIE","DEDO"] 
-        },
-        intermedia: {
-            palabras: ["ESCUELA", "AMIGO", "JUGUETE", "PARQUE", "CIUDAD", "VERANO","INVIERNO", "MUSICA", "PINTURA", "COMIDA", "TIENDA"],
-            tildes: ["ÁRBOL", "CANTÓ", "AVIÓN", "NIÑO", "FELIZ", "LÁPIZ", "RATÓN", "BOTÓN", "CAFÉ", "PAPÁ", "JARDÍN", "MÚSICA", "RÁPIDO"],
-            oraciones: ["EL PERRO LADRA.",  "ME GUSTA EL SOL.",  "HOY ES LUNES.",  "¿COMO ESTAS?",  "HOLA MUNDO.",  "TENGO HAMBRE.",  "VAMOS AL CINE?", "LA CASA ES GRANDE.", "EL GATO DORMIDO.", "LA FLOR ES ROJA.", "yo aprendo jugando", "yo te quiero"]
-        },
-        dificil: {
-            palabras: ["ELECTRODOMESTICO", "FERROCARRIL", "CONSTITUCION", "PARALELEPIPEDO", "DESOXIRRIBONUCLEICO", "CALIDOSCOPIO", "ESTERNOCLEIDOMASTOIDEO", "HIPOPOTAMO", "ORNITORRINCO", "ANTICONSTITUCIONALIDAD", "INCONSTITUCIONALIDAD", "SUPERCALIFRAGILISTICOESPIALIDOSO", "PROCESADOR", "TELECOMUNICACIONES", "Programacion", "Desarrollo", "lenguajes", "computadora"],
-            simbolos: ["@", "#", "$", "%", "&", "/", "(", ")", "{", "}", "[", "]", "\\", "|", "°", "¬", "~", "^", "`", "*"],
-            codigo: ["width:100%", "#FFAA00", "user_name", "email@gmail.com", "http://web.com", "$dinero", "print('Hola')", "x = y + 2", "<div>TEXTO</div>"]
-        },
-        experta: {
-            oraciones: ["LA TECNOLOGIA AVANZA EXPONENCIALMENTE CADA AÑO.", "LOS ALGORITMOS DE BUSQUEDA SON FUNDAMENTALES.", "LA INTELIGENCIA ARTIFICIAL GENERATIVA CREA ARTE.", "EL DESARROLLO DE SOFTWARE REQUIERE LOGICA.", "LA CIBERSEGURIDAD PROTEGE LOS DATOS PRIVADOS.", "LAS REDES NEURONALES IMITAN EL CEREBRO HUMANO.", "PROGRAMAR ES UNA HABILIDAD VALIOSA HOY DIA.", "PROGRAMAR ES CREAR", "EL FUTURO ES DIGITAL Y CONECTADO", "LA INNOVACION IMPULSA EL CAMBIO TECNOLOGICO", "HAY QUE APRENDER SOBRE SEGURIDAD DIGITAL"]
-        },
-        prodigio: {
-            textos: ["En un lugar de la Mancha, de cuyo nombre no quiero acordarme.", "Programar es el arte de decirle a otro humano lo que la PC debe hacer.", "El éxito no es definitivo, el fracaso no es fatal: lo que cuenta es el coraje.", "La imaginación es más importante que el conocimiento.", "No he fallado, simplemente he encontrado mil maneras que no funcionan.", "La vida es como andar en bicicleta: para mantener el equilibrio debes seguir adelante.", "La educación es el arma más poderosa que puedes usar para cambiar el mundo.", "La tecnología es solo una herramienta.", "En términos de motivar a los niños y hacer que trabajen juntos, el profesor es lo más importante.", "El aprendizaje nunca agota la mente.", "La educación STEAM integra ciencia, tecnología, ingeniería, arte y matemáticas para formar creadores integrales.", "yo aprendo a programar con los profes te Tecno Kids", "la perseverancia es la clave del exito en la vida", "LAS PLATAFORMAS DE APRENDIZAJE EN LÍNEA ELIMINAN LAS BARRERAS GEOGRÁFICAS Y DEMOCRATIZAN EL ACCESO A LA INFORMACIÓN GLOBAL"]
-        }
-    };
-
-    // BASE DE DATOS COMPUTACIÓN UNIFICADA Y CORREGIDA
-    const DB_COMPUTING = {
-        inicial: [
-            {q:"¿Qué usas para hacer clic?", ans:"Mouse", opts:["Mouse", "Teclado", "Pantalla", "Cable"]},
-            {q:"¿Dónde ves las imágenes?", ans:"Monitor", opts:["Monitor", "Impresora", "Mouse", "Parlante"]},
-            {q:"¿Qué usas para escribir?", ans:"Teclado", opts:["Teclado", "Mouse", "CPU", "Wifi"]},
-            {q:"¿Para escuchar música usas...?", ans:"Parlantes", opts:["Parlantes", "Webcam", "Impresora", "Scanner"]},
-            {q:"El cerebro de la compu es...", ans:"CPU", opts:["CPU", "Botón", "Cable", "Mouse"]},
-            {q:"Máquina que imprime papel", ans:"Impresora", opts:["Impresora", "Pantalla", "Teclado", "Cámara"]},
-            {q:"Sirve para videollamadas", ans:"Webcam", opts:["Webcam", "Parlante", "Impresora", "Mouse"]},
-            {q:"¿Qué botón enciende la PC?", ans:"Power", opts:["Power", "Enter", "Espacio", "Click"]},
-            {q:"La flechita en pantalla es...", ans:"Cursor", opts:["Cursor", "Reloj", "Foto", "Texto"]},
-            {q:"Internet sirve para...", ans:"Buscar info", opts:["Buscar info", "Cocinar", "Dormir", "Correr"]},
-            {q:"Un portátil se llama...", ans:"Laptop", opts:["Laptop", "Celular", "Tablet", "Reloj"]},
-            {q:"Dispositivo táctil grande", ans:"Tablet", opts:["Tablet", "Mouse", "Teclado", "CPU"]},
-            {q:"El ratón tiene...", ans:"Botones", opts:["Botones", "Teclas", "Pantalla", "Sonido"]},
-            {q:"La barra espaciadora es...", ans:"Larga", opts:["Larga", "Redonda", "Pequeña", "Azul"]},
-            {q:"Enter sirve para...", ans:"Aceptar", opts:["Aceptar", "Borrar", "Salir", "Apagar"]},
-            {q:"Esc (Escape) sirve para...", ans:"Salir", opts:["Salir", "Entrar", "Guardar", "Copiar"]},
-            {q:"¿Qué es un icono?", ans:"Dibujo", opts:["Dibujo", "Cable", "Sonido", "Tecla"]},
-            {q:"Google es un...", ans:"Buscador", opts:["Buscador", "Juego", "Video", "Libro"]},
-            {q:"YouTube es para...", ans:"Videos", opts:["Videos", "Escribir", "Dibujar", "Sumar"]},
-            {q:"Paint sirve para...", ans:"Dibujar", opts:["Dibujar", "Escribir", "Navegar", "Imprimir"]},
-            {q:"¿El WiFi usa cables?", ans:"No", opts:["No", "Sí", "A veces", "Solo rojo"]},
-            {q:"Batería baja significa...", ans:"Cargar", opts:["Cargar", "Apagar", "Romper", "Jugar"]},
-            {q:"Subir volumen sirve para...", ans:"Oír mejor", opts:["Oír mejor", "Ver mejor", "Escribir", "Borrar"]},
-            {q:"El candado verde es...", ans:"Seguro", opts:["Seguro", "Peligro", "Juego", "Abierto"]},
-            {q:"La papelera guarda...", ans:"Basura", opts:["Basura", "Fotos", "Juegos", "Musica"]},
-            {q:"Click derecho abre...", ans:"Menú", opts:["Menú", "Juego", "Carpeta", "Nada"]},
-            {q:"Doble click sirve para...", ans:"Abrir", opts:["Abrir", "Cerrar", "Mover", "Borrar"]},
-            {q:"El escritorio es...", ans:"Pantalla inicio", opts:["Pantalla inicio", "Mesa", "donde estoy ahora", "Teclado"]},
-            {q:"Una carpeta guarda...", ans:"Archivos", opts:["Archivos", "Cables", "Teclas", "Luz"]},
-            {q:"Apagar correctamente es...", ans:"Inicio > Apagar", opts:["Inicio > Apagar", "Desenchufar", "Cerrar tapa", "Romper"]},
-            {q:"para que se usa la memoria RAM?", ans:"Almacenamiento temporal", opts:["Almacenamiento temporal", "Almacenamiento permanente", "Procesamiento de datos", "Conexión a internet"]},
-            {q:"para que se usa la placa grafica?", ans:"Procesamiento de imágenes", opts:["Procesamiento de imágenes", "Almacenamiento de datos", "Conexión a internet", "Control de periféricos"]},
-            {q:"para que se usa la placa madre?", ans:"Conectar componentes", opts:["Conectar componentes", "Almacenar datos", "Procesar imágenes", "Generar energía"]},
-            {q:"que es la placa madre?", ans:"Tarjeta principal", opts:["Tarjeta principal", "Dispositivo de almacenamiento", "Componente de red", "Periférico de entrada"]},
-        ],
-        intermedia: [
-            {q:"¿Qué es Hardware?", ans:"Parte Física", opts:["Parte Física", "Programas", "Ideas", "Internet"]},
-            {q:"¿Qué es Software?", ans:"Programas", opts:["Programas", "Teclado", "Cables", "Pantalla"]},
-            {q:"Windows es un...", ans:"Sistema Operativo", opts:["Sistema Operativo", "Juego", "Antivirus", "Buscador"]},
-            {q:"Android se usa en...", ans:"Celulares", opts:["Celulares", "PC", "Impresoras", "Routers"]},
-            {q:"Navegador de internet", ans:"Chrome", opts:["Chrome", "Word", "Excel", "Paint"]},
-            {q:"Programa de texto", ans:"Word", opts:["Word", "Excel", "Spotify", "Calculator"]},
-            {q:"Programa de hojas de cálculo", ans:"Excel", opts:["Excel", "PowerPoint", "Word", "Paint"]},
-            {q:"Programa de presentaciones", ans:"PowerPoint", opts:["PowerPoint", "Word", "Excel", "Outlook"]},
-            {q:"¿Qué es un Virus?", ans:"Programa dañino", opts:["Programa dañino", "Bacteria", "Juego", "Antivirus"]},
-            {q:"Antivirus sirve para...", ans:"Proteger", opts:["Proteger", "Dañar", "Navegar", "Dibujar"]},
-            {q:"Guardar archivo (Atajo)", ans:"Ctrl + G", opts:["Ctrl + G", "Ctrl + P", "Ctrl + Z", "Alt + F4"]},
-            {q:"Copiar (Atajo)", ans:"Ctrl + C", opts:["Ctrl + C", "Ctrl + V", "Ctrl + X", "Ctrl + A"]},
-            {q:"Pegar (Atajo)", ans:"Ctrl + V", opts:["Ctrl + V", "Ctrl + C", "Ctrl + P", "Ctrl + B"]},
-            {q:"Deshacer (Atajo)", ans:"Ctrl + Z", opts:["Ctrl + Z", "Ctrl + Y", "Ctrl + S", "Ctrl + D"]},
-            {q:"¿Qué es el Disco Duro?", ans:"Almacenamiento", opts:["Almacenamiento", "Memoria RAM", "Procesador", "Red"]},
-            {q:"Memoria temporal rápida", ans:"RAM", opts:["RAM", "HDD", "USB", "DVD"]},
-            {q:"¿Qué significa PC?", ans:"Computadora Personal", opts:["Computadora Personal", "Para Correr", "Poder Central", "Placa Circuitos"]},
-            {q:"Entrada USB sirve para...", ans:"Conectar", opts:["Conectar", "Enfriar", "Iluminar", "Apagar"]},
-            {q:"El Router da...", ans:"Internet", opts:["Internet", "Energía", "Imagen", "Sonido"]},
-            {q:"Reiniciar significa...", ans:"Apagar y prender", opts:["Apagar y prender", "Suspender", "Formatear", "Borrar"]},
-            {q:"¿Qué es un PDF?", ans:"Documento", opts:["Documento", "Video", "Audio", "Juego"]},
-            {q:"Extensión de imagen", ans:".jpg", opts:[".jpg", ".mp3", ".exe", ".txt"]},
-            {q:"Extensión de música", ans:".mp3", opts:[".mp3", ".png", ".doc", ".pdf"]},
-            {q:"Extensión de video", ans:".mp4", opts:[".mp4", ".jpg", ".txt", ".zip"]},
-            {q:"Bajar archivo de internet", ans:"Descargar", opts:["Descargar", "Subir", "Nube", "Postear"]},
-            {q:"Subir archivo a internet", ans:"Cargar", opts:["Cargar", "Descargar", "Bajar", "Imprimir"]},
-            {q:"Correo electrónico es...", ans:"Email", opts:["Email", "Chat", "Blog", "Wifi"]},
-        ],
-        dificil: [
-            {q:"8 bits equivalen a...", ans:"1 Byte", opts:["1 Byte", "1 KiloByte", "1 MegaByte", "1 Bit"]},
-            {q:"1024 Bytes son...", ans:"1 KiloByte", opts:["1 KiloByte", "1 MegaByte", "1 GigaByte", "1 Bit"]},
-            {q:"1024 MegaBytes son...", ans:"1 GigaByte", opts:["1 GigaByte", "1 TeraByte", "1 KiloByte", "1 Petabyte"]},
-            {q:"Sistema numérico de PC", ans:"Binario", opts:["Binario", "Decimal", "Romano", "Hexadecimal"]},
-            {q:"Binario usa...", ans:"0 y 1", opts:["0 y 1", "1 y 2", "0 a 9", "A y B"]},
-            {q:"Red de alcance local", ans:"LAN", opts:["LAN", "WAN", "MAN", "PAN"]},
-            {q:"Red de alcance mundial", ans:"WAN", opts:["WAN", "LAN", "WIFI", "Bluetooth"]},
-            {q:"Dirección única de PC", ans:"IP", opts:["IP", "DNI", "URL", "HTML"]},
-            {q:"¿Qué es la Nube?", ans:"Servidores remotos", opts:["Servidores remotos", "El cielo", "Un satélite", "Tu disco duro"]},
-            {q:"Hacer copia de seguridad", ans:"Backup", opts:["Backup", "Format", "Delete", "Reset"]},
-            {q:"Contraseña segura tiene...", ans:"Letras y números", opts:["Letras y números", "Solo números", "Tu nombre", "1234"]},
-            {q:"Phishing es...", ans:"Estafa digital", opts:["Estafa digital", "Pescar", "Un virus", "Un antivirus"]},
-            {q:"Firewall sirve para...", ans:"Bloquear accesos", opts:["Bloquear accesos", "Quemar PC", "Acelerar internet", "Ver videos"]},
-            {q:"Navegar en privado", ans:"Incógnito", opts:["Incógnito", "Público", "Lento", "Rápido"]},
-            {q:"¿Qué es un Bug?", ans:"Error de código", opts:["Error de código", "Un insecto", "Una función", "Un hardware"]},
-            {q:"HTML es un...", ans:"Lenguaje marcado", opts:["Lenguaje marcado", "Sistema Operativo", "Navegador", "Juego"]},
-            {q:"La 'S' en HTTPS es...", ans:"Seguro", opts:["Seguro", "Sitio", "Super", "Sistema"]},
-            {q:"URL significa...", ans:"Dirección web", opts:["Dirección web", "Usuario", "Red Local", "Unidad"]},
-            {q:"Fibra óptica transmite...", ans:"Luz", opts:["Luz", "Electricidad", "Sonido", "Radio"]},
-            {q:"Bluetooth es...", ans:"Inalámbrico corto", opts:["Inalámbrico corto", "Internet mundial", "Cableado", "Satélite"]},
-            {q:"HDMI transmite...", ans:"Audio y Video", opts:["Audio y Video", "Solo Audio", "Internet", "Energía"]},
-            {q:"SSD es más rápido que...", ans:"HDD", opts:["HDD", "RAM", "CPU", "Cache"]},
-            {q:"GPU procesa...", ans:"Gráficos", opts:["Gráficos", "Texto", "Sonido", "Red"]},
-            {q:"BIOS es...", ans:"Sistema arranque", opts:["Sistema arranque", "Un juego", "Un virus", "Navegador"]},
-            {q:"Periférico Mixto", ans:"Pantalla Táctil", opts:["Pantalla Táctil", "Teclado", "Parlante", "Mouse"]},
-            {q:"¿Qué es Spam?", ans:"Correo basura", opts:["Correo basura", "Virus", "Chat", "Jamón"]},
-            {q:"Cookies web guardan...", ans:"Datos sesión", opts:["Datos sesión", "Galletas", "Virus", "Imágenes"]},
-            {q:"Refrescar página (Atajo)", ans:"F5", opts:["F5", "F4", "F1", "F12"]},
-            {q:"Pantalla completa (Atajo)", ans:"F11", opts:["F11", "F1", "Esc", "Tab"]},
-            {q:"Cerrar ventana (Atajo)", ans:"Alt + F4", opts:["Alt + F4", "Ctrl + C", "Shift + Del", "Ctrl + W"]}
-        ],
-        experta: [
-            {q:"¿Qué es un Algoritmo?", ans:"Pasos ordenados", opts:["Pasos ordenados", "Ritmo musical", "Una pieza", "Un error"]},
-            {q:"Un Bucle (Loop) sirve para...", ans:"Repetir", opts:["Repetir", "Parar", "Saltar", "Borrar"]},
-            {q:"Variable sirve para...", ans:"Guardar datos", opts:["Guardar datos", "Borrar datos", "Imprimir", "Ejecutar"]},
-            {q:"Condicional IF significa...", ans:"Si pasa esto...", opts:["Si pasa esto...", "Repetir", "Para siempre", "Fin"]},
-            {q:"IF / ELSE significa...", ans:"Si no...", opts:["Si no...", "Y también", "Entonces", "Repetir"]},
-            {q:"Scratch usa...", ans:"Bloques", opts:["Bloques", "Texto", "Binario", "Cables"]},
-            {q:"Python es un...", ans:"Lenguaje", opts:["Lenguaje", "Serpiente", "Juego", "Hardware"]},
-            {q:"Debuggear es...", ans:"Arreglar errores", opts:["Arreglar errores", "Crear errores", "Borrar todo", "Escribir"]},
-            {q:"Input significa...", ans:"Entrada", opts:["Entrada", "Salida", "Dentro", "Fuera"]},
-            {q:"Output significa...", ans:"Salida", opts:["Salida", "Entrada", "Fuera", "Dentro"]},
-            {q:"Print() sirve para...", ans:"Mostrar texto", opts:["Mostrar texto", "Imprimir papel", "Guardar", "Borrar"]},
-            {q:"Un Array (Lista) guarda...", ans:"Varios datos", opts:["Varios datos", "Un dato", "Nada", "Virus"]},
-            {q:"True y False son...", ans:"Booleanos", opts:["Booleanos", "Enteros", "Textos", "Listas"]},
-            {q:"String es tipo de...", ans:"Texto", opts:["Texto", "Número", "Lógico", "Lista"]},
-            {q:"Integer es tipo de...", ans:"Número entero", opts:["Número entero", "Texto", "Decimal", "Lógico"]},
-            {q:"Float es tipo de...", ans:"Decimal", opts:["Decimal", "Entero", "Texto", "Lógico"]},
-            {q:"¿Qué es el Código Fuente?", ans:"Instrucciones", opts:["Instrucciones", "Fuente de poder", "La pantalla", "El resultado"]},
-            {q:"Open Source significa...", ans:"Código abierto", opts:["Código abierto", "Código cerrado", "Gratis", "De pago"]},
-            {q:"Un Pixel es...", ans:"Punto de imagen", opts:["Punto de imagen", "Un juego", "Un color", "Un cable"]},
-            {q:"Resolución HD es...", ans:"1920x1080", opts:["1920x1080", "1280x720", "800x600", "4K"]},
-            {q:"RGB significa...", ans:"Rojo Verde Azul", opts:["Rojo Verde Azul", "Raro Grande Bueno", "Real Gran Base", "Red Green Black"]},
-            {q:"Inteligencia Artificial...", ans:"Simula mente", opts:["Simula mente", "Es un robot", "Es magia", "Es internet"]},
-            {q:"Un Chatbot es...", ans:"Robot de chat", opts:["Robot de chat", "Virus", "Persona", "Juego"]},
-            {q:"La tecla Tab sirve para...", ans:"Indentar", opts:["Indentar", "Borrar", "Salir", "Entrar"]},
-            {q:"Sintaxis es...", ans:"Reglas escritura", opts:["Reglas escritura", "Sin taxis", "Un error", "Velocidad"]},
-            {q:"Compilar significa...", ans:"Traducir a máquina", opts:["Traducir a máquina", "Juntar papeles", "Borrar", "Escribir"]},
-            {q:"¿Qué es la consola?", ans:"Línea comandos", opts:["Línea comandos", "Videojuego", "Mesa", "Pantalla"]},
-            {q:"Un Servidor...", ans:"Sirve datos", opts:["Sirve datos", "Sirve comida", "Es un usuario", "Es un cable"]},
-            {q:"URL segura empieza con...", ans:"https://", opts:["https://", "http://", "www.", "ftp://"]},
-            {q:"404 Error significa...", ans:"No encontrado", opts:["No encontrado", "Éxito", "Prohibido", "Servidor caído"]}
-        ],
-        prodigio: [
-            {q:"Sigue la serie: 2, 4, 8, 16...", ans:"32", opts:["32", "24", "20", "64"]},
-            {q:"Sigue la serie: 1, 1, 2, 3, 5...", ans:"8", opts:["8", "7", "6", "10"]},
-            {q:"1000 Gigas son...", ans:"1 Tera", opts:["1 Tera", "1 Mega", "1 Peta", "1 Kilo"]},
-            {q:"Hz mide velocidad de...", ans:"Procesador", opts:["Procesador", "Internet", "Disco", "Mouse"]},
-            {q:"Mbps mide velocidad de...", ans:"Internet", opts:["Internet", "Procesador", "RAM", "Sonido"]},
-            {q:"DPI mide sensibilidad de...", ans:"Mouse", opts:["Mouse", "Teclado", "Pantalla", "Wifi"]},
-            {q:"4K es resolución de...", ans:"Pantalla", opts:["Pantalla", "Sonido", "Red", "Mouse"]},
-            {q:"Cuantas gigas hay en un terabyte?", ans:"1024", opts:["1024", "1000", "512", "2048"]},
-            {q:"Cuantas megas hay en un gigabyte?", ans:"1024", opts:["1024", "1000", "512", "2048"]},
-            {q:"Cuantas kilobytes hay en un megabyte?", ans:"1024", opts:["1024", "1000", "512", "2048"]},
-            {q:"Binario: 101 en decimal es...", ans:"5", opts:["5", "3", "2", "10"]},
-            {q:"Binario: 111 en decimal es...", ans:"7", opts:["7", "3", "11", "8"]},
-            {q:"Binario: 1000 en decimal es...", ans:"8", opts:["8", "4", "16", "10"]},
-            {q:"Binario: 1010 en decimal es...", ans:"10", opts:["10", "12", "5", "20"]},
-            {q:"Decimal: 3 en binario es...", ans:"011", opts:["011", "001", "100", "111"]},
-            {q:"8 Bits equivalen a...", ans:"1 Byte", opts:["1 Byte", "1 Nibble", "1 Kilo", "1 Hertz"]},
-            {q:"1024 Gigabytes son...", ans:"1 Terabyte", opts:["1 Terabyte", "1 Petabyte", "1 Megabyte", "1 Zettabyte"]},
-            {q:"¿Qué sigue después del Terabyte?", ans:"Petabyte", opts:["Petabyte", "Exabyte", "Yottabyte", "Gigabyte"]},
-            {q:"La unidad más pequeña es...", ans:"Bit", opts:["Bit", "Byte", "Pixel", "Hz"]},
-            {q:"Medida de velocidad de internet", ans:"Mbps", opts:["Mbps", "GB", "Hz", "DPI"]},
-            {q:"La velocidad del CPU se mide en...", ans:"Hertz (Hz)", opts:["Hertz (Hz)", "Watts", "Bytes", "Nudos"]},
-            {q:"Resolución 4K es aprox...", ans:"3840x2160", opts:["3840x2160", "1920x1080", "1280x720", "800x600"]},
-            {q:"DPI significa...", ans:"Puntos por pulgada", opts:["Puntos por pulgada", "Datos por internet", "Disco para imagen", "Digital Pixel"] },
-            {q:"¿Qué es un Píxel?", ans:"Unidad de color", opts:["Unidad de color", "Un cable", "Una memoria", "Un sonido"]},
-            {q:"Tasa de refresco se mide en...", ans:"Hz (Hertz)", opts:["Hz (Hertz)", "FPS", "Ping", "Ms"]}
-        ]
-    };
-
-    const DB_INGLES = [
-        {q:"Red", ans:"Rojo", opts:["Rojo", "Azul", "Verde"]}, 
-        {q:"Blue", ans:"Azul", opts:["Azul", "Rojo", "Amarillo"]}, 
-        {q:"Dog", ans:"Perro", opts:["Perro", "Gato", "Pato"]}, 
-        {q:"Cat", ans:"Gato", opts:["Gato", "Perro", "Vaca"]}
-    ];
-
-    const DEFAULT_SHOP = [
-        {id:'t1', name:'Camisa Steve', type:'torso', color:'#29b6f6', price:0},
-        {id:'l1', name:'Pantalón Azul', type:'legs', color:'#3f51b5', price:0},
-        {id:'h1', name:'Piel Base', type:'head', color:'#ffcc80', price:0},
-        {id:'t2', name:'Camisa Creeper', type:'torso', color:'https://i.imgur.com/u3l2j1S.png', price:100},
-        {id:'h2', name:'Cara Zombie', type:'head', color:'#66bb6a', price:150},
-        {id:'t3', name:'Oro Puro', type:'torso', color:'#fbc02d', price:200}
-    ];
-
-    let player = { 
-        name: 'Jugador_' + Math.floor(Math.random()*999),
-        grade: 'inicial', coins: 50, 
-        progress: {
-            inicial: { matematica: 1, compu: 1, teclado: 1, ingles: 1, claves: 1},
-            intermedia: { matematica: 1, compu: 1, teclado: 1, ingles: 1, claves: 1},
-            dificil: { matematica: 1, compu: 1, teclado: 1, ingles: 1, claves: 1},
-            experta: { matematica: 1, compu: 1, teclado: 1, ingles: 1, claves: 1},
-            prodigio: { matematica: 1, compu: 1, teclado: 1, ingles: 1, claves: 1}
-        },
-        inventory: ['t1', 'l1', 'h1'], 
-        skin: { head:'#ffcc80', torso:'#29b6f6', legs:'#3f51b5', arm:'#ffcc80' } 
-    };
-    let localDB = { customLevels: [], shopItems: DEFAULT_SHOP };
-    let currentSession = { subject: null, level: 1, lastWord: '', startTime: null, backspaces: 0 };
-    let timerInterval = null; 
-
-    window.onload = function() {
-        if(localStorage.getItem('eduPlayer')) {
-            let saved = JSON.parse(localStorage.getItem('eduPlayer'));
-            if(saved.grade === 1 || saved.grade === 7) { 
-                console.log("Reiniciando estructura...");
-            } else {
-                player = saved;
-            }
-        }
-        if(localStorage.getItem('eduDB')) localDB = JSON.parse(localStorage.getItem('eduDB'));
-        
-        // Fix para claves en usuarios viejos
-        Object.keys(player.progress).forEach(k => {
-            if(!player.progress[k].claves) player.progress[k].claves = 1;
-        });
-
-        document.getElementById('usernameInput').value = player.name;
-        document.getElementById('gradeSelect').value = player.grade;
-        updateUI();
-        syncWithCloud();
-    };
-
-    // FUNCIONES DEL GENERADOR DE CLAVES
-    function renderPasswordTool(container) {
-        container.innerHTML = `
-            <div style="text-align:left; padding:10px;">
-                <label>Longitud: <input type="number" id="pwdLength" min="4" max="20" value="12" style="width:60px; padding:5px;"></label>
-                <div style="margin:10px 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.7rem;">
-                    <label><input type="checkbox" id="incUpper" checked> Mayúsculas (ABC)</label>
-                    <label><input type="checkbox" id="incLower" checked> Minúsculas (abc)</label>
-                    <label><input type="checkbox" id="incNum" checked> Números (123)</label>
-                    <label><input type="checkbox" id="incSym" checked> Símbolos (@#$)</label>
-                </div>
-                <button class="mc-btn blue" style="width:100%; margin-bottom:15px;" onclick="generateLogic()">🔄 Generar Nueva</button>
-                <div id="resultPwd" style="background:#263238; color:#81c784; padding:15px; font-family:monospace; font-size:1.2rem; letter-spacing:2px; border:2px solid #fff; text-align:center; margin-bottom:20px;">???</div>
-                <hr style="border:1px dashed #90a4ae; margin:20px 0;">
-                <h4 style="margin:0 0 10px 0; color:#0277bd;">Guardar en mi lista:</h4>
-                <input type="text" id="siteName" placeholder="Ej: Correo, Instagram..." style="margin-bottom:10px;">
-                <button class="mc-btn green" style="width:100%;" onclick="saveLogic()">💾 Guardar</button>
-                <div id="savedList" style="margin-top:15px; background:#eceff1; height:120px; overflow-y:auto; border:2px solid #b0bec5; padding:5px; font-size:0.6rem;">
-                    <div style="color:#999; text-align:center; padding-top:40px;">Lista vacía</div>
-                </div>
-            </div>
-        `;
-    }
-
-    function generateLogic() {
-        const length = document.getElementById('pwdLength').value;
-        const useUpper = document.getElementById('incUpper').checked;
-        const useLower = document.getElementById('incLower').checked;
-        const useNum = document.getElementById('incNum').checked;
-        const useSym = document.getElementById('incSym').checked;
-
-        let chars = "";
-        if (useUpper) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        if (useLower) chars += "abcdefghijklmnopqrstuvwxyz";
-        if (useNum) chars += "0123456789";
-        if (useSym) chars += "!@#$%^&*()_+-=[]{}|;:,.<>?";
-
-        if (chars === "") return showToast("Elige una opción", "error");
-
-        let password = "";
-        for (let i = 0; i < length; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        document.getElementById('resultPwd').innerText = password;
-    }
-
-    function saveLogic() {
-        const site = document.getElementById('siteName').value;
-        const pwd = document.getElementById('resultPwd').innerText;
-
-        if (!site) return showToast("Escribe el nombre del sitio", "error");
-        if (pwd === "???") return showToast("Genera una clave primero", "error");
-
-        const list = document.getElementById('savedList');
-        if(list.innerText.includes("Lista vacía")) list.innerHTML = "";
-
-        const item = document.createElement('div');
-        item.style.borderBottom = "1px solid #ccc";
-        item.style.padding = "5px";
-        item.innerHTML = `<span style="color:#37474f; font-weight:bold;">${site}:</span> <span style="color:#0277bd; font-family:monospace;">${pwd}</span>`;
-        list.appendChild(item);
-        
-        document.getElementById('siteName').value = "";
-        player.coins += 5; 
-        updateUI();
-        showToast("¡Guardada! +5 🪙");
-    }
-
-    // UTILS DEL JUEGO
-    function saveData() {
-        localStorage.setItem('eduPlayer', JSON.stringify(player));
-        localStorage.setItem('eduDB', JSON.stringify(localDB));
-        syncWithCloud();
-    }
-
-    function syncWithCloud() {
-        dbOnline.collection("players").doc(player.name).set(player)
-        .then(() => loadLeaderboard())
-        .catch(e => console.error(e));
-    }
-
-    function loadLeaderboard() {
-        dbOnline.collection("players").orderBy("coins", "desc").limit(10).onSnapshot(snapshot => {
-            const list = document.getElementById('leaderboardList');
-            list.innerHTML = '';
-            let rank = 1;
-            snapshot.forEach(doc => {
-                const p = doc.data();
-                const row = document.createElement('div');
-                row.className = `leaderboard-row ${rank===1?'top-1':''}`;
-                const getStyle = (val) => val && val.startsWith('http') ? `background-image:url('${val}'); background-size:cover;` : `background:${val};`;
-                row.innerHTML = `<div class="rank">#${rank++}</div><div class="mini-avatar-box"><div class="mc-head mc-part" style="${getStyle(p.skin.head || '#ffcc80')} width:40px; height:40px;"></div><div style="display:flex; gap:2px;"><div style="width:12px; height:20px; border:2px solid #000; ${getStyle(p.skin.arm || p.skin.torso)}"></div><div style="width:40px; height:20px; border:2px solid #000; ${getStyle(p.skin.torso)}"></div><div style="width:12px; height:20px; border:2px solid #000; ${getStyle(p.skin.arm || p.skin.torso)}"></div></div></div><div style="flex:1; display:flex; justify-content:space-between;"><div style="font-weight:bold; color:#37474f;">${p.name}</div><div style="color:#f9a825;">${p.coins}</div></div>`;
-                list.appendChild(row);
-            });
-        });
-    }
-
-    function playLevel(lvl) {
-        currentSession.level = lvl;
-        currentSession.startTime = null; 
-        currentSession.backspaces = 0;   
-        if(timerInterval) clearInterval(timerInterval);
-        
-        document.getElementById('gameModal').style.display = 'flex';
-        const content = document.getElementById('gameContent');
-        document.getElementById('gameTitle').innerText = `Nivel ${lvl} (${player.grade.toUpperCase()})`;
-        
-        const custom = localDB.customLevels.find(l => l.grade == player.grade && l.subject === currentSession.subject && l.level == lvl);
-        
-        if(custom) {
-            renderQuestion(content, custom.question, custom.answer, custom.options);
-        } else {
-            generateProceduralLevel(content, currentSession.subject, lvl);
-        }
-    }
-
-    function generateProceduralLevel(container, subj, lvl) {
-        let q, ans, opts;
-
-        if (subj === 'teclado') {
-            let target = "", prompt = "", showStats = false;
-            let pool = DB_TECLADO[player.grade]; 
-            let isProdigio = player.grade === 'prodigio';
-            if(isProdigio) showStats = true;
-
-            if (player.grade === 'inicial') {
-                if(lvl <= 25) { target = getRandom(pool.letras); prompt = "Tecla:"; } else { target = getRandom(pool.palabras); prompt = "Palabra:"; }
-            } else if (player.grade === 'intermedia') { target = getRandom(pool.palabras); prompt = "Palabra:"; }
-            else if (player.grade === 'dificil') { target = getRandom(pool.palabras); prompt = "Escribe:"; }
-            else if (player.grade === 'experta') { target = getRandom(pool.oraciones); prompt = "Oración:"; }
-            else { target = getRandom(pool.textos); prompt = "Transcribe:"; }
-            
-            ans = target;
-            let inputStyle = "text-align:center; font-size:1.2rem; width:100%;" + (isProdigio ? "" : " text-transform:uppercase;");
-            
-            container.innerHTML = `${showStats ? `<div class="stats-bar"><div class="stats-item">⏳ <span id="timeCounter">0.0s</span></div></div>` : ''}<div style="color:#78909c; font-size:0.8rem; margin-bottom:10px;">${prompt}</div><h3 style="color:#555; font-size:${ans.length>25?'0.7rem':'1.2rem'}">${ans}</h3><input type="text" id="typingInput" autocomplete="off" style="${inputStyle}"><button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('typingInput').value, '${ans}')">Confirmar</button>`;
-            setTimeout(() => { 
-                const i = document.getElementById('typingInput'); 
-                if(i) { i.focus(); i.oninput = () => { if(!currentSession.startTime && showStats) { currentSession.startTime = new Date(); timerInterval = setInterval(() => { document.getElementById('timeCounter').innerText = ((new Date() - currentSession.startTime)/1000).toFixed(1) + 's'; }, 100); } }; i.onkeydown = (e) => { if(e.key === 'Enter') checkAnswer(i.value, ans); }; }
-            }, 50);
-            return;
-        }
-        else if (subj === 'compu') {
-            const pool = DB_COMPUTING[player.grade] || DB_COMPUTING['inicial'];
-            const item = getRandom(pool);
-            q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
-        }
-        else if (subj === 'ingles') {
-            const item = getRandom(DB_INGLES); 
-            q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
-        }
-        else if (subj === 'matematica'){
-            let a, b, opSelector = Math.random();
-            let max = player.grade==='inicial'?10 : 50;
-            if (opSelector < 0.4) { a = Math.floor(Math.random()*max)+1; b = Math.floor(Math.random()*max)+1; q = `¿${a} + ${b}?`; ans = a+b; }
-            else { b = Math.floor(Math.random()*5)+2; ans = Math.floor(Math.random()*5)+1; a = b*ans; q = `¿${a} / ${b}?`; }
-            opts = [ans, ans+1, ans-1, ans+5].sort(()=>Math.random()-0.5);
-        }
-
-        renderQuestion(container, q, ans, opts);
-    }
-
-    function renderQuestion(container, q, ans, opts) {
-        if (!Array.isArray(opts)) opts = opts.split(',');
-        let html = `<h2 style="color:#455a64; margin-bottom:30px;">${q}</h2><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">`;
-        opts.forEach(opt => { html += `<button class="mc-btn blue" onclick="checkAnswer('${opt}','${ans}')">${opt}</button>`; });
-        html += `</div>`;
-        container.innerHTML = html;
-    }
-
-    function checkAnswer(user, correct) {
-        let isCorrect = false;
-        if (player.grade === 'prodigio' && currentSession.subject === 'teclado') { if (String(user).trim() === String(correct).trim()) isCorrect = true; }
-        else { if (String(user).toUpperCase().trim() === String(correct).toUpperCase().trim()) isCorrect = true; }
-
-        if (isCorrect) {
-            player.coins += 20;
-            if(currentSession.level === player.progress[player.grade][currentSession.subject]) player.progress[player.grade][currentSession.subject]++;
-            saveData(); updateUI(); showToast("¡Correcto! +20 🪙");
-            if(timerInterval) clearInterval(timerInterval);
-            setTimeout(() => { if(currentSession.level < 100) playLevel(currentSession.level + 1); else closeGame(); }, 800);
-        } else {
-            player.coins = Math.max(0, player.coins - 10);
-            saveData(); updateUI(); showToast("Incorrecto -10 🪙", 'error');
-        }
-    }
-
-    function getRandom(arr) { if(!arr) return "X"; return arr[Math.floor(Math.random() * arr.length)]; }
-
-    function applyTexture(elementId, value) {
-        const el = document.getElementById(elementId);
-        if(!el) return;
-        if(value && (value.startsWith('http') || value.startsWith('data:image'))) { el.style.backgroundColor = 'transparent'; el.style.backgroundImage = `url('${value}')`; } 
-        else { el.style.backgroundImage = 'none'; el.style.backgroundColor = value; }
-    }
-
-    function updateUI() {
-        document.getElementById('uiCoins').innerText = player.coins;
-        const p = player.progress[player.grade];
-        document.getElementById('lbl-math').innerText = p.matematica;
-        document.getElementById('lbl-logic').innerText = p.compu;
-        document.getElementById('lbl-typing').innerText = p.teclado;
-        document.getElementById('lbl-ingles').innerText = p.ingles;
-        applyTexture('avHead', player.skin.head || '#ffcc80');
-        applyTexture('avTorso', player.skin.torso);
-        applyTexture('avLegL', player.skin.legs);
-        applyTexture('avLegR', player.skin.legs);
-        applyTexture('avArmL', player.skin.arm || player.skin.torso);
-        applyTexture('avArmR', player.skin.arm || player.skin.torso);
-    }
-
-    function updateUsername(val) { player.name = val; saveData(); }
-    function changeGrade() { player.grade = document.getElementById('gradeSelect').value; updateUI(); showToast(`Dificultad: ${player.grade.toUpperCase()}`); }
-    function showToast(msg, type='success') { const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<span>${type=='success'?'✅':'❌'}</span><span>${msg}</span>`; document.getElementById('notification-area').appendChild(t); setTimeout(() => t.remove(), 4000); }
-    function resetGame() { if(confirm("¿Borrar todo?")) { localStorage.removeItem('eduPlayer'); location.reload(); } }
-    function showDashboard() { setView('view-dashboard'); }
-    function showShop() { setView('view-shop'); renderShop(); }
-    
-    function openSubject(s) { 
-        currentSession.subject = s; 
-        if (s === 'claves') {
-            document.getElementById('gameModal').style.display = 'flex';
-            document.getElementById('gameTitle').innerText = "Generador Seguro";
-            renderPasswordTool(document.getElementById('gameContent'));
-        } else {
-            setView('view-map'); 
-            document.getElementById('mapTitle').innerText = s.toUpperCase(); 
-            renderMap(); 
-        }
-    }
-
-    function setView(id) { ['view-dashboard','view-map','view-shop'].forEach(v => document.getElementById(v).style.display = 'none'); document.getElementById(id).style.display = 'block'; }
-    
-    function closeGame() { 
-        document.getElementById('gameModal').style.display = 'none'; 
-        if(timerInterval) clearInterval(timerInterval);
-        if(currentSession.subject == 'claves') showDashboard(); else renderMap();
-    }
-
-    function renderMap() { const grid = document.getElementById('mapGrid'); grid.innerHTML = ''; const cur = player.progress[player.grade][currentSession.subject]; for(let i=1; i<=100; i++) { const btn = document.createElement('div'); btn.className = 'level-block'; btn.innerText = i; if(i<cur) { btn.classList.add('completed'); btn.onclick = () => playLevel(i); } else if(i===cur) { btn.classList.add('current'); btn.onclick = () => playLevel(i); } else btn.classList.add('locked'); grid.appendChild(btn); } }
-    function renderShop() { const g = document.getElementById('shopGrid'); g.innerHTML = ''; localDB.shopItems.forEach(it => { const owned = player.inventory.includes(it.id); const d = document.createElement('div'); d.className = 'panel'; d.style.textAlign='center'; let bgStyle = it.color.startsWith('http') ? `background-image:url('${it.color}'); background-size:cover;` : `background:${it.color};`; d.innerHTML = `<div style="width:40px;height:40px;${bgStyle} margin:0 auto 10px;border:2px solid #000;"></div><b>${it.name}</b><br><span style="font-size:0.6rem; color:#666">${it.type}</span><br><small>${owned?'Tuyo':it.price}</small>`; d.onclick = () => { if(owned) { player.skin[it.type] = it.color; saveData(); updateUI(); showToast("Equipado"); } else if(player.coins >= it.price) { player.coins -= it.price; player.inventory.push(it.id); player.skin[it.type] = it.color; saveData(); updateUI(); renderShop(); showToast("Comprado"); } else showToast("Faltan Monedas", 'error'); }; g.appendChild(d); }); }
-
-    function openAdminLogin() { 
-        document.getElementById('adminLoginModal').style.display = 'flex'; 
-    }
-    function checkAdmin() { 
-        if(document.getElementById('adminUser').value==='admin' && document.getElementById('adminPass').value==='admin') {
-            document.getElementById('adminLoginModal').style.display='none'; 
-            document.getElementById('adminPanelModal').style.display='flex'; 
-        } else {
-        showToast("Error", 'error'); 
-        }
-    }
-    function closeAdmin() { 
-        document.getElementById('adminPanelModal').style.display='none'; 
-        renderShop(); 
-    }
-    function adminAddLevel() { 
-        const g=document.getElementById('admGrade').value, s=document.getElementById('admSubj').value, l=document.getElementById('admLvlNum').value, q=document.getElementById('admQ').value, a=document.getElementById('admAns').value, o=document.getElementById('admOpts').value; 
-        if(!l||!q||!a) return showToast("Faltan Datos",'error'); 
-        localDB.customLevels.push({ grade: g, subject: s, level: parseInt(l), question: q, answer: a, options: o }); 
-        saveData(); 
-        showToast("Nivel Guardado"); 
-    }
-    function adminAddItem() {
-        const n=document.getElementById('admItemName').value, p=document.getElementById('admPrice').value, t=document.getElementById('admType').value, c=document.getElementById('admTexture').value; 
-        if(!n || !c) return showToast("Falta Info",'error'); 
-        localDB.shopItems.push({ id: 'c_'+Date.now(), name: n, price: parseInt(p), type: t, color: c }); 
-        saveData(); showToast("Item Creado"); 
-        }
-</script>
-    <h5 style="text-align:right  ; color:#999; margin:10px 0 25px 0; font-size:0.7rem;">
-    Juego para la educacion &copy; 2025 - Desarrollado por Nicolas Kane and ...
 </body>
 </html>
