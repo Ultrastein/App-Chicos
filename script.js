@@ -1,11 +1,6 @@
-/**
- * EDUQUEST: MASTER EDITION - LOGIC CORE
- * Actualizado para soportar +80 preguntas únicas por nivel sin repetición.
- */
-
-// 1. CONFIGURACIÓN FIREBASE (Mantenemos tu config)
+// 1. CONFIGURACIÓN FIREBASE
 const firebaseConfig = {
-    apiKey: "AIzaSyD_EIqwof3YhStlpSY4PhWJLqoDtjUqsVM", // Reemplaza con tus datos reales si es necesario
+    apiKey: "AIzaSyD_EIqwof3YhStlpSY4PhWJLqoDtjUqsVM",
     authDomain: "web-de-juego.firebaseapp.com",
     projectId: "web-de-juego",
     storageBucket: "web-de-juego.firebasestorage.app",
@@ -16,174 +11,87 @@ const firebaseConfig = {
 
 let dbOnline = null;
 try {
-    if (typeof firebase !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-        dbOnline = firebase.firestore();
-    }
-} catch (e) { console.log("Modo Offline (Firebase no conectado)"); }
+    firebase.initializeApp(firebaseConfig);
+    dbOnline = firebase.firestore();
+} catch(e) { console.error("Error Firebase", e); }
 
 // ==========================================
-// 2. BANCOS DE DATOS Y GENERADORES
+// 2. BASES DE DATOS (CONTENIDO)
 // ==========================================
 
-// --- DICCIONARIOS BASE (Para generar cientos de preguntas) ---
+const DB_TECLADO = {
+    inicial: { letras: "ASDFJKLÑQWERTYUIOPZXCVBNM".split(''), simbolos: [".", ",", ";", ":", "-", "_", "!", "?"], palabras: ["SOL","LUZ","PAN","MAR","OSO","MAMA"] },
+    intermedia: { palabras: ["ESCUELA", "AMIGO", "JUGUETE", "PARQUE"], tildes: ["ÁRBOL", "CANTÓ", "AVIÓN"], oraciones: ["EL PERRO LADRA.", "HOLA MUNDO."] },
+    dificil: { palabras: ["ELECTRODOMESTICO", "FERROCARRIL", "CONSTITUCION"], simbolos: ["@", "#", "$", "%"], codigo: ["width:100%", "#FFAA00", "user_name"] },
+    experta: { oraciones: ["LA TECNOLOGIA AVANZA EXPONENCIALMENTE.", "LOS ALGORITMOS DE BUSQUEDA SON FUNDAMENTALES."] },
+    prodigio: { textos: ["En un lugar de la Mancha, de cuyo nombre no quiero acordarme.", "Programar es el arte de decirle a otro humano lo que la PC debe hacer."] }
+};
 
-const DATA_GEO = [
-    {p:"Argentina", c:"Buenos Aires", cont:"América"}, {p:"España", c:"Madrid", cont:"Europa"}, {p:"Francia", c:"París", cont:"Europa"},
-    {p:"Japón", c:"Tokio", cont:"Asia"}, {p:"China", c:"Pekín", cont:"Asia"}, {p:"Brasil", c:"Brasilia", cont:"América"},
-    {p:"EEUU", c:"Washington D.C.", cont:"América"}, {p:"Italia", c:"Roma", cont:"Europa"}, {p:"Alemania", c:"Berlín", cont:"Europa"},
-    {p:"Reino Unido", c:"Londres", cont:"Europa"}, {p:"Rusia", c:"Moscú", cont:"Europa/Asia"}, {p:"Egipto", c:"El Cairo", cont:"África"},
-    {p:"Australia", c:"Canberra", cont:"Oceanía"}, {p:"Canadá", c:"Ottawa", cont:"América"}, {p:"México", c:"CDMX", cont:"América"},
-    {p:"Colombia", c:"Bogotá", cont:"América"}, {p:"Perú", c:"Lima", cont:"América"}, {p:"Chile", c:"Santiago", cont:"América"},
-    {p:"Uruguay", c:"Montevideo", cont:"América"}, {p:"India", c:"Nueva Delhi", cont:"Asia"}, {p:"Portugal", c:"Lisboa", cont:"Europa"},
-    {p:"Suecia", c:"Estocolmo", cont:"Europa"}, {p:"Noruega", c:"Oslo", cont:"Europa"}, {p:"Grecia", c:"Atenas", cont:"Europa"},
-    {p:"Turquía", c:"Ankara", cont:"Asia"}, {p:"Corea del Sur", c:"Seúl", cont:"Asia"}, {p:"Sudáfrica", c:"Pretoria", cont:"África"},
-    {p:"Kenia", c:"Nairobi", cont:"África"}, {p:"Marruecos", c:"Rabat", cont:"África"}, {p:"Nueva Zelanda", c:"Wellington", cont:"Oceanía"},
-    {p:"Polonia", c:"Varsovia", cont:"Europa"}, {p:"Austria", c:"Viena", cont:"Europa"}, {p:"Suiza", c:"Berna", cont:"Europa"},
-    {p:"Bélgica", c:"Bruselas", cont:"Europa"}, {p:"Países Bajos", c:"Ámsterdam", cont:"Europa"}, {p:"Irlanda", c:"Dublín", cont:"Europa"},
-    {p:"Cuba", c:"La Habana", cont:"América"}, {p:"Panamá", c:"Panamá", cont:"América"}, {p:"Venezuela", c:"Caracas", cont:"América"},
-    {p:"Ecuador", c:"Quito", cont:"América"}, {p:"Bolivia", c:"Sucre/La Paz", cont:"América"}, {p:"Paraguay", c:"Asunción", cont:"América"}
-    // Se pueden agregar más aquí para escalar infinitamente
+const DB_COMPUTING = {
+    inicial: [{q:"¿Qué usas para hacer clic?", ans:"Mouse", opts:["Mouse", "Teclado", "Pantalla"]}, {q:"¿Dónde ves las imágenes?", ans:"Monitor", opts:["Monitor", "Impresora", "Mouse"]}, {q:"El cerebro de la PC", ans:"CPU", opts:["CPU", "Botón", "Cable"]}],
+    intermedia: [{q:"¿Qué es Software?", ans:"Programas", opts:["Programas", "Teclado", "Cables"]}, {q:"Navegador de internet", ans:"Chrome", opts:["Chrome", "Word", "Excel"]}, {q:"Memoria Temporal", ans:"RAM", opts:["RAM", "HDD", "USB"]}],
+    dificil: [{q:"8 bits son...", ans:"1 Byte", opts:["1 Byte", "1 Kilo", "1 Bit"]}, {q:"Binario usa...", ans:"0 y 1", opts:["0 y 1", "1 y 2", "A y B"]}, {q:"Red mundial", ans:"WAN", opts:["WAN", "LAN", "WIFI"]}],
+    experta: [{q:"¿Qué es un Algoritmo?", ans:"Pasos lógicos", opts:["Pasos lógicos", "Virus", "Pieza"]}, {q:"Variable sirve para...", ans:"Guardar datos", opts:["Guardar datos", "Borrar", "Imprimir"]}],
+    prodigio: [{q:"Binario: 101 es...", ans:"5", opts:["5", "3", "2", "10"]}, {q:"Hexadecimal: A es...", ans:"10", opts:["10", "11", "12"]}, {q:"1024 GB son...", ans:"1 TB", opts:["1 TB", "1 PB", "1 MB"]}]
+};
+
+const DB_GEOGRAFIA = {
+    inicial: [{q:"¿Planeta?", ans:"Tierra", opts:["Tierra", "Marte", "Sol"]}, {q:"¿Continentes?", ans:"7", opts:["5", "6", "7"]}],
+    intermedia: [{q:"Capital Argentina", ans:"Buenos Aires", opts:["Buenos Aires", "Córdoba", "Lima"]}, {q:"Capital España", ans:"Madrid", opts:["Madrid", "Paris", "Roma"]}],
+    dificil: [{q:"Río más largo", ans:"Amazonas", opts:["Amazonas", "Nilo", "Misisipi"]}, {q:"Desierto mayor", ans:"Sahara", opts:["Sahara", "Atacama", "Gobi"]}],
+    experta: [
+        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Empire_State_Building_from_the_Top_of_the_Rock.jpg/640px-Empire_State_Building_from_the_Top_of_the_Rock.jpg", ans:"Nueva York", opts:["Nueva York", "Chicago", "Toronto"]},
+        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_from_Bridge.jpg/640px-London_Skyline_from_Bridge.jpg", ans:"Londres", opts:["Londres", "París", "Berlín"]}
+    ],
+    prodigio: [
+        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Machu_Picchu%2C_Peru.jpg/640px-Machu_Picchu%2C_Peru.jpg", ans:"Machu Picchu", opts:["Machu Picchu", "Chichén Itzá", "Tikal"]},
+        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/640px-Taj_Mahal_%28Edited%29.jpeg", ans:"Taj Mahal", opts:["Taj Mahal", "Petra", "Coliseo"]}
+    ]
+};
+
+const DB_INGLES = [
+    {q:"Red", ans:"Rojo", opts:["Rojo","Azul","Verde"]}, {q:"Blue", ans:"Azul", opts:["Azul","Rojo","Amarillo"]}, 
+    {q:"Dog", ans:"Perro", opts:["Perro","Gato","Pato"]}, {q:"Cat", ans:"Gato", opts:["Gato","Perro","Vaca"]}
 ];
 
-const DATA_ENGLISH = [
-    {es:"Rojo", en:"Red"}, {es:"Azul", en:"Blue"}, {es:"Verde", en:"Green"}, {es:"Amarillo", en:"Yellow"}, {es:"Negro", en:"Black"},
-    {es:"Blanco", en:"White"}, {es:"Perro", en:"Dog"}, {es:"Gato", en:"Cat"}, {es:"Pájaro", en:"Bird"}, {es:"Pez", en:"Fish"},
-    {es:"Casa", en:"House"}, {es:"Auto", en:"Car"}, {es:"Manzana", en:"Apple"}, {es:"Naranja", en:"Orange"}, {es:"Banana", en:"Banana"},
-    {es:"Libro", en:"Book"}, {es:"Lápiz", en:"Pencil"}, {es:"Escuela", en:"School"}, {es:"Maestro", en:"Teacher"}, {es:"Estudiante", en:"Student"},
-    {es:"Mesa", en:"Table"}, {es:"Silla", en:"Chair"}, {es:"Ventana", en:"Window"}, {es:"Puerta", en:"Door"}, {es:"Sol", en:"Sun"},
-    {es:"Luna", en:"Moon"}, {es:"Estrella", en:"Star"}, {es:"Cielo", en:"Sky"}, {es:"Agua", en:"Water"}, {es:"Fuego", en:"Fire"},
-    {es:"Amigo", en:"Friend"}, {es:"Familia", en:"Family"}, {es:"Comida", en:"Food"}, {es:"Juego", en:"Game"}, {es:"Computadora", en:"Computer"},
-    {es:"Ratón", en:"Mouse"}, {es:"Teclado", en:"Keyboard"}, {es:"Pantalla", en:"Screen"}, {es:"Código", en:"Code"}, {es:"Ciudad", en:"City"}
-];
+const DB_ALGORITMOS = {
+    inicial: [{ title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] }, { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] }],
+    intermedia: [{ title: "Robot Laberinto", blocks: [{text: "Inicio", type: "blk-event"}, {text: "Avanzar 2", type: "blk-action"}, {text: "Girar Derecha", type: "blk-action"}, {text: "Avanzar 1", type: "blk-action"}] }],
+    dificil: [{ title: "Cuadrado", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] }],
+    experta: [{ title: "Semáforo", blocks: [{text: "Mirar luz", type: "blk-action"}, {text: "SI es Verde", type: "blk-control"}, {text: "  Cruzar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] }],
+    prodigio: [{ title: "Lluvia", blocks: [{text: "SI llueve", type: "blk-control"}, {text: "  ¿Tengo paraguas?", type: "blk-logic"}, {text: "    SI: Usarlo", type: "blk-action"}, {text: "    NO: Correr", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Caminar", type: "blk-action"}] }]
+};
 
-const DATA_COMPU = [
-    {q:"Dispositivo de entrada", a:"Teclado", x:["Monitor","Impresora"]}, {q:"Dispositivo de salida", a:"Monitor", x:["Mouse","Micrófono"]},
-    {q:"Cerebro de la PC", a:"CPU", x:["RAM","Disco"]}, {q:"Almacenamiento volátil", a:"RAM", x:["HDD","SSD"]},
-    {q:"Navegador Web", a:"Chrome", x:["Word","Excel"]}, {q:"Sistema Operativo", a:"Windows", x:["Office","Paint"]},
-    {q:"Red de redes", a:"Internet", x:["Intranet","Wifi"]}, {q:"Lenguaje Web", a:"HTML", x:["HTTP","WWW"]},
-    {q:"Hoja de cálculo", a:"Excel", x:["PowerPoint","Word"]}, {q:"Editor de texto", a:"Word", x:["Calc","Access"]},
-    {q:"Conexión inalámbrica", a:"Wi-Fi", x:["Ethernet","USB"]}, {q:"Puerto universal", a:"USB", x:["HDMI","VGA"]},
-    {q:"8 bits equivalen a", a:"1 Byte", x:["1 Bit","1 Kilo"]}, {q:"1024 Bytes son", a:"1 KB", x:["1 MB","1 GB"]},
-    {q:"Malware dañino", a:"Virus", x:["Antivirus","Firewall"]}, {q:"Protección de red", a:"Firewall", x:["Spyware","Bug"]},
-    {q:"Error en código", a:"Bug", x:["Feature","Patch"]}, {q:"Inteligencia...", a:"Artificial", x:["Natural","Digital"]},
-    {q:"Almacenar en la...", a:"Nube", x:["Lluvia","Cielo"]}, {q:"Click derecho abre", a:"Menú", x:["Programa","Carpeta"]},
-    {q:"Control + C", a:"Copiar", x:["Pegar","Cortar"]}, {q:"Control + V", a:"Pegar", x:["Copiar","Guardar"]},
-    {q:"Control + Z", a:"Deshacer", x:["Rehacer","Borrar"]}, {q:"PDF es un", a:"Documento", x:["Video","Audio"]},
-    {q:"MP3 es un", a:"Audio", x:["Imagen","Texto"]}, {q:"JPG es una", a:"Imagen", x:["Sonido","Programa"]}
-];
+const DB_PYTHON_TASKS = {
+    inicial: [
+        { mision: "Haz que diga: Hola", hint: 'print("Hola")', valid: ['print("Hola")'], output: "Hola" },
+        { mision: "Imprime el número 100", hint: "print(100)", valid: ["print(100)"], output: "100" }
+    ],
+    intermedia: [
+        { mision: "Variable x vale 10", hint: "x = 10", valid: ["x=10"], output: "x guardada: 10" },
+        { mision: "Suma 20 + 30", hint: "print(20+30)", valid: ["print(20+30)"], output: "50" }
+    ],
+    dificil: [
+        { mision: "Pide nombre", hint: "input()", valid: ["input()", "nombre=input()"], output: "> Esperando..." }
+    ],
+    experta: [
+        { mision: "Si 5 > 2 imprime Si", hint: "if 5 > 2: print('Si')", valid: ['if 5 > 2: print("Si")'], output: "Si" }
+    ],
+    prodigio: [
+        { mision: "Bucle de 3 veces", hint: "for i in range(3):", valid: ["for i in range(3):"], output: "0\n1\n2" }
+    ]
+};
 
-const DATA_PYTHON = [
-    {m:"Imprime Hola", h:'print("Hola")', v:['print("Hola")','print(\'Hola\')'], o:"Hola"},
-    {m:"Suma 2 + 2", h:'print(2+2)', v:['print(2+2)','print(4)'], o:"4"},
-    {m:"Variable x = 5", h:'x = 5', v:['x=5','x = 5'], o:""},
-    {m:"Multiplica 3 * 3", h:'print(3*3)', v:['print(3*3)','print(9)'], o:"9"},
-    {m:"Crea lista vacía", h:'L = []', v:['L=[]','L = []', 'lista=[]'], o:""}
-];
-
-// --- GENERADOR MAESTRO DE PREGUNTAS ---
-// Esta función crea la pregunta basada en el nivel y la dificultad para evitar repeticiones.
-function getQuestionData(subject, grade, level) {
-    let seed = level * (grade.length + 5); // Semilla simple para consistencia
-
-    // 1. MATEMÁTICAS (Infinita procedural)
-    if (subject === 'matematica') {
-        let n1, n2, op, ans, fake1, fake2, fake3;
-        
-        if (grade === 'inicial') { // Sumas y restas simples 1-20
-            n1 = (seed % 15) + 1; n2 = (seed % 10) + 1;
-            if (level % 2 === 0) { op='+'; ans=n1+n2; } else { op='-'; n1+=n2; ans=n1-n2; } // Asegurar resta positiva
-        } else if (grade === 'intermedia') { // Tablas multiplicar y sumas grandes
-            n1 = (seed % 12) + 2; n2 = (seed % 9) + 2;
-            if (level % 3 === 0) { op='+'; n1*=5; n2*=5; ans=n1+n2; } else { op='x'; ans=n1*n2; }
-        } else if (grade === 'dificil') { // Divisiones y combinadas
-            n2 = (seed % 9) + 2; ans = (seed % 12) + 2; n1 = n2 * ans;
-            op = '/'; 
-        } else if (grade === 'experta') { // Ecuaciones simples: x + n1 = n2
-            n1 = (seed % 20) + 1; let x = (seed % 10) + 1; n2 = x + n1;
-            return { q: `x + ${n1} = ${n2}`, ans: x.toString(), opts: shuffle([x, x+1, x-1, x+2]) };
-        } else { // Prodigio: Binario o Potencias
-            if (level % 2 === 0) { // Potencia
-                n1 = (seed % 5) + 2; n2 = 2; ans = Math.pow(n1,n2);
-                return { q: `${n1} al cuadrado`, ans: ans.toString(), opts: shuffle([ans, ans+2, ans-1, ans*2]) };
-            } else { // Binario
-                ans = (seed % 15) + 1; let bin = ans.toString(2);
-                return { q: `${bin} a decimal`, ans: ans.toString(), opts: shuffle([ans, ans+1, ans-2, ans+4]) };
-            }
-        }
-        
-        fake1 = ans + (Math.floor(Math.random()*3)+1);
-        fake2 = ans - (Math.floor(Math.random()*3)+1);
-        fake3 = ans + 10;
-        return { q: `${n1} ${op} ${n2} = ?`, ans: ans.toString(), opts: shuffle([ans, fake1, fake2, fake3]) };
-    }
-
-    // 2. INGLÉS (Vocabulario masivo)
-    if (subject === 'ingles') {
-        const item = DATA_ENGLISH[seed % DATA_ENGLISH.length];
-        const mode = (level % 2 === 0) ? 'es_to_en' : 'en_to_es'; // Alternar dirección
-        
-        let q, a, distractors = [];
-        // Seleccionar distractores aleatorios que no sean la respuesta
-        while(distractors.length < 3) {
-            let r = DATA_ENGLISH[Math.floor(Math.random() * DATA_ENGLISH.length)];
-            if (r.es !== item.es && !distractors.includes(mode==='es_to_en'?r.en:r.es)) {
-                distractors.push(mode==='es_to_en' ? r.en : r.es);
-            }
-        }
-
-        if (mode === 'es_to_en') { q = `"${item.es}" en Inglés`; a = item.en; }
-        else { q = `"${item.en}" en Español`; a = item.es; }
-        
-        return { q: q, ans: a, opts: shuffle([a, ...distractors]) };
-    }
-
-    // 3. GEOGRAFÍA (Capitales y Continentes)
-    if (subject === 'Geografia') {
-        const item = DATA_GEO[seed % DATA_GEO.length];
-        const type = (level % 3); // 0: Capital, 1: País desde Capital, 2: Continente
-        
-        let q, a, distractors = [];
-        
-        if (type === 0) {
-            q = `Capital de ${item.p}`; a = item.c;
-            // Distractores: otras capitales
-            while(distractors.length < 3) { let r = DATA_GEO[Math.floor(Math.random()*DATA_GEO.length)]; if(r.c!==a && !distractors.includes(r.c)) distractors.push(r.c); }
-        } else if (type === 1) {
-            q = `${item.c} es capital de...`; a = item.p;
-            while(distractors.length < 3) { let r = DATA_GEO[Math.floor(Math.random()*DATA_GEO.length)]; if(r.p!==a && !distractors.includes(r.p)) distractors.push(r.p); }
-        } else {
-            q = `¿Dónde está ${item.p}?`; a = item.cont;
-            distractors = ["Asia", "Europa", "América", "África", "Oceanía"].filter(x => x !== a).slice(0,3);
-        }
-
-        return { q: q, ans: a, opts: shuffle([a, ...distractors]) };
-    }
-
-    // 4. COMPUTACIÓN (Banco de preguntas cíclico pero amplio)
-    if (subject === 'compu') {
-        const item = DATA_COMPU[seed % DATA_COMPU.length];
-        return { q: item.q, ans: item.a, opts: shuffle([item.a, ...item.x]) };
-    }
-
-    return null; // Para materias especiales (Teclado, Python, Algoritmos)
-}
-
-
-// ==========================================
-// 3. ESTADO DEL JUEGO
-// ==========================================
 const DEFAULT_SHOP = [
     {id:'t1', name:'Camisa Steve', type:'torso', color:'#29b6f6', price:0},
     {id:'l1', name:'Pantalón Azul', type:'legs', color:'#3f51b5', price:0},
     {id:'h1', name:'Piel Base', type:'head', color:'#ffcc80', price:0},
     {id:'t2', name:'Camisa Creeper', type:'torso', color:'https://i.imgur.com/u3l2j1S.png', price:100},
     {id:'h2', name:'Cara Zombie', type:'head', color:'#66bb6a', price:150},
-    {id:'t3', name:'Oro Puro', type:'torso', color:'#fbc02d', price:200},
-    {id:'t4', name:'Traje Espacial', type:'torso', color:'#eeeeee', price:300},
-    {id:'h3', name:'Casco Astro', type:'head', color:'#e0e0e0', price:300}
+    {id:'t3', name:'Oro Puro', type:'torso', color:'#fbc02d', price:200}
 ];
 
+// 3. ESTADO DEL JUEGO
 let player = { 
     name: 'Jugador',
     grade: 'inicial', 
@@ -198,55 +106,49 @@ let player = {
     inventory: ['t1', 'l1', 'h1'], 
     skin: { head:'#ffcc80', torso:'#29b6f6', legs:'#3f51b5', arm:'#ffcc80' } 
 };
-
 let localDB = { customLevels: [], shopItems: DEFAULT_SHOP };
 let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0 };
 let timerInterval = null; 
 let currentPuzzleSolution = []; 
 
-// ==========================================
-// 4. FUNCIONES PRINCIPALES
-// ==========================================
-
+// 4. INICIALIZACIÓN
 window.onload = function() {
-    loadData();
-    updateUI();
-};
-
-function loadData() {
     if(localStorage.getItem('eduPlayer')) {
         try {
             let saved = JSON.parse(localStorage.getItem('eduPlayer'));
-            // Fusión segura de objetos para evitar errores si agregas nuevas materias
-            if(!saved.progress.inicial.python) { 
-                // Migración para versiones viejas
-                ['inicial','intermedia','dificil','experta','prodigio'].forEach(g => {
-                    saved.progress[g] = { ...player.progress[g], ...saved.progress[g] };
-                });
-            }
+            if(saved.grade === 1) saved.grade = 'inicial';
+            // Parche para nuevos niveles
+            ['inicial','intermedia','dificil','experta','prodigio'].forEach(g => {
+                if(!saved.progress[g]) saved.progress[g] = { matematica:1, compu:1, teclado:1, ingles:1, Geografia:1, claves:1, Algoritmos:1, python:1 };
+                else {
+                    saved.progress[g].Geografia = saved.progress[g].Geografia || 1;
+                    saved.progress[g].claves = saved.progress[g].claves || 1;
+                    saved.progress[g].Algoritmos = saved.progress[g].Algoritmos || 1;
+                    saved.progress[g].python = saved.progress[g].python || 1;
+                }
+            });
             player = saved;
-        } catch(e) { console.error("Error cargando save", e); }
+        } catch(e) { console.error("Error save", e); }
     }
     if(localStorage.getItem('eduDB')) localDB = JSON.parse(localStorage.getItem('eduDB'));
     
     document.getElementById('usernameInput').value = player.name;
     document.getElementById('gradeSelect').value = player.grade;
-}
+    updateUI();
+    if(dbOnline) syncWithCloud();
+};
 
 function updateUI() {
     document.getElementById('uiCoins').innerText = player.coins;
     const p = player.progress[player.grade];
     
-    // Actualizar etiquetas de nivel
-    const mapLabels = {
-        'matematica': 'lbl-matematica', 'compu': 'lbl-logic', 'teclado': 'lbl-typing',
-        'ingles': 'lbl-ingles', 'Geografia': 'lbl-geografia', 'Algoritmos': 'lbl-algoritmos',
-        'python': 'lbl-python'
-    };
-    
-    for (const [key, id] of Object.entries(mapLabels)) {
-        if(document.getElementById(id)) document.getElementById(id).innerText = p[key];
-    }
+    document.getElementById('lbl-matematica').innerText = p.matematica;
+    document.getElementById('lbl-logic').innerText = p.compu;
+    document.getElementById('lbl-typing').innerText = p.teclado;
+    document.getElementById('lbl-ingles').innerText = p.ingles;
+    document.getElementById('lbl-geografia').innerText = p.Geografia;
+    document.getElementById('lbl-algoritmos').innerText = p.Algoritmos;
+    document.getElementById('lbl-python').innerText = p.python;
     
     applyTexture('avHead', player.skin.head || '#ffcc80');
     applyTexture('avTorso', player.skin.torso);
@@ -266,7 +168,6 @@ function applyTexture(elementId, value) {
     }
 }
 
-// NAVEGACIÓN
 function openSubject(s) { 
     currentSession.subject = s; 
     if (s === 'claves') {
@@ -281,7 +182,7 @@ function openSubject(s) {
     }
 }
 
-function showDashboard() { setView('view-dashboard'); updateUI(); }
+function showDashboard() { setView('view-dashboard'); }
 function showShop() { setView('view-shop'); renderShop(); }
 function setView(id) { 
     ['view-dashboard','view-map','view-shop'].forEach(v => document.getElementById(v).style.display = 'none'); 
@@ -298,20 +199,14 @@ function closeGame() {
 function renderMap() {
     const grid = document.getElementById('mapGrid'); grid.innerHTML = '';
     const cur = player.progress[player.grade][currentSession.subject];
-    const maxLevels = 60; // 60 Niveles por materia
-
-    for(let i=1; i<=maxLevels; i++) {
+    for(let i=1; i<=60; i++) {
         const btn = document.createElement('div'); btn.className = 'level-block'; btn.innerText = i;
-        if(i < cur) { btn.classList.add('completed'); btn.onclick = () => playLevel(i); }
-        else if(i === cur) { btn.classList.add('current'); btn.onclick = () => playLevel(i); }
+        if(i<cur) { btn.classList.add('completed'); btn.onclick = () => playLevel(i); }
+        else if(i===cur) { btn.classList.add('current'); btn.onclick = () => playLevel(i); }
         else btn.classList.add('locked');
         grid.appendChild(btn);
     }
 }
-
-// ==========================================
-// 5. MOTOR DE NIVELES (GAMEPLAY)
-// ==========================================
 
 function playLevel(lvl) {
     currentSession.level = lvl;
@@ -319,118 +214,128 @@ function playLevel(lvl) {
     currentSession.backspaces = 0;   
     if(timerInterval) clearInterval(timerInterval);
     
-    const modal = document.getElementById('gameModal');
-    modal.style.display = 'flex';
+    document.getElementById('gameModal').style.display = 'flex';
     const content = document.getElementById('gameContent');
-    content.innerHTML = ''; // Limpiar previo
-    document.getElementById('gameTitle').innerText = `Nivel ${lvl} - ${player.grade.toUpperCase()}`;
+    document.getElementById('gameTitle').innerText = `Nivel ${lvl} (${player.grade.toUpperCase()})`;
     
-    // 1. Revisar si hay nivel personalizado (Admin)
     const custom = localDB.customLevels.find(l => l.grade == player.grade && l.subject === currentSession.subject && l.level == lvl);
+    
     if(custom) {
         renderQuestion(content, custom.question, custom.answer, custom.options);
-        return;
-    }
-
-    const subj = currentSession.subject;
-
-    // 2. Enrutador de Juegos
-    if (subj === 'Algoritmos') {
+    } 
+    else if (currentSession.subject === 'Algoritmos') {
         generateAlgorithmLevel(content, lvl);
-    } else if (subj === 'python') {
-        generatePythonLevel(content, lvl);
-    } else if (subj === 'teclado') {
-        generateTypingLevel(content, lvl);
-    } else {
-        // 3. Generador Estándar (Matemática, Inglés, Geo, Compu)
-        const data = getQuestionData(subj, player.grade, lvl);
-        if (data) {
-            renderQuestion(content, data.q, data.ans, data.opts);
-        } else {
-            content.innerHTML = "<div>Error: No hay datos para este nivel aún.</div>";
-        }
+    }
+    else {
+        generateProceduralLevel(content, currentSession.subject, lvl);
     }
 }
 
-// RENDERIZADOR GENÉRICO DE TRIVIA
+function generateProceduralLevel(container, subj, lvl) {
+    let q, ans, opts;
+
+    // --- PYTHON IDE ---
+    if (subj === 'python') {
+        const pool = DB_PYTHON_TASKS[player.grade] || DB_PYTHON_TASKS['inicial'];
+        const task = pool[(lvl - 1) % pool.length];
+        const validString = encodeURIComponent(JSON.stringify(task.valid));
+        const outputString = encodeURIComponent(task.output);
+        
+        container.innerHTML = `
+            <div class="ide-container">
+                <div style="background:#e3f2fd; padding:10px; border-left:5px solid #2196f3; color:#0d47a1;">
+                    <strong>Misión:</strong> ${task.mision}<br><small>Pista: ${task.hint}</small>
+                </div>
+                <div>Escribe tu código:</div>
+                <textarea id="pyEditor" class="code-editor" spellcheck="false" placeholder='>>>'></textarea>
+                <button class="run-btn" onclick="runPythonCode('${validString}', '${outputString}')">▶ EJECUTAR</button>
+                <div style="font-size:0.7rem;">Consola:</div>
+                <div id="pyConsole" class="console-output">Esperando...</div>
+            </div>
+        `;
+        setTimeout(() => document.getElementById('pyEditor').focus(), 100);
+        return; 
+    }
+
+    // --- OTRAS MATERIAS ---
+    if (subj === 'Geografia') {
+        const pool = DB_GEOGRAFIA[player.grade] || DB_GEOGRAFIA['inicial'];
+        const item = getRandom(pool);
+        if (item.img) {
+            ans = item.ans; opts = item.opts.sort(() => Math.random() - 0.5);
+            let html = `<h4 style="color:#555;">¿Dónde es esto?</h4><div style="width:100%; height:180px; background-image:url('${item.img}'); background-size:cover; background-position:center; border:4px solid #333; border-radius:10px; margin-bottom:15px;"></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">`;
+            opts.forEach(opt => { html += `<button class="mc-btn blue" onclick="checkAnswer('${opt}', '${ans}')">${opt}</button>`; });
+            html += `</div>`;
+            container.innerHTML = html;
+            return;
+        } else {
+            q = item.q; ans = item.ans; opts = item.opts.sort(() => Math.random() - 0.5);
+        }
+    }
+    else if (subj === 'compu') {
+        const pool = DB_COMPUTING[player.grade] || DB_COMPUTING['inicial'];
+        const item = getRandom(pool);
+        q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
+    }
+    else if (subj === 'teclado') {
+        let target = "", prompt = "", showStats = false;
+        let pool = DB_TECLADO[player.grade]; 
+        let isProdigio = player.grade === 'prodigio';
+        if(isProdigio) showStats = true;
+
+        if (player.grade === 'inicial') {
+            if(lvl <= 25) { target = getRandom(pool.letras); prompt = "Tecla:"; } else { target = getRandom(pool.palabras); prompt = "Palabra:"; }
+        } else if (player.grade === 'intermedia') { target = getRandom(pool.palabras); prompt = "Palabra:"; }
+        else if (player.grade === 'dificil') { target = getRandom(pool.palabras); prompt = "Escribe:"; }
+        else if (player.grade === 'experta') { target = getRandom(pool.oraciones); prompt = "Oración:"; }
+        else { target = getRandom(pool.textos); prompt = "Transcribe:"; }
+        
+        ans = target;
+        let inputStyle = "text-align:center; font-size:1.2rem; width:100%;" + (isProdigio ? "" : " text-transform:uppercase;");
+        
+        container.innerHTML = `${showStats ? `<div class="stats-bar"><div class="stats-item">⏳ <span id="timeCounter">0.0s</span></div><div class="stats-item">⌨️ <span id="delCounter" class="stat-danger">0</span></div><div class="stats-item">📝 <span id="wCounter">0</span></div></div>` : ''}<div style="color:#78909c; font-size:0.8rem; margin-bottom:10px;">${prompt}</div><h3 style="color:#555; font-size:${ans.length>25?'0.7rem':'1.2rem'}">${ans}</h3><input type="text" id="typingInput" autocomplete="off" style="${inputStyle}"><button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('typingInput').value, '${ans}')">Confirmar</button>`;
+        setTimeout(() => { 
+            const i = document.getElementById('typingInput'); 
+            if(i) { i.focus(); i.oninput = () => { if(!currentSession.startTime && showStats) { currentSession.startTime = new Date(); timerInterval = setInterval(() => { document.getElementById('timeCounter').innerText = ((new Date() - currentSession.startTime)/1000).toFixed(1) + 's'; }, 100); } if(showStats) document.getElementById('wCounter').innerText = i.value.trim().split(/\s+/).filter(x=>x).length; }; i.onkeydown = (e) => { if(showStats && e.key === 'Backspace') {currentSession.backspaces++; document.getElementById('delCounter').innerText = currentSession.backspaces;} if(e.key === 'Enter') checkAnswer(i.value, ans); }; }
+        }, 50);
+        return;
+    }
+    else if (subj === 'matematica') {
+        let a, b, opSelector = Math.random();
+        let max = (player.grade==='inicial') ? 20 : 100;
+        if (opSelector < 0.4) { a=r(max); b=r(max); q=`¿${a}+${b}?`; ans=a+b; }
+        else { b=r(5)+1; ans=r(10)+1; a=b*ans; q=`¿${a}/${b}?`; }
+        opts = [ans, ans+1, ans-1, ans+5].sort(()=>Math.random()-0.5);
+    }
+    else {
+        const item = getRandom(DB_INGLES); q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
+    }
+
+    renderQuestion(container, q, ans, opts);
+}
+
+function r(max) { return Math.floor(Math.random() * max) + 1; }
+
 function renderQuestion(container, q, ans, opts) {
-    // Si opts es string (legacy), convertir a array
-    if (typeof opts === 'string') opts = opts.split(',');
-    
-    let html = `
-        <div style="background:#fff; border:2px solid #ccc; padding:20px; border-radius:10px; margin-bottom:20px;">
-            <h2 style="color:#455a64; margin:0;">${q}</h2>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-    `;
-    
-    opts.forEach(opt => { 
-        // Escapar comillas para evitar errores de JS en el onclick
-        const safeOpt = opt.toString().replace(/'/g, "\\'");
-        const safeAns = ans.toString().replace(/'/g, "\\'");
-        html += `<button class="mc-btn blue big-btn" style="font-size:1rem;" onclick="checkAnswer('${safeOpt}','${safeAns}')">${opt}</button>`; 
-    });
-    
+    if (!Array.isArray(opts)) opts = opts.split(',');
+    let html = `<h2 style="color:#455a64; margin-bottom:30px;">${q}</h2><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">`;
+    opts.forEach(opt => { html += `<button class="mc-btn blue" onclick="checkAnswer('${opt}','${ans}')">${opt}</button>`; });
     html += `</div>`;
     container.innerHTML = html;
 }
 
-// --- JUEGO DE TECLADO ---
-function generateTypingLevel(container, lvl) {
-    const seed = lvl * 123;
-    const words = ["SOL","LUZ","PAN","MAR","OSO","MAMA","PAPA","AUTO","TREN","AVION","CASA","GATO","PERRO", "MUNDO", "TIERRA", "AGUA", "FUEGO", "AIRE", "CIELO", "NUBE", "FLOR", "ARBOL", "HOJA", "RAMA", "RAIZ", "TRONCO", "BOSQUE", "SELVA", "RIO", "LAGO", "MAR", "OCEANO"];
-    const sentences = ["EL PERRO CORRE", "LA NIÑA JUEGA", "EL SOL BRILLA", "LA LUNA SALE", "ME GUSTA LEER", "PROGRAMAR ES DIVERTIDO"];
-    
-    let target = "";
-    
-    if(player.grade === 'inicial') target = words[seed % 10]; // Palabras cortas
-    else if(player.grade === 'intermedia') target = words[seed % words.length]; // Todas las palabras
-    else if(player.grade === 'dificil') target = words[seed % words.length] + " " + words[(seed+1) % words.length]; // Dos palabras
-    else target = sentences[seed % sentences.length]; // Frases
-
-    let inputStyle = "text-align:center; font-size:1.5rem; width:100%; padding:15px; letter-spacing: 2px;";
-    
-    container.innerHTML = `
-        <div style="color:#78909c; font-size:0.8rem; margin-bottom:10px;">ESCRIBE:</div>
-        <h3 style="color:#333; font-size:1.8rem; background:#eceff1; padding:20px; border-radius:5px;">${target}</h3>
-        <input type="text" id="typingInput" autocomplete="off" style="${inputStyle}">
-        <button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('typingInput').value, '${target}')">CONFIRMAR</button>
-    `;
-    setTimeout(() => document.getElementById('typingInput').focus(), 100);
-}
-
-// --- JUEGO DE ALGORITMOS (BLOCKLY SIMPLIFICADO) ---
+// 7. LÓGICA DE ALGORITMOS (BLOCKLY)
 function generateAlgorithmLevel(container, lvl) {
-    const seed = lvl;
-    // Generador de secuencias lógicas
-    const steps = [
-        {t:"Avanzar", c:"blk-action"}, {t:"Girar Izq", c:"blk-action"}, {t:"Girar Der", c:"blk-action"},
-        {t:"Saltar", c:"blk-action"}, {t:"Repetir 3", c:"blk-control"}, {t:"Si hay pared", c:"blk-logic"}
-    ];
-    
-    // Crear una secuencia "correcta" aleatoria basada en el nivel
-    let length = Math.min(3 + Math.floor(lvl/5), 8); // Aumenta longitud cada 5 niveles
-    let solution = [];
-    for(let i=0; i<length; i++) solution.push(steps[(seed + i) % steps.length]);
-
-    currentPuzzleSolution = solution.map(s => s.t);
-    let shuffled = [...solution].sort(() => Math.random() - 0.5); // Mezclar para el usuario
+    const difficulty = player.grade; 
+    const pool = DB_ALGORITMOS[difficulty] || DB_ALGORITMOS['inicial'];
+    const puzzle = pool[(lvl - 1) % pool.length];
+    currentPuzzleSolution = puzzle.blocks.map(b => b.text);
+    let shuffled = [...puzzle.blocks].sort(() => Math.random() - 0.5);
 
     container.innerHTML = `
-        <div style="text-align:left; margin-bottom:10px;">
-            <h4 style="margin:0; color:#0277bd;">Algoritmo #${lvl}</h4>
-            <p>Ordena los bloques para completar la secuencia lógica.</p>
-        </div>
-        <div class="algo-container">
-            <div class="algo-workspace" id="workspaceArea" style="min-height:200px;">
-                <div id="emptyMsg" style="width:100%; text-align:center; padding-top:80px; color:#ccc;">Arrastra los bloques aquí</div>
-            </div>
-            <div style="font-weight:bold; margin-bottom:5px;">Bloques Disponibles:</div>
-            <div class="algo-toolbox" id="toolboxArea">
-                ${shuffled.map(b => `<div class="code-block ${b.c}" onclick="moveBlock(this)">${b.t}</div>`).join('')}
-            </div>
-        </div>
-        <button class="mc-btn green" style="width:100%; margin-top:20px;" onclick="checkAlgorithm()">▶️ EJECUTAR CÓDIGO</button>
+        <div style="text-align:left; margin-bottom:10px;"><h4 style="margin:0; color:#0277bd;">Misión: ${puzzle.title}</h4><small style="color:#555;">Ordena los bloques.</small></div>
+        <div class="algo-container"><div style="font-size:0.6rem; color:#999; margin-bottom:-15px;">Tu Programa:</div><div class="algo-workspace" id="workspaceArea"><div id="emptyMsg" style="width:100%; text-align:center; padding-top:50px; color:#ccc;">Arrastra o haz clic</div></div><div style="font-size:0.6rem; color:#999; margin-bottom:-15px;">Piezas:</div><div class="algo-toolbox" id="toolboxArea">${shuffled.map(b => `<div class="code-block ${b.type}" onclick="moveBlock(this)">${b.text}</div>`).join('')}</div></div>
+        <button class="mc-btn green" style="width:100%; margin-top:20px;" onclick="checkAlgorithm()">▶️ EJECUTAR</button>
     `;
 }
 
@@ -438,81 +343,29 @@ function moveBlock(el) {
     const ws = document.getElementById('workspaceArea');
     const tb = document.getElementById('toolboxArea');
     const msg = document.getElementById('emptyMsg');
-    
-    if (el.parentElement === tb) {
-        ws.appendChild(el); 
-        if(msg) msg.style.display = 'none';
-    } else {
-        tb.appendChild(el); 
-        if(ws.children.length <= 1 && msg) msg.style.display = 'block';
-    }
+    if (el.parentElement === tb) { ws.appendChild(el); if(msg) msg.style.display = 'none'; }
+    else { tb.appendChild(el); if(ws.children.length <= 1 && msg) msg.style.display = 'block'; }
 }
 
 function checkAlgorithm() {
     const userBlocks = Array.from(document.querySelectorAll('#workspaceArea .code-block'));
     const userSeq = userBlocks.map(el => el.innerText.trim());
-    
-    // En este modo "infinito", cualquier orden que use TODOS los bloques es válido por ahora
-    // Para hacerlo más estricto, deberíamos guardar la "solución correcta" exacta.
-    // Como es generado aleatoriamente, comparamos con la solución guardada.
-    
-    // TIP: Para niños, a veces es frustrante el orden exacto si no hay pista visual.
-    // Vamos a hacer una comparación laxa: Si tiene los bloques correctos, pasa.
-    // O estricta:
-    
-    let isCorrect = true;
-    if(userSeq.length !== currentPuzzleSolution.length) isCorrect = false;
-    else {
-        // Modo estricto: El usuario debe adivinar el orden original (difícil sin pista visual)
-        // Modo educativo: El usuario debe ordenar lógicamente.
-        // Haremos un hack: El juego muestra el orden correcto arriba brevemente?
-        // Mejor: Mostramos el objetivo en texto.
-    }
-    
-    // Simplificación para jugabilidad infinita: Si usaste todos los bloques, ganas.
-    if (userBlocks.length === currentPuzzleSolution.length) {
-        successAction("¡Algoritmo Compilado! +30 🪙", 30);
+    if (JSON.stringify(userSeq) === JSON.stringify(currentPuzzleSolution)) {
+        successAction("¡Algoritmo Correcto! +30 🪙", 30);
     } else {
-        failAction("Faltan bloques");
+        failAction("Orden Incorrecto");
+        document.getElementById('workspaceArea').classList.add('shake-anim');
+        setTimeout(()=>document.getElementById('workspaceArea').classList.remove('shake-anim'), 500);
     }
 }
 
-// --- PYTHON LEVELS ---
-function generatePythonLevel(container, lvl) {
-    // Ciclar entre tareas básicas
-    const tasks = DATA_PYTHON;
-    const task = tasks[(lvl - 1) % tasks.length];
-    // Variar un poco los números basados en nivel para que no sea idéntico
-    let finalTask = {...task};
-    
-    if (lvl > 5) {
-        // Modificar dinámicamente
-        const n = lvl * 2;
-        if(finalTask.m.includes("2 + 2")) {
-            finalTask.m = `Suma ${n} + ${n}`;
-            finalTask.h = `print(${n}+${n})`;
-            finalTask.v = [`print(${n}+${n})`, `print(${n+n})`];
-            finalTask.o = (n+n).toString();
-        }
-    }
-
-    const validString = encodeURIComponent(JSON.stringify(finalTask.v));
-    const outputString = encodeURIComponent(finalTask.o);
-
-    container.innerHTML = `
-        <div class="ide-container">
-            <div style="background:#e3f2fd; padding:10px; border-left:5px solid #2196f3; color:#0d47a1;">
-                <strong>Misión Nivel ${lvl}:</strong> ${finalTask.m}<br><small>Pista: ${finalTask.h}</small>
-            </div>
-            <textarea id="pyEditor" class="code-editor" spellcheck="false" placeholder='>>> Escribe tu código aquí'></textarea>
-            <button class="run-btn" onclick="runPythonCode('${validString}', '${outputString}')">▶ EJECUTAR (RUN)</button>
-            <div id="pyConsole" class="console-output">Esperando ejecución...</div>
-        </div>
-    `;
-}
-
+// 8. LÓGICA DE PYTHON (IDE - MODO ESTRICTO PERO SMART QUOTES)
 function normalizeCode(code) {
-    return code.trim().replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s+/g, ''); // Eliminar espacios para comparación fácil
+    // Solo arregla comillas raras de celular, pero respeta mayúsculas y espacios
+    return code
+        .trim()
+        .replace(/[“”]/g, '"')   // Smart quotes dobles -> normales
+        .replace(/[‘’]/g, "'");  // Smart quotes simples -> normales
 }
 
 function runPythonCode(validEncoded, outputEncoded) {
@@ -521,89 +374,101 @@ function runPythonCode(validEncoded, outputEncoded) {
     const valid = JSON.parse(decodeURIComponent(validEncoded));
     const output = decodeURIComponent(outputEncoded);
     
-    cons.innerText = "Compilando...";
-    
+    cons.innerText = "Procesando...";
+    cons.style.color = "#ffff00";
+
     setTimeout(() => {
         const userClean = normalizeCode(code);
+        // Comparación estricta (salvo comillas)
         const match = valid.some(v => normalizeCode(v) === userClean);
         
         if (match) {
             cons.style.color = "#00ff00";
-            cons.innerText = ">>> " + (output || "Hecho.") + "\n\n[Process finished with exit code 0]";
-            successAction("¡Código Correcto!", 25);
+            cons.innerText = ">>> " + output + "\n\n[Exit code 0]";
+            successAction("¡Código Funcional! +25 🪙", 25);
         } else {
             cons.style.color = "#ff4444";
-            cons.innerText = `Error: El código no hace exactamente lo que pide la misión.\nTu entrada: ${code}`;
-            failAction("Error de Sintaxis");
+            cons.innerText = `Traceback (most recent call last):\n  File "main.py", line 1\n    ${code}\nSyntaxError: invalid syntax (o no cumple la misión)`;
+            failAction("Error en el código");
         }
-    }, 800);
+    }, 600);
 }
 
-// ==========================================
-// 6. SISTEMA DE RESPUESTAS Y RECOMPENSAS
-// ==========================================
+// 9. HERRAMIENTA CLAVES
+function renderPasswordTool(container) {
+    container.innerHTML = `
+        <div style="text-align:left; padding:10px;">
+            <label>Longitud: <input type="number" id="pwdLength" min="4" max="20" value="12" style="width:60px; padding:5px;"></label>
+            <div style="margin:10px 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.7rem;">
+                <label><input type="checkbox" id="incUpper" checked> ABC</label><label><input type="checkbox" id="incLower" checked> abc</label>
+                <label><input type="checkbox" id="incNum" checked> 123</label><label><input type="checkbox" id="incSym" checked> @#$</label>
+            </div>
+            <button class="mc-btn blue" style="width:100%; margin-bottom:15px;" onclick="genPwd()">🔄 Generar</button>
+            <div id="resultPwd" style="background:#263238; color:#81c784; padding:15px; font-family:monospace; font-size:1.2rem; text-align:center; margin-bottom:20px;">???</div>
+            <h4 style="margin:0 0 10px 0; color:#0277bd;">Guardar:</h4>
+            <input type="text" id="siteName" placeholder="Sitio..." style="margin-bottom:10px;">
+            <button class="mc-btn green" style="width:100%;" onclick="savePwd()">💾 Guardar</button>
+            <div id="savedList" style="margin-top:15px; background:#eceff1; height:100px; overflow-y:auto; border:2px solid #b0bec5; padding:5px; font-size:0.6rem;"></div>
+        </div>`;
+}
+function genPwd() {
+    const len=document.getElementById('pwdLength').value, u=document.getElementById('incUpper').checked, l=document.getElementById('incLower').checked, n=document.getElementById('incNum').checked, s=document.getElementById('incSym').checked;
+    let chars = ""; if(u) chars+="ABCDEFGHIJKLMNOPQRSTUVWXYZ"; if(l) chars+="abcdefghijklmnopqrstuvwxyz"; if(n) chars+="0123456789"; if(s) chars+="!@#$%^&*";
+    if(!chars) return showToast("Elige opciones", "error");
+    let pwd = ""; for(let i=0; i<len; i++) pwd += chars.charAt(Math.floor(Math.random()*chars.length));
+    document.getElementById('resultPwd').innerText = pwd;
+}
+function savePwd() {
+    const site=document.getElementById('siteName').value, pwd=document.getElementById('resultPwd').innerText;
+    if(!site || pwd==="???") return showToast("Faltan datos", "error");
+    const d = document.createElement('div'); d.innerHTML = `<b>${site}:</b> <span style="color:blue">${pwd}</span>`;
+    document.getElementById('savedList').prepend(d);
+    player.coins += 5; updateUI(); saveData(); showToast("¡Guardado! +5");
+}
 
+// 10. VALIDACIÓN Y UTILIDADES GENERALES
 function checkAnswer(user, correct) {
     let isCorrect = false;
-    // Comparación insensible a mayúsculas y espacios
-    if (String(user).trim().toUpperCase() === String(correct).trim().toUpperCase()) isCorrect = true;
+    if (player.grade === 'prodigio' && currentSession.subject === 'teclado') { if (String(user).trim() === String(correct).trim()) isCorrect = true; }
+    else { if (String(user).toUpperCase().trim() === String(correct).toUpperCase().trim()) isCorrect = true; }
 
-    if (isCorrect) {
-        successAction("¡Respuesta Correcta!", 20);
-    } else {
-        failAction(`Incorrecto. Era: ${correct}`);
-    }
+    if (isCorrect) successAction("¡Correcto! +20 🪙", 20);
+    else failAction("Incorrecto -10 🪙");
 }
 
 function successAction(msg, coins) {
     player.coins += coins;
-    // Avanzar nivel si estamos en el nivel actual
-    const currentMax = player.progress[player.grade][currentSession.subject];
-    if(currentSession.level === currentMax) {
-        player.progress[player.grade][currentSession.subject]++;
-    }
-    
-    saveData(); 
-    updateUI(); 
-    showToast(`✅ ${msg} (+${coins}🪙)`);
-    
-    // Cerrar modal y reabrir si hay siguiente nivel
-    setTimeout(() => {
-        closeGame();
-        // Opcional: Auto-avanzar
-        // if(currentSession.level < 60) playLevel(currentSession.level + 1);
-    }, 1500);
+    if(currentSession.level === player.progress[player.grade][currentSession.subject]) player.progress[player.grade][currentSession.subject]++;
+    saveData(); updateUI(); showToast(msg);
+    if(timerInterval) clearInterval(timerInterval);
+    setTimeout(() => { if(currentSession.level < 60) playLevel(currentSession.level + 1); else closeGame(); }, 1000);
 }
 
 function failAction(msg) {
-    player.coins = Math.max(0, player.coins - 5); // Penalización pequeña
-    saveData(); 
-    updateUI(); 
-    showToast(`❌ ${msg}`, 'error');
+    player.coins = Math.max(0, player.coins - 10);
+    saveData(); updateUI(); showToast(msg, 'error');
 }
 
-// UTILIDADES
-function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-function showToast(msg, type='success') { 
-    const area = document.getElementById('notification-area');
-    const t = document.createElement('div'); 
-    t.className = `toast ${type}`; 
-    t.innerHTML = msg; 
-    area.appendChild(t); 
-    setTimeout(() => t.remove(), 3000); 
-}
+function getRandom(arr) { if(!arr) return "X"; return arr[Math.floor(Math.random() * arr.length)]; }
+function updateUsername(val) { player.name = val; saveData(); }
+function changeGrade() { player.grade = document.getElementById('gradeSelect').value; updateUI(); showToast(`Dificultad: ${player.grade.toUpperCase()}`); }
+function showToast(msg, type='success') { const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<span>${type=='success'?'✅':'❌'}</span><span>${msg}</span>`; document.getElementById('notification-area').appendChild(t); setTimeout(() => t.remove(), 4000); }
+function resetGame() { if(confirm("¿Borrar todo?")) { localStorage.removeItem('eduPlayer'); location.reload(); } }
 
-function saveData() {
-    localStorage.setItem('eduPlayer', JSON.stringify(player));
-    localStorage.setItem('eduDB', JSON.stringify(localDB));
-    if(dbOnline && player.name) {
-        dbOnline.collection("players").doc(player.name).set(player).catch(e => console.log("Error sync", e));
-    }
+function saveData() { localStorage.setItem('eduPlayer', JSON.stringify(player)); localStorage.setItem('eduDB', JSON.stringify(localDB)); if(dbOnline) syncWithCloud(); }
+function syncWithCloud() { if(dbOnline) dbOnline.collection("players").doc(player.name).set(player).then(() => loadLeaderboard()).catch(e => console.error(e)); }
+function loadLeaderboard() {
+    if(!dbOnline) return;
+    dbOnline.collection("players").orderBy("coins", "desc").limit(10).onSnapshot(snapshot => {
+        const list = document.getElementById('leaderboardList'); list.innerHTML = ''; let rank = 1;
+        snapshot.forEach(doc => {
+            const p = doc.data(); const row = document.createElement('div'); row.className = `leaderboard-row ${rank===1?'top-1':''}`;
+            const bg = (p.skin.head && p.skin.head.startsWith('http')) ? `background-image:url('${p.skin.head}'); background-size:cover;` : `background:${p.skin.head||'#ffcc80'};`;
+            row.innerHTML = `<div class="rank">#${rank++}</div><div class="mini-avatar-box"><div class="mc-head mc-part" style="${bg} width:40px; height:40px;"></div></div><div style="flex:1; display:flex; justify-content:space-between;"><div style="font-weight:bold; color:#37474f;">${p.name}</div><div style="color:#f9a825;">${p.coins}</div></div>`;
+            list.appendChild(row);
+        });
+    });
 }
-
-// ==========================================
-// 7. TIENDA Y ADMIN
-// ==========================================
 
 function renderShop() {
     const g = document.getElementById('shopGrid'); g.innerHTML = '';
@@ -611,76 +476,32 @@ function renderShop() {
         const owned = player.inventory.includes(it.id);
         const d = document.createElement('div'); d.className = 'panel center-content';
         let bg = it.color.startsWith('http') ? `background-image:url('${it.color}'); background-size:cover;` : `background:${it.color};`;
-        
-        d.innerHTML = `
-            <div style="width:50px;height:50px;${bg} margin:0 auto 10px; border:2px solid #333;"></div>
-            <b>${it.name}</b><br>
-            <button class="mc-btn ${owned ? 'green' : 'orange'} small-btn" onclick="buyItem('${it.id}')">
-                ${owned ? 'EQUIPAR' : '$' + it.price}
-            </button>
-        `;
+        d.innerHTML = `<div style="width:40px;height:40px;${bg} margin:0 auto 10px;border:2px solid #000;"></div><b>${it.name}</b><br><small>${owned?'Tuyo':it.price}</small>`;
+        d.onclick = () => {
+            if(owned) { player.skin[it.type] = it.color; saveData(); updateUI(); showToast("Equipado"); }
+            else if(player.coins >= it.price) { player.coins -= it.price; player.inventory.push(it.id); player.skin[it.type] = it.color; saveData(); updateUI(); renderShop(); showToast("Comprado"); }
+            else showToast("Faltan Monedas", 'error');
+        };
         g.appendChild(d);
     });
 }
 
-function buyItem(id) {
-    const item = localDB.shopItems.find(i => i.id === id);
-    if(player.inventory.includes(id)) {
-        // Equipar
-        player.skin[item.type] = item.color;
-        showToast("¡Item Equipado!");
-    } else {
-        // Comprar
-        if(player.coins >= item.price) {
-            player.coins -= item.price;
-            player.inventory.push(id);
-            player.skin[item.type] = item.color;
-            showToast("¡Compra Exitosa!");
-        } else {
-            showToast("No tienes suficientes monedas", 'error');
-        }
-    }
-    saveData(); updateUI(); renderShop();
-}
-
-// GENERADOR DE CONTRASEÑAS (HERRAMIENTA EXTRA)
-function renderPasswordTool(container) {
-    container.innerHTML = `
-        <div style="text-align:center;">
-            <h3>Generador Seguro</h3>
-            <div id="pwdResult" style="font-family:monospace; font-size:1.5rem; background:#333; color:#0f0; padding:10px; margin:10px;">??????</div>
-            <button class="mc-btn blue" onclick="generatePwd()">GENERAR</button>
-        </div>
-    `;
-}
-function generatePwd() {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
-    let pwd = "";
-    for(let i=0; i<12; i++) pwd += chars.charAt(Math.floor(Math.random() * chars.length));
-    document.getElementById('pwdResult').innerText = pwd;
-}
-
-// ADMIN TOOLS
 function openAdminLogin() { document.getElementById('adminLoginModal').style.display = 'flex'; }
-function closeAdmin() { document.getElementById('adminPanelModal').style.display = 'none'; }
-function checkAdmin() {
-    if(document.getElementById('adminUser').value === 'profe' && document.getElementById('adminPass').value === 'nico') {
-        document.getElementById('adminLoginModal').style.display = 'none';
-        document.getElementById('adminPanelModal').style.display = 'flex';
-    } else {
-        showToast("Acceso Denegado", 'error');
-    }
+function checkAdmin() { if(document.getElementById('adminUser').value==='admin' && document.getElementById('adminPass').value==='minecraft') { document.getElementById('adminLoginModal').style.display='none'; document.getElementById('adminPanelModal').style.display='flex'; } else showToast("Error", 'error'); }
+function closeAdmin() { document.getElementById('adminPanelModal').style.display='none'; }
+function adminAddManualPlayer() {
+    const name = document.getElementById('manualName').value, coins = parseInt(document.getElementById('manualCoins').value);
+    if (!name || isNaN(coins)) return showToast("Datos incorrectos", 'error');
+    const newPlayer = { name: name, coins: coins, skin: { head:'#ffcc80', torso:'#29b6f6', legs:'#3f51b5', arm:'#ffcc80' } };
+    if(dbOnline) dbOnline.collection("players").doc(name).set(newPlayer).then(()=>{showToast(`¡${name} inyectado!`);});
 }
-function resetGame() {
-    if(confirm("¿Estás seguro de BORRAR todo tu progreso?")) {
-        localStorage.removeItem('eduPlayer');
-        location.reload();
-    }
+function adminAddItem() {
+    const n=document.getElementById('admItemName').value, p=document.getElementById('admPrice').value, t=document.getElementById('admType').value, c=document.getElementById('admTexture').value;
+    if(!n || !c) return showToast("Falta Info",'error');
+    localDB.shopItems.push({ id: 'c_'+Date.now(), name: n, price: parseInt(p), type: t, color: c }); saveData(); showToast("Item Creado");
 }
-function changeGrade() {
-    player.grade = document.getElementById('gradeSelect').value;
-    updateUI();
-    showToast(`Dificultad cambiada a: ${player.grade.toUpperCase()}`);
+function adminAddLevel() {
+    const g=document.getElementById('admGrade').value, s=document.getElementById('admSubj').value, l=document.getElementById('admLvlNum').value, q=document.getElementById('admQ').value, a=document.getElementById('admAns').value, o=document.getElementById('admOpts').value;
+    if(!l||!q||!a) return showToast("Faltan Datos",'error');
+    localDB.customLevels.push({ grade: g, subject: s, level: parseInt(l), question: q, answer: a, options: o }); saveData(); showToast("Nivel Guardado");
 }
-function updateUsername(val) { player.name = val; saveData(); }
-
