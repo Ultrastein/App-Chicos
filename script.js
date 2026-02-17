@@ -1,4 +1,6 @@
+// ==========================================
 // 1. CONFIGURACIÓN FIREBASE
+// ==========================================
 const firebaseConfig = {
     apiKey: "AIzaSyD_EIqwof3YhStlpSY4PhWJLqoDtjUqsVM",
     authDomain: "web-de-juego.firebaseapp.com",
@@ -13,73 +15,272 @@ let dbOnline = null;
 try {
     firebase.initializeApp(firebaseConfig);
     dbOnline = firebase.firestore();
-} catch(e) { console.error("Error Firebase", e); }
+} catch(e) { console.error("Error Firebase (Offline mode)", e); }
 
 // ==========================================
 // 2. BASES DE DATOS (CONTENIDO)
 // ==========================================
 
 const DB_TECLADO = {
-    inicial: { letras: "ASDFJKLÑQWERTYUIOPZXCVBNM".split(''), simbolos: [".", ",", ";", ":", "-", "_", "!", "?"], palabras: ["SOL","LUZ","PAN","MAR","OSO","MAMA"] },
-    intermedia: { palabras: ["ESCUELA", "AMIGO", "JUGUETE", "PARQUE"], tildes: ["ÁRBOL", "CANTÓ", "AVIÓN"], oraciones: ["EL PERRO LADRA.", "HOLA MUNDO."] },
-    dificil: { palabras: ["ELECTRODOMESTICO", "FERROCARRIL", "CONSTITUCION"], simbolos: ["@", "#", "$", "%"], codigo: ["width:100%", "#FFAA00", "user_name"] },
-    experta: { oraciones: ["LA TECNOLOGIA AVANZA EXPONENCIALMENTE.", "LOS ALGORITMOS DE BUSQUEDA SON FUNDAMENTALES."] },
-    prodigio: { textos: ["En un lugar de la Mancha, de cuyo nombre no quiero acordarme.", "Programar es el arte de decirle a otro humano lo que la PC debe hacer."] }
-};
-
-const DB_COMPUTING = {
-    inicial: [{q:"¿Qué usas para hacer clic?", ans:"Mouse", opts:["Mouse", "Teclado", "Pantalla"]}, {q:"¿Dónde ves las imágenes?", ans:"Monitor", opts:["Monitor", "Impresora", "Mouse"]}, {q:"El cerebro de la PC", ans:"CPU", opts:["CPU", "Botón", "Cable"]}],
-    intermedia: [{q:"¿Qué es Software?", ans:"Programas", opts:["Programas", "Teclado", "Cables"]}, {q:"Navegador de internet", ans:"Chrome", opts:["Chrome", "Word", "Excel"]}, {q:"Memoria Temporal", ans:"RAM", opts:["RAM", "HDD", "USB"]}],
-    dificil: [{q:"8 bits son...", ans:"1 Byte", opts:["1 Byte", "1 Kilo", "1 Bit"]}, {q:"Binario usa...", ans:"0 y 1", opts:["0 y 1", "1 y 2", "A y B"]}, {q:"Red mundial", ans:"WAN", opts:["WAN", "LAN", "WIFI"]}],
-    experta: [{q:"¿Qué es un Algoritmo?", ans:"Pasos lógicos", opts:["Pasos lógicos", "Virus", "Pieza"]}, {q:"Variable sirve para...", ans:"Guardar datos", opts:["Guardar datos", "Borrar", "Imprimir"]}],
-    prodigio: [{q:"Binario: 101 es...", ans:"5", opts:["5", "3", "2", "10"]}, {q:"Hexadecimal: A es...", ans:"10", opts:["10", "11", "12"]}, {q:"1024 GB son...", ans:"1 TB", opts:["1 TB", "1 PB", "1 MB"]}]
-};
-
-const DB_GEOGRAFIA = {
-    inicial: [{q:"¿Planeta?", ans:"Tierra", opts:["Tierra", "Marte", "Sol"]}, {q:"¿Continentes?", ans:"7", opts:["5", "6", "7"]}],
-    intermedia: [{q:"Capital Argentina", ans:"Buenos Aires", opts:["Buenos Aires", "Córdoba", "Lima"]}, {q:"Capital España", ans:"Madrid", opts:["Madrid", "Paris", "Roma"]}],
-    dificil: [{q:"Río más largo", ans:"Amazonas", opts:["Amazonas", "Nilo", "Misisipi"]}, {q:"Desierto mayor", ans:"Sahara", opts:["Sahara", "Atacama", "Gobi"]}],
+    // INICIAL: Letras y Números (Case Sensitive)
+    inicial: "ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz0123456789".split(''),
+    
+    // INTERMEDIA: Frases naturales -> Símbolos
+    intermedia: [
+        "Hola mundo", "Buen dia", "Gato negro", "Perro grande", "Sol amarillo", 
+        "Luna blanca", "Mar azul", "Flor roja", "Mesa grande", "Silla chica", 
+        "Auto verde", "Casa linda", "Tren rapido", "Luz fuerte", "Pan rico",
+        "Sal y pimienta", "Agua fria", "Viento suave", "Cielo claro", "Noche oscura",
+        "Manzana roja", "Pera verde", "Libro nuevo", "Papel blanco", "Lapiz corto",
+        ".", ",", ";", ":", "-", "_", "!", "¡", "?", "¿", 
+        "@", "#", "$", "%", "&", "/", "(", ")", "=", "+", 
+        "[", "]", "{", "}", "*", "|"
+    ],
+    
+    // DIFICIL: Estructurada por etapas
+    dificil: {
+        sinTilde: [
+            "El viento sopla muy fuerte en la montaña", "Los estudiantes leen muchos libros interesantes", 
+            "La computadora procesa datos a gran velocidad", "El tren llega puntual a la estacion central",
+            "Los gatos corren rapido por el jardin", "Quiero aprender a programar en Python",
+            "La tecnologia avanza cada dia mas rapido"
+        ],
+        conTildeFacil: [
+            "El árbol es alto", "Tomé un café", "El león ruge", "El sofá es cómodo", "Papá y mamá", 
+            "El avión vuela", "La canción es linda", "El lápiz es mío", "El balón", "Jugué mucho"
+        ],
+        conTildeDificil: [
+            "La biología es una ciencia fascinante", "El pájaro cantó una melodía alegre", 
+            "La geografía estudia la Tierra", "El ejército avanzó con determinación", 
+            "La música clásica es relajante", "El círculo tiene un radio y un diámetro"
+        ],
+        dieresis: [
+            "El pingüino nada en el agua helada", "La cigüeña trae buenas noticias", 
+            "Siento vergüenza ajena", "Es un texto bilingüe", "Hay ambigüedad en su respuesta", 
+            "El desagüe esta tapado", "La antigüedad de este objeto es valiosa"
+        ]
+    },
     experta: [
-        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Empire_State_Building_from_the_Top_of_the_Rock.jpg/640px-Empire_State_Building_from_the_Top_of_the_Rock.jpg", ans:"Nueva York", opts:["Nueva York", "Chicago", "Toronto"]},
-        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_from_Bridge.jpg/640px-London_Skyline_from_Bridge.jpg", ans:"Londres", opts:["Londres", "París", "Berlín"]}
+        "El gato duerme, plácidamente, en el sofá.", "¡Qué sorpresa verte aquí hoy!", 
+        "¿Podrías pasarme la sal, por favor?", "La programación: arte y lógica.", 
+        "Ayer fui al cine; la película estuvo genial.", "El éxito depende del esfuerzo diario.",
+        "10 + 10 = 20, eso es matemática básica.", "Mi correo es: usuario@email.com",
+        "Cuidado con el escalón, ¡es peligroso!", "La 'constitución' es la ley suprema."
     ],
     prodigio: [
-        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Machu_Picchu%2C_Peru.jpg/640px-Machu_Picchu%2C_Peru.jpg", ans:"Machu Picchu", opts:["Machu Picchu", "Chichén Itzá", "Tikal"]},
-        {img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/640px-Taj_Mahal_%28Edited%29.jpeg", ans:"Taj Mahal", opts:["Taj Mahal", "Petra", "Coliseo"]}
+        "En un lugar de la Mancha de cuyo nombre no quiero acordarme.",
+        "La práctica hace al maestro y escribir rápido requiere constancia.",
+        "Los programadores resuelven problemas que no sabías que tenías.",
+        "El veloz murciélago hindú comía feliz cardillo y kiwi.",
+        "La inteligencia artificial está transformando el mundo laboral.",
+        "Aprender mecanografía te ahorrará cientos de horas en tu vida.",
+        "El respeto y la educación son fundamentales para la sociedad.",
+        "No dejes para mañana lo que puedes codificar hoy mismo."
     ]
 };
 
-const DB_INGLES = [
-    {q:"Red", ans:"Rojo", opts:["Rojo","Azul","Verde"]}, {q:"Blue", ans:"Azul", opts:["Azul","Rojo","Amarillo"]}, 
-    {q:"Dog", ans:"Perro", opts:["Perro","Gato","Pato"]}, {q:"Cat", ans:"Gato", opts:["Gato","Perro","Vaca"]}
-];
+const DB_PYTHON_THEORY = {
+    inicial: [ 
+        {q:"¿Para qué sirve print()?", ans:"Mostrar texto en pantalla", opts:["Mostrar texto en pantalla", "Imprimir en papel", "Borrar todo"]},
+        {q:"¿Qué son las comillas \" \"?", ans:"Indican texto (String)", opts:["Indican texto (String)", "Son para decorar", "Son para multiplicar"]},
+        {q:"¿Cómo se escribe Hola?", ans:"print(\"Hola\")", opts:["print(\"Hola\")", "escribir Hola", "imprimir(Hola)"]},
+        {q:"¿Qué es un SyntaxError?", ans:"Un error de escritura", opts:["Un error de escritura", "Un virus", "Un premio"]},
+        {q:"¿El código se lee de...?", ans:"Arriba a abajo", opts:["Arriba a abajo", "Abajo a arriba", "Derecha a izquierda"]}
+    ],
+    intermedia: [ 
+        {q:"¿Qué es una variable?", ans:"Una caja para guardar datos", opts:["Una caja para guardar datos", "Una variante", "Un número fijo"]},
+        {q:"Si x = 10, ¿cuánto vale x?", ans:"10", opts:["10", "x", "0"]},
+        {q:"¿Cómo guardas tu nombre?", ans:"nombre = \"Juan\"", opts:["nombre = \"Juan\"", "Juan = nombre", "nombre: Juan"]},
+        {q:"¿Qué es un Integer (int)?", ans:"Un número entero", opts:["Un número entero", "Un texto", "Un decimal"]},
+        {q:"¿Qué signo se usa para asignar?", ans:"=", opts:["=", "==", ":"]}
+    ],
+    dificil: [ 
+        {q:"¿Para qué sirve 'if'?", ans:"Para tomar decisiones", opts:["Para tomar decisiones", "Para repetir", "Para terminar"]},
+        {q:"¿Qué significa 'else'?", ans:"Si no, haz esto otro", opts:["Si no, haz esto otro", "Entonces", "Repetir"]},
+        {q:"¿Cuál es Verdadero?", ans:"True", opts:["True", "False", "Verdad"]},
+        {q:"El signo mayor que es...", ans:">", opts:[">", "<", "="]},
+        {q:"Si 5 > 2...", ans:"Es verdadero (True)", opts:["Es verdadero (True)", "Es falso (False)", "Da error"]}
+    ]
+};
+
+const DB_INGLES = {
+    inicial: [ 
+        {q:"Red", ans:"Rojo", opts:["Rojo","Verde","Azul"]}, {q:"Blue", ans:"Azul", opts:["Azul","Rojo","Amarillo"]},
+        {q:"One", ans:"Uno", opts:["Uno","Dos","Diez"]}, {q:"Cat", ans:"Gato", opts:["Gato","Perro","Pez"]},
+        {q:"Dog", ans:"Perro", opts:["Perro","Gato","Vaca"]}, {q:"Yellow", ans:"Amarillo", opts:["Amarillo","Negro","Blanco"]},
+        {q:"Ten", ans:"Diez", opts:["Diez","Uno","Cero"]}, {q:"Fish", ans:"Pez", opts:["Pez","Pollo","León"]},
+        {q:"Sun", ans:"Sol", opts:["Sol","Luna","Estrella"]}, {q:"Moon", ans:"Luna", opts:["Luna","Sol","Mar"]}
+    ],
+    intermedia: [ 
+        {q:"Table", ans:"Mesa", opts:["Mesa","Silla","Cama"]}, {q:"Chair", ans:"Silla", opts:["Silla","Mesa","Puerta"]},
+        {q:"To Run", ans:"Correr", opts:["Correr","Saltar","Comer"]}, {q:"To Eat", ans:"Comer", opts:["Comer","Beber","Dormir"]},
+        {q:"Window", ans:"Ventana", opts:["Ventana","Pared","Piso"]}, {q:"Door", ans:"Puerta", opts:["Puerta","Llave","Casa"]},
+        {q:"Book", ans:"Libro", opts:["Libro","Papel","Lápiz"]}, {q:"School", ans:"Escuela", opts:["Escuela","Casa","Parque"]},
+        {q:"Teacher", ans:"Maestro", opts:["Maestro","Alumno","Doctor"]}, {q:"Student", ans:"Estudiante", opts:["Estudiante","Profesor","Director"]}
+    ],
+    dificil: [ 
+        {q:"Yesterday", ans:"Ayer", opts:["Ayer","Hoy","Mañana"]}, {q:"Tomorrow", ans:"Mañana", opts:["Mañana","Ayer","Siempre"]},
+        {q:"Beautiful", ans:"Hermoso", opts:["Hermoso","Feo","Triste"]}, {q:"Ugly", ans:"Feo", opts:["Feo","Lindo","Rápido"]},
+        {q:"Fast", ans:"Rápido", opts:["Rápido","Lento","Quieto"]}, {q:"Slow", ans:"Lento", opts:["Lento","Rápido","Fuerte"]},
+        {q:"Happy", ans:"Feliz", opts:["Feliz","Triste","Enojado"]}, {q:"Angry", ans:"Enojado", opts:["Enojado","Feliz","Cansado"]},
+        {q:"Always", ans:"Siempre", opts:["Siempre","Nunca","A veces"]}, {q:"Never", ans:"Nunca", opts:["Nunca","Siempre","Quizás"]}
+    ],
+    experta: [ 
+        {q:"I am playing", ans:"Estoy jugando", opts:["Estoy jugando","Jugué","Jugaré"]},
+        {q:"She is smart", ans:"Ella es lista", opts:["Ella es lista","El es listo","Soy listo"]},
+        {q:"We are friends", ans:"Somos amigos", opts:["Somos amigos","Son amigos","Fueron amigos"]},
+        {q:"Where is the cat?", ans:"¿Dónde está el gato?", opts:["¿Dónde está el gato?","¿Quién es el gato?","¿Qué es el gato?"]},
+        {q:"I don't know", ans:"No lo sé", opts:["No lo sé","Lo sé","Tal vez"]},
+        {q:"The book is on the table", ans:"El libro está en la mesa", opts:["El libro está en la mesa", "El libro es la mesa", "La mesa es el libro"]},
+        {q:"He has a car", ans:"Él tiene un auto", opts:["Él tiene un auto", "Ella tiene un auto", "Él es un auto"]}
+    ],
+    prodigio: [
+        {q:"Hola", ans:"Hello"}, {q:"Buenos días", ans:"Good morning"},
+        {q:"Adiós", ans:"Goodbye"}, {q:"Por favor", ans:"Please"},
+        {q:"Gracias", ans:"Thank you"}, {q:"De nada", ans:"You are welcome"},
+        {q:"Sí", ans:"Yes"}, {q:"No", ans:"No"},
+        {q:"Yo soy", ans:"I am"}, {q:"Ella es", ans:"She is"},
+        {q:"El gato es negro", ans:"The cat is black"}, {q:"El perro es grande", ans:"The dog is big"},
+        {q:"Me gusta jugar", ans:"I like to play"}, {q:"Mi nombre es Juan", ans:"My name is Juan"},
+        {q:"Tengo hambre", ans:"I am hungry"}, {q:"Tengo sed", ans:"I am thirsty"},
+        {q:"¿Dónde está el baño?", ans:"Where is the bathroom?"}, {q:"¿Cómo estás?", ans:"How are you?"},
+        {q:"Estoy bien", ans:"I am fine"}, {q:"El auto es rojo", ans:"The car is red"},
+        {q:"La casa es azul", ans:"The house is blue"}, {q:"Hoy es lunes", ans:"Today is Monday"},
+        {q:"Mañana es martes", ans:"Tomorrow is Tuesday"}, {q:"Me gusta la pizza", ans:"I like pizza"},
+        {q:"No me gusta esto", ans:"I do not like this"}, {q:"Somos amigos", ans:"We are friends"},
+        {q:"Ellos son felices", ans:"They are happy"}, {q:"El sol brilla", ans:"The sun is shining"},
+        {q:"Abre la puerta", ans:"Open the door"}, {q:"Cierra la ventana", ans:"Close the window"},
+        {q:"Feliz cumpleaños", ans:"Happy birthday"}, {q:"Buenas noches", ans:"Good night"},
+        {q:"Hasta luego", ans:"See you later"}, {q:"Te quiero", ans:"I love you"},
+        {q:"Yo puedo correr", ans:"I can run"}, {q:"Ella puede cantar", ans:"She can sing"},
+        {q:"Es muy tarde", ans:"It is very late"}, {q:"Es temprano", ans:"It is early"},
+        {q:"¿Qué hora es?", ans:"What time is it?"}, {q:"Es un libro", ans:"It is a book"},
+        {q:"Esta es mi escuela", ans:"This is my school"}, {q:"Quiero agua", ans:"I want water"},
+        {q:"Necesito ayuda", ans:"I need help"}, {q:"¿Puedes ayudarme?", ans:"Can you help me?"},
+        {q:"El cielo es azul", ans:"The sky is blue"}, {q:"La flor es bonita", ans:"The flower is beautiful"},
+        {q:"Tengo un hermano", ans:"I have a brother"}, {q:"Tengo una hermana", ans:"I have a sister"},
+        {q:"Mi madre es buena", ans:"My mother is good"}, {q:"Mi padre es alto", ans:"My father is tall"}
+    ]
+};
+
+const DB_GEOGRAFIA = {
+    inicial: [ 
+        {q:"Capital de Argentina", ans:"Buenos Aires", opts:["Buenos Aires","Córdoba","Rosario"]},
+        {q:"Capital de Uruguay", ans:"Montevideo", opts:["Montevideo","Punta del Este","Colonia"]},
+        {q:"País con forma de bota", ans:"Italia", opts:["Italia","Francia","España"]},
+        {q:"Dónde está la Torre Eiffel", ans:"Francia", opts:["Francia","Italia","Alemania"]},
+        {q:"Bandera con un Sol", ans:"Argentina", opts:["Argentina","Chile","Perú"]}
+        {q:"País de Buenos Aires", ans:"Argentina", opts:["Argentina","Brasil","Chile"]}, 
+        {q:"País de Brasilia", ans:"Brasil", opts:["Brasil","Perú","Uruguay"]},
+        {q:"País de Santiago", ans:"Chile", opts:["Chile","Argentina","Bolivia"]}, 
+        {q:"País de Montevideo", ans:"Uruguay", opts:["Uruguay","Paraguay","Colombia"]},
+        {q:"Continente de Argentina", ans:"América", opts:["América","Europa","Asia"]}, 
+        {q:"País con forma de bota", ans:"Italia", opts:["Italia","España","Francia"]},
+        {q:"Tiene la Torre Eiffel", ans:"Francia", opts:["Francia","Italia","Alemania"]}, 
+        {q:"Capital de España", ans:"Madrid", opts:["Madrid","Barcelona","Sevilla"]},
+        {q:"País del sushi", ans:"Japón", opts:["Japón","China","Corea"]}, 
+        {q:"País de las pirámides", ans:"Egipto", opts:["Egipto","México","Perú"]},
+    ],
+    intermedia: [ 
+        {q:"Capital de España", ans:"Madrid", opts:["Madrid","Barcelona","Sevilla"]},
+        {q:"Capital de Brasil", ans:"Brasilia", opts:["Brasilia","Río de Janeiro","San Pablo"]},
+        {q:"Capital de EEUU", ans:"Washington", opts:["Washington","Nueva York","Miami"]},
+        {q:"Capital de Inglaterra", ans:"Londres", opts:["Londres","Liverpool","Manchester"]},
+        {q:"País del Sushi", ans:"Japón", opts:["Japón","China","Corea"]}
+    ],
+    dificil: [ 
+        {q:"Río más largo del mundo", ans:"Amazonas", opts:["Amazonas","Nilo","Misisipi"]},
+        {q:"Capital de Alemania", ans:"Berlín", opts:["Berlín","Múnich","Hamburgo"]},
+        {q:"Capital de Rusia", ans:"Moscú", opts:["Moscú","Kiev","San Petersburgo"]},
+        {q:"Montaña más alta", ans:"Everest", opts:["Everest","Aconcagua","K2"]},
+        {q:"Océano más grande", ans:"Pacífico", opts:["Pacífico","Atlántico","Índico"]}
+    ],
+    experta: [ 
+        {q:"Capital de Australia", ans:"Canberra", opts:["Canberra","Sídney","Melbourne"]},
+        {q:"Capital de Canadá", ans:"Ottawa", opts:["Ottawa","Toronto","Montreal"]},
+        {q:"Capital de Turquía", ans:"Ankara", opts:["Ankara","Estambul","Antalya"]},
+        {q:"Capital de Egipto", ans:"El Cairo", opts:["El Cairo","Alejandría","Giza"]},
+        {q:"Continente de Kenia", ans:"África", opts:["África","Asia","Europa"]}
+        {q:"Bandera 🇧🇷", ans:"Brasil", opts:["Brasil","Portugal","Bolivia"]}, 
+        {q:"Bandera 🇺🇸", ans:"EEUU", opts:["EEUU","UK","Liberia"]},
+        {q:"Bandera 🇯🇵", ans:"Japón", opts:["Japón","China","Corea"]}, 
+        {q:"Bandera 🇪🇸", ans:"España", opts:["España","Italia","Francia"]},
+        {q:"Bandera 🇨🇦", ans:"Canadá", opts:["Canadá","Perú","Austria"]}, 
+        {q:"Bandera 🇩🇪", ans:"Alemania", opts:["Alemania","Bélgica","Holanda"]},
+        {q:"Desierto más grande", ans:"Sahara", opts:["Sahara","Atacama","Gobi"]}, 
+        {q:"Selva más grande", ans:"Amazonas", opts:["Amazonas","Congo","Misiones"]},
+        {q:"Monte más alto", ans:"Everest", opts:["Everest","Aconcagua","K2"]}, 
+        {q:"Capital de Australia", ans:"Canberra", opts:["Canberra","Sídney","Melbourne"]},
+        {q:"Capital de Canadá", ans:"Ottawa", opts:["Ottawa","Toronto","Vancouver"]}, 
+        {q:"Capital de Italia", ans:"Roma", opts:["Roma","Milán","Nápoles"]},
+        {q:"Donde queda el Coliseo", ans:"Roma", opts:["Roma","Atenas","París"]}, 
+        {q:"Donde queda Machu Picchu", ans:"Perú", opts:["Perú","Chile","Bolivia"]},
+        {q:"Capital de Japón", ans:"Tokio", opts:["Tokio","Kioto","Osaka"]}, 
+        {q:"Idioma de Brasil", ans:"Portugués", opts:["Portugués","Español","Inglés"]},
+        {q:"Idioma de Inglaterra", ans:"Inglés", opts:["Inglés","Francés","Alemán"]}, 
+        {q:"Moneda de Europa", ans:"Euro", opts:["Euro","Dólar","Peso"]},
+        {q:"Moneda de EEUU", ans:"Dólar", opts:["Dólar","Euro","Libra"]}, 
+        {q:"Continente de China", ans:"Asia", opts:["Asia","África","Europa"]},
+        {q:"Continente de Kenia", ans:"África", opts:["África","Asia","Oceanía"]}, 
+        {q:"Isla grande cerca de Australia", ans:"Nueva Zelanda", opts:["Nueva Zelanda","Japón","Madagascar"]},
+        {q:"Polo donde hay pingüinos", ans:"Sur", opts:["Sur","Norte","Este"]}, 
+        {q:"Polo donde hay osos", ans:"Norte", opts:["Norte","Sur","Oeste"]},
+        {q:"Capital de Turquía", ans:"Ankara", opts:["Ankara","Estambul","Izmir"]}
+    ],
+    prodigio: [ 
+        {q:"País más poblado", ans:"India", opts:["India","China","EEUU"]},
+        {q:"Capital de Suiza", ans:"Berna", opts:["Berna","Zúrich","Ginebra"]},
+        {q:"País más grande", ans:"Rusia", opts:["Rusia","Canadá","China"]},
+        {q:"Capital de Marruecos", ans:"Rabat", opts:["Rabat","Casablanca","Marrakech"]},
+        {q:"Estrecho entre España y África", ans:"Gibraltar", opts:["Gibraltar","Magallanes","Bering"]}
+    ]
+};
+
+const DB_COMPUTING = {
+    inicial: [ 
+        {q:"Sirve para hacer clic", ans:"Mouse", opts:["Mouse","Teclado","Monitor"]},
+        {q:"Sirve para ver", ans:"Monitor", opts:["Monitor","CPU","Parlante"]},
+        {q:"Sirve para escribir", ans:"Teclado", opts:["Teclado","Mouse","Impresora"]},
+        {q:"Cerebro de la PC", ans:"CPU", opts:["CPU","RAM","Disco"]},
+        {q:"Saca hojas de papel", ans:"Impresora", opts:["Impresora","Escáner","Webcam"]}
+    ],
+    intermedia: [ 
+        {q:"Navegador de internet", ans:"Chrome", opts:["Chrome","Word","Excel"]},
+        {q:"Programa para escribir textos", ans:"Word", opts:["Word","Paint","Calculadora"]},
+        {q:"Sistema Operativo", ans:"Windows", opts:["Windows","Office","Google"]},
+        {q:"Red social de fotos", ans:"Instagram", opts:["Instagram","Excel","Outlook"]},
+        {q:"Sitio de videos", ans:"YouTube", opts:["YouTube","Gmail","Maps"]}
+    ],
+    dificil: [ 
+        {q:"Memoria temporal", ans:"RAM", opts:["RAM","Disco Duro","USB"]},
+        {q:"Conexión sin cables", ans:"WiFi", opts:["WiFi","Ethernet","HDMI"]},
+        {q:"Puerto para pendrive", ans:"USB", opts:["USB","VGA","Audio"]},
+        {q:"Unidad de almacenamiento", ans:"Disco SSD", opts:["Disco SSD","CPU","Monitor"]},
+        {q:"Lenguaje de páginas web", ans:"HTML", opts:["HTML","EXE","JPG"]}
+    ],
+    experta: [ 
+        {q:"Procesador Gráfico", ans:"GPU", opts:["GPU","CPU","APU"]},
+        {q:"Red de área local", ans:"LAN", opts:["LAN","WAN","PAN"]},
+        {q:"Dirección única de red", ans:"IP", opts:["IP","DNS","URL"]},
+        {q:"8 Bits equivalen a", ans:"1 Byte", opts:["1 Byte","1 Kilo","1 Mega"]},
+        {q:"Sistema de código abierto", ans:"Linux", opts:["Linux","Windows","MacOS"]}
+    ],
+    prodigio: [ 
+        {q:"Error en un programa", ans:"Bug", opts:["Bug","Feature","Virus"]},
+        {q:"Bucle infinito", ans:"Loop", opts:["Loop","Crash","Break"]},
+        {q:"Inteligencia Artificial", ans:"IA", opts:["IA","VR","AR"]},
+        {q:"Base de Datos", ans:"SQL", opts:["SQL","HTML","CSS"]},
+        {q:"Protección contra virus", ans:"Antivirus", opts:["Antivirus","Firewall","Spyware"]}
+    ]
+};
 
 const DB_ALGORITMOS = {
-    inicial: [{ title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] }, { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] }],
+    inicial: [{ title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] }, 
+            { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] }],
     intermedia: [{ title: "Robot Laberinto", blocks: [{text: "Inicio", type: "blk-event"}, {text: "Avanzar 2", type: "blk-action"}, {text: "Girar Derecha", type: "blk-action"}, {text: "Avanzar 1", type: "blk-action"}] }],
     dificil: [{ title: "Cuadrado", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] }],
     experta: [{ title: "Semáforo", blocks: [{text: "Mirar luz", type: "blk-action"}, {text: "SI es Verde", type: "blk-control"}, {text: "  Cruzar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] }],
     prodigio: [{ title: "Lluvia", blocks: [{text: "SI llueve", type: "blk-control"}, {text: "  ¿Tengo paraguas?", type: "blk-logic"}, {text: "    SI: Usarlo", type: "blk-action"}, {text: "    NO: Correr", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Caminar", type: "blk-action"}] }]
-};
-
-const DB_PYTHON_TASKS = {
-    inicial: [
-        { mision: "Haz que diga: Hola", hint: 'print("Hola")', valid: ['print("Hola")'], output: "Hola" },
-        { mision: "Imprime el número 100", hint: "print(100)", valid: ["print(100)"], output: "100" }
-    ],
-    intermedia: [
-        { mision: "Variable x vale 10", hint: "x = 10", valid: ["x=10"], output: "x guardada: 10" },
-        { mision: "Suma 20 + 30", hint: "print(20+30)", valid: ["print(20+30)"], output: "50" }
-    ],
-    dificil: [
-        { mision: "Pide nombre", hint: "input()", valid: ["input()", "nombre=input()"], output: "> Esperando..." }
-    ],
-    experta: [
-        { mision: "Si 5 > 2 imprime Si", hint: "if 5 > 2: print('Si')", valid: ['if 5 > 2: print("Si")'], output: "Si" }
-    ],
-    prodigio: [
-        { mision: "Bucle de 3 veces", hint: "for i in range(3):", valid: ["for i in range(3):"], output: "0\n1\n2" }
-    ]
 };
 
 const DEFAULT_SHOP = [
@@ -91,7 +292,9 @@ const DEFAULT_SHOP = [
     {id:'t3', name:'Oro Puro', type:'torso', color:'#fbc02d', price:200}
 ];
 
+// ==========================================
 // 3. ESTADO DEL JUEGO
+// ==========================================
 let player = { 
     name: 'Jugador',
     grade: 'inicial', 
@@ -107,17 +310,17 @@ let player = {
     skin: { head:'#ffcc80', torso:'#29b6f6', legs:'#3f51b5', arm:'#ffcc80' } 
 };
 let localDB = { customLevels: [], shopItems: DEFAULT_SHOP };
-let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0 };
+let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0, pythonValid: [], pythonOut: "" };
 let timerInterval = null; 
 let currentPuzzleSolution = []; 
 
+// ==========================================
 // 4. INICIALIZACIÓN
+// ==========================================
 window.onload = function() {
     if(localStorage.getItem('eduPlayer')) {
         try {
             let saved = JSON.parse(localStorage.getItem('eduPlayer'));
-            if(saved.grade === 1) saved.grade = 'inicial';
-            // Parche para nuevos niveles
             ['inicial','intermedia','dificil','experta','prodigio'].forEach(g => {
                 if(!saved.progress[g]) saved.progress[g] = { matematica:1, compu:1, teclado:1, ingles:1, Geografia:1, claves:1, Algoritmos:1, python:1 };
                 else {
@@ -199,7 +402,7 @@ function closeGame() {
 function renderMap() {
     const grid = document.getElementById('mapGrid'); grid.innerHTML = '';
     const cur = player.progress[player.grade][currentSession.subject];
-    for(let i=1; i<=60; i++) {
+    for(let i=1; i<=50; i++) { // 50 Niveles
         const btn = document.createElement('div'); btn.className = 'level-block'; btn.innerText = i;
         if(i<cur) { btn.classList.add('completed'); btn.onclick = () => playLevel(i); }
         else if(i===cur) { btn.classList.add('current'); btn.onclick = () => playLevel(i); }
@@ -231,90 +434,281 @@ function playLevel(lvl) {
     }
 }
 
+// =========================================================
+// 5. MOTOR DE GENERACIÓN DE NIVELES (PROCEDURAL & DATA)
+// =========================================================
 function generateProceduralLevel(container, subj, lvl) {
     let q, ans, opts;
+    const grade = player.grade; 
 
-    // --- PYTHON IDE ---
-    if (subj === 'python') {
-        const pool = DB_PYTHON_TASKS[player.grade] || DB_PYTHON_TASKS['inicial'];
-        const task = pool[(lvl - 1) % pool.length];
-        const validString = encodeURIComponent(JSON.stringify(task.valid));
-        const outputString = encodeURIComponent(task.output);
+    // --- MATEMÁTICA ---
+    if (subj === 'matematica') {
+        let n1, n2, n3;
         
-        container.innerHTML = `
-            <div class="ide-container">
-                <div style="background:#e3f2fd; padding:10px; border-left:5px solid #2196f3; color:#0d47a1;">
-                    <strong>Misión:</strong> ${task.mision}<br><small>Pista: ${task.hint}</small>
-                </div>
-                <div>Escribe tu código:</div>
-                <textarea id="pyEditor" class="code-editor" spellcheck="false" placeholder='>>>'></textarea>
-                <button class="run-btn" onclick="runPythonCode('${validString}', '${outputString}')">▶ EJECUTAR</button>
-                <div style="font-size:0.7rem;">Consola:</div>
-                <div id="pyConsole" class="console-output">Esperando...</div>
-            </div>
-        `;
-        setTimeout(() => document.getElementById('pyEditor').focus(), 100);
-        return; 
-    }
-
-    // --- OTRAS MATERIAS ---
-    if (subj === 'Geografia') {
-        const pool = DB_GEOGRAFIA[player.grade] || DB_GEOGRAFIA['inicial'];
-        const item = getRandom(pool);
-        if (item.img) {
-            ans = item.ans; opts = item.opts.sort(() => Math.random() - 0.5);
-            let html = `<h4 style="color:#555;">¿Dónde es esto?</h4><div style="width:100%; height:180px; background-image:url('${item.img}'); background-size:cover; background-position:center; border:4px solid #333; border-radius:10px; margin-bottom:15px;"></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">`;
-            opts.forEach(opt => { html += `<button class="mc-btn blue" onclick="checkAnswer('${opt}', '${ans}')">${opt}</button>`; });
-            html += `</div>`;
-            container.innerHTML = html;
-            return;
-        } else {
-            q = item.q; ans = item.ans; opts = item.opts.sort(() => Math.random() - 0.5);
+        if (grade === 'inicial') {
+            if (lvl <= 25) {
+                n1 = lvl; n2 = Math.floor(Math.random() * 5) + 1;
+                q = `¿${n1} + ${n2}?`; ans = n1 + n2;
+            } else {
+                n1 = Math.floor(Math.random() * 10) + 5; n2 = Math.floor(Math.random() * 5) + 1; 
+                let mayor = Math.max(n1, n2) + (lvl - 25); let menor = Math.min(n1, n2);
+                q = `¿${mayor} - ${menor}?`; ans = mayor - menor;
+            }
+        } 
+        else if (grade === 'intermedia') {
+            if (lvl <= 25) {
+                n1 = 10 + lvl; n2 = Math.floor(Math.random() * 20) + 5;
+                q = `¿${n1} + ${n2}?`; ans = n1 + n2;
+            } else {
+                n1 = 30 + lvl; n2 = Math.floor(Math.random() * 20) + 10;
+                q = `¿${n1} - ${n2}?`; ans = n1 - n2;
+            }
+        } 
+        else if (grade === 'dificil') {
+            let table = Math.floor((lvl - 1) / 5) + 2; if(table > 12) table = 12;
+            n2 = (lvl % 10) + 1; 
+            if (n2 === 1 || Math.random() > 0.5) n2 = Math.floor(Math.random() * 9) + 2; 
+            q = `¿${table} x ${n2}?`; ans = table * n2;
+        } 
+        else if (grade === 'experta') {
+            if (lvl <= 25) { 
+                n2 = Math.floor(Math.random() * 8) + 2; ans = lvl + 2; n1 = n2 * ans; 
+                q = `¿${n1} / ${n2}?`; 
+            } else { 
+                n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 10) + 1; n3 = 2;
+                q = `(${n1} + ${n2}) x ${n3}`; ans = (n1 + n2) * n3;
+            }
+        } 
+        // 5. PRODIGIO (DINÁMICO)
+        else if (grade === 'prodigio') {
+            if (lvl <= 20) {
+                if (Math.random() > 0.5) {
+                    let base = Math.floor(Math.random() * 6) + 2 + Math.floor(lvl/4); 
+                    let exp = (Math.random() > 0.8) ? 3 : 2;
+                    q = `¿${base} ${exp===2 ? 'al cuadrado' : 'al cubo'}? (${base}${exp===2?'²':'³'})`; 
+                    ans = Math.pow(base, exp);
+                } else {
+                    let res = Math.floor(Math.random() * 8) + 2 + Math.floor(lvl/3);
+                    let radicando = res * res;
+                    q = `Raíz cuadrada de ${radicando} (√${radicando})`; 
+                    ans = res;
+                }
+            } 
+            else if (lvl <= 40) { 
+                let x = Math.floor(Math.random() * 15) + 1;
+                let a = Math.floor(Math.random() * 4) + 2;
+                let b = Math.floor(Math.random() * 20) + 5;
+                let c = (a * x) + b;
+                q = `Hallar X:  ${a}x + ${b} = ${c}`; ans = x;
+            } 
+            else { 
+                if (Math.random() > 0.5) {
+                    let perc = [10, 20, 25, 50][Math.floor(Math.random()*4)];
+                    let total = Math.floor(Math.random() * 20 + 1) * 10;
+                    q = `¿${perc}% de ${total}?`; ans = (perc * total) / 100;
+                } else {
+                    let A = Math.floor(Math.random() * 10) + 5;
+                    let B = Math.floor(Math.random() * 10) + 2;
+                    let C = Math.floor(Math.random() * 20) + 5;
+                    q = `(${A} x ${B}) - ${C}`; ans = (A*B) - C;
+                }
+            }
         }
-    }
-    else if (subj === 'compu') {
-        const pool = DB_COMPUTING[player.grade] || DB_COMPUTING['inicial'];
-        const item = getRandom(pool);
-        q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
-    }
-    else if (subj === 'teclado') {
-        let target = "", prompt = "", showStats = false;
-        let pool = DB_TECLADO[player.grade]; 
-        let isProdigio = player.grade === 'prodigio';
-        if(isProdigio) showStats = true;
 
+        let distractor1 = ans + Math.floor(Math.random() * 5) + 1;
+        let distractor2 = ans - Math.floor(Math.random() * 5) - 1;
+        let distractor3 = ans + 10;
+        opts = [ans, distractor1, distractor2, distractor3];
+        opts = [...new Set(opts)].sort(() => Math.random() - 0.5);
+
+        renderQuestion(container, q, ans, opts);
+        return;
+    }
+
+    // --- PYTHON (TEORÍA + SIMULADOR MEJORADO) ---
+    else if (subj === 'python') {
+        let isTheory = (lvl % 2 !== 0) && (grade !== 'experta' && grade !== 'prodigio');
+
+        if (isTheory) { 
+            // TEORÍA
+            const pool = DB_PYTHON_THEORY[grade] || DB_PYTHON_THEORY['inicial'];
+            const index = Math.floor((lvl - 1) / 2) % pool.length;
+            const item = pool[index];
+            q = `<span style="font-size:0.8rem; color:#1565c0;">TEORÍA:</span><br>${item.q}`;
+            ans = item.ans; opts = [...item.opts].sort(() => Math.random() - 0.5);
+            renderQuestion(container, q, ans, opts);
+        } 
+        else { 
+            // SIMULADOR (CÓDIGO)
+            let mision, hint, valid, output;
+
+            if (grade === 'inicial') {
+                mision = `Usa print para mostrar el número ${lvl}`; 
+                hint = `print(${lvl})`; valid = [`print(${lvl})`]; output = `${lvl}`;
+            } 
+            else if (grade === 'intermedia') {
+                let v = lvl * 5;
+                mision = `Crea variable 'puntos' igual a ${v}`; 
+                hint = `puntos = ${v}`; valid = [`puntos=${v}`, `puntos = ${v}`]; output = `Variable puntos: ${v}`;
+            } 
+            else if (grade === 'dificil') {
+                mision = `Si ${lvl} > 5, imprime "Mayor"`; 
+                hint = `if ${lvl} > 5: print("Mayor")`; 
+                valid = [`if ${lvl} > 5: print("Mayor")`, `if ${lvl}>5: print("Mayor")`]; 
+                output = "Mayor";
+            } 
+            else if (grade === 'experta') {
+                if (lvl <= 10) {
+                    const vars = ['x','y','z','puntos','vida','score'];
+                    const varName = vars[Math.floor(Math.random()*vars.length)];
+                    if(Math.random()>0.5) {
+                        const val = Math.floor(Math.random()*50)+1;
+                        mision = `Crea variable '${varName}' con valor ${val}`; hint = `${varName} = ${val}`;
+                        valid = [`${varName}=${val}`, `${varName} = ${val}`]; output = `Variable ${varName}: ${val}`;
+                    } else {
+                        const txts = ['Hola','Juego','Python','Win'];
+                        const val = txts[Math.floor(Math.random()*txts.length)];
+                        mision = `Crea variable '${varName}' con texto "${val}"`; hint = `${varName} = "${val}"`;
+                        valid = [`${varName}="${val}"`, `${varName} = "${val}"`, `${varName}='${val}'`, `${varName} = '${val}'`]; output = `Variable ${varName}: ${val}`;
+                    }
+                } else if (lvl <= 20) {
+                    let n1 = Math.floor(Math.random()*20)+1; let n2 = Math.floor(Math.random()*10)+1;
+                    const op = Math.random()>0.5 ? '+' : '-';
+                    mision = `Imprime el resultado de ${n1} ${op} ${n2}`; hint = `print(${n1} ${op} ${n2})`;
+                    valid = [`print(${n1}${op}${n2})`, `print(${n1} ${op} ${n2})`]; output = eval(`${n1}${op}${n2}`);
+                } else if (lvl <= 30) {
+                    const items = [Math.floor(Math.random()*9), Math.floor(Math.random()*9)];
+                    mision = `Crea lista 'L' con números ${items[0]} y ${items[1]}`; hint = `L = [${items[0]}, ${items[1]}]`;
+                    valid = [`L=[${items[0]},${items[1]}]`, `L = [${items[0]}, ${items[1]}]`]; output = `Lista L creada.`;
+                } else if (lvl <= 40) {
+                    let r = Math.floor(Math.random()*5)+2;
+                    mision = `Bucle que repita "Gol" ${r} veces`; hint = `for i in range(${r}): print("Gol")`;
+                    valid = [`for i in range(${r}): print("Gol")`, `for x in range(${r}): print("Gol")`]; output = "Gol\n...";
+                } else {
+                    const fnames = ['ver','correr','saltar','jugar'];
+                    const fname = fnames[Math.floor(Math.random()*fnames.length)];
+                    mision = `Define función '${fname}' que imprima "Ok"`; hint = `def ${fname}(): print("Ok")`;
+                    valid = [`def ${fname}(): print("Ok")`]; output = `Función definida.`;
+                }
+            }
+            // --- MODIFICACIÓN: PRODIGIO DINÁMICO ---
+            else { 
+                const challengeType = Math.floor(Math.random() * 5); // 0 a 4
+                if (challengeType === 0) {
+                    mision = "Define función 'area(b,h)' que retorne b*h";
+                    hint = "def area(b,h): return b*h";
+                    valid = ["def area(b,h): return b*h", "def area(b, h): return b * h"];
+                    output = "Area calculada.";
+                } else if (challengeType === 1) {
+                    mision = "Define función 'ultimo(L)' que retorne el último ítem";
+                    hint = "def ultimo(L): return L[-1]";
+                    valid = ["def ultimo(L): return L[-1]"];
+                    output = "Elemento retornado.";
+                } else if (challengeType === 2) {
+                    mision = "Define función 'mayor(a,b)' que retorne el mayor (usa max)";
+                    hint = "def mayor(a,b): return max(a,b)";
+                    valid = ["def mayor(a,b): return max(a,b)", "def mayor(a, b): return max(a, b)"];
+                    output = "Mayor retornado.";
+                } else if (challengeType === 3) {
+                    mision = "Define función 'texto(s)' que retorne el texto en mayúsculas (upper)";
+                    hint = "def texto(s): return s.upper()";
+                    valid = ["def texto(s): return s.upper()"];
+                    output = "Texto MAYÚSCULAS.";
+                } else {
+                    mision = "Define función 'es_par(n)' que retorne True si n%2==0";
+                    hint = "def es_par(n): return n%2==0";
+                    valid = ["def es_par(n): return n%2==0", "def es_par(n): return n % 2 == 0"];
+                    output = "Booleano retornado.";
+                }
+            }
+
+            currentSession.pythonValid = valid;
+            currentSession.pythonOut = output;
+            
+            container.innerHTML = `<div class="ide-container"><div style="background:#263238; color:#fff; padding:10px; border-radius:5px 5px 0 0; border-bottom:2px solid #37474f;"><strong>🐍 PYTHON IDE - Nivel ${lvl}</strong></div><div style="background:#eceff1; padding:10px; color:#37474f; font-size:0.9rem;"><strong>Misión:</strong> ${mision}<br><small style="color:#0277bd;">💡 Pista: ${hint}</small></div><textarea id="pyEditor" class="code-editor" spellcheck="false" placeholder=">>> Escribe tu código aquí..."></textarea><button class="run-btn" onclick="runPythonCode()">▶ EJECUTAR CÓDIGO</button><div style="background:#000; color:#0f0; font-family:monospace; padding:10px; border-radius:0 0 5px 5px; min-height:60px;"><span style="color:#666;">Salida de consola:</span><br><span id="pyConsole">Esperando ejecución...</span></div></div>`;
+        }
+        return;
+    }
+
+    // --- TECLADO / TYPING ---
+    else if (subj === 'teclado') {
+        let target = "", prompt = "";
+        let isProdigio = (player.grade === 'prodigio');
+        
         if (player.grade === 'inicial') {
-            if(lvl <= 25) { target = getRandom(pool.letras); prompt = "Tecla:"; } else { target = getRandom(pool.palabras); prompt = "Palabra:"; }
-        } else if (player.grade === 'intermedia') { target = getRandom(pool.palabras); prompt = "Palabra:"; }
-        else if (player.grade === 'dificil') { target = getRandom(pool.palabras); prompt = "Escribe:"; }
-        else if (player.grade === 'experta') { target = getRandom(pool.oraciones); prompt = "Oración:"; }
-        else { target = getRandom(pool.textos); prompt = "Transcribe:"; }
-        
+            const pool = DB_TECLADO.inicial; target = pool[(lvl - 1) % pool.length]; if(lvl > pool.length) target = pool[Math.floor(Math.random()*pool.length)]; prompt = "Encuentra la tecla exacta:";
+        } else if (player.grade === 'intermedia') {
+            const pool = DB_TECLADO.intermedia; target = pool[(lvl - 1) % pool.length];
+            if (lvl <= 25) prompt = "Escribe la frase (Respeta Mayúsculas):"; else prompt = "Encuentra el símbolo:";
+        } else if (player.grade === 'dificil') {
+            const pool = DB_TECLADO.dificil; let subPool = [];
+            if (lvl <= 15) { subPool = pool.sinTilde; prompt = "Frase compleja (Sin tildes):"; }
+            else if (lvl <= 30) { subPool = pool.conTildeFacil; prompt = "Atención a las tildes:"; }
+            else if (lvl <= 40) { subPool = pool.conTildeDificil; prompt = "Frase compleja con tildes:"; }
+            else { subPool = pool.dieresis; prompt = "Palabras con Diéresis (ü):"; }
+            target = subPool[Math.floor(Math.random() * subPool.length)];
+        } else if (player.grade === 'experta') {
+            const pool = DB_TECLADO.experta; target = pool[(lvl - 1) % pool.length]; prompt = "Escribe la oración exacta:";
+        } else {
+            const pool = DB_TECLADO.prodigio; target = pool[(lvl - 1) % pool.length]; prompt = "Velocidad (PPM):";
+        }
+
         ans = target;
-        let inputStyle = "text-align:center; font-size:1.2rem; width:100%;" + (isProdigio ? "" : " text-transform:uppercase;");
+        let inputStyle = "text-align:center; font-size:1.2rem; width:100%; padding:15px;";
+        let statsHTML = '';
+        if (isProdigio) {
+            statsHTML = `<div class="stats-bar" style="display:flex; justify-content:space-around; background:#263238; color:#fff; padding:10px; margin-bottom:15px; border-radius:5px;"><div class="stats-item">⏱️ <span id="timeCounter">0.0s</span></div><div class="stats-item">🚀 <span id="wpmCounter" style="color:#00e676; font-weight:bold;">0 PPM</span></div><div class="stats-item">❌ <span id="errCounter" class="stat-danger">0</span></div></div>`;
+        }
+        container.innerHTML = `${statsHTML}<div style="color:#78909c; font-size:0.9rem; margin-bottom:5px;">${prompt}</div><div style="background:#fff; padding:15px; border-radius:8px; border:2px solid #ccc; margin-bottom:15px; font-family:'Roboto Mono', monospace;"><h3 style="color:#333; margin:0; font-size:${ans.length > 25 ? '1rem' : '1.5rem'}; word-break:break-word;">${ans}</h3></div><input type="text" id="typingInput" autocomplete="off" style="${inputStyle}" placeholder="Escribe aquí..."><button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('typingInput').value, '${ans.replace(/'/g, "\\'")}', true)">Confirmar</button>`;
         
-        container.innerHTML = `${showStats ? `<div class="stats-bar"><div class="stats-item">⏳ <span id="timeCounter">0.0s</span></div><div class="stats-item">⌨️ <span id="delCounter" class="stat-danger">0</span></div><div class="stats-item">📝 <span id="wCounter">0</span></div></div>` : ''}<div style="color:#78909c; font-size:0.8rem; margin-bottom:10px;">${prompt}</div><h3 style="color:#555; font-size:${ans.length>25?'0.7rem':'1.2rem'}">${ans}</h3><input type="text" id="typingInput" autocomplete="off" style="${inputStyle}"><button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('typingInput').value, '${ans}')">Confirmar</button>`;
         setTimeout(() => { 
-            const i = document.getElementById('typingInput'); 
-            if(i) { i.focus(); i.oninput = () => { if(!currentSession.startTime && showStats) { currentSession.startTime = new Date(); timerInterval = setInterval(() => { document.getElementById('timeCounter').innerText = ((new Date() - currentSession.startTime)/1000).toFixed(1) + 's'; }, 100); } if(showStats) document.getElementById('wCounter').innerText = i.value.trim().split(/\s+/).filter(x=>x).length; }; i.onkeydown = (e) => { if(showStats && e.key === 'Backspace') {currentSession.backspaces++; document.getElementById('delCounter').innerText = currentSession.backspaces;} if(e.key === 'Enter') checkAnswer(i.value, ans); }; }
+            const inp = document.getElementById('typingInput'); 
+            if(inp) { 
+                inp.focus(); 
+                inp.oninput = () => { if(!currentSession.startTime && isProdigio) { currentSession.startTime = new Date(); timerInterval = setInterval(() => { if(!currentSession.startTime) return; const diff = (new Date() - currentSession.startTime) / 1000; document.getElementById('timeCounter').innerText = diff.toFixed(1) + 's'; const chars = inp.value.length; const mins = diff / 60; const wpm = (mins > 0) ? Math.round((chars / 5) / mins) : 0; document.getElementById('wpmCounter').innerText = wpm + " PPM"; }, 100); } }; 
+                inp.onkeydown = (e) => { if(isProdigio && e.key === 'Backspace') { currentSession.backspaces++; document.getElementById('errCounter').innerText = currentSession.backspaces; } if(e.key === 'Enter') checkAnswer(inp.value, ans, true); }; 
+            }
         }, 50);
         return;
     }
-    else if (subj === 'matematica') {
-        let a, b, opSelector = Math.random();
-        let max = (player.grade==='inicial') ? 20 : 100;
-        if (opSelector < 0.4) { a=r(max); b=r(max); q=`¿${a}+${b}?`; ans=a+b; }
-        else { b=r(5)+1; ans=r(10)+1; a=b*ans; q=`¿${a}/${b}?`; }
-        opts = [ans, ans+1, ans-1, ans+5].sort(()=>Math.random()-0.5);
-    }
+
+    // --- TRIVIA (INGLES, GEO, COMPU) ---
     else {
-        const item = getRandom(DB_INGLES); q = item.q; ans = item.ans; opts = item.opts.sort(()=>Math.random()-0.5);
+        let dbTarget;
+        if (subj === 'ingles') dbTarget = DB_INGLES;
+        else if (subj === 'Geografia') dbTarget = DB_GEOGRAFIA;
+        else if (subj === 'compu') dbTarget = DB_COMPUTING;
+        
+        if (subj === 'ingles' && grade === 'prodigio') {
+             const pool = dbTarget.prodigio;
+             const index = (lvl - 1) % pool.length;
+             const item = pool[index];
+             ans = item.ans;
+             container.innerHTML = `<h3 style="color:#555;">Traduce al Inglés:</h3><div style="background:#fff; padding:15px; border-radius:8px; border:2px solid #ccc; margin-bottom:15px;"><h2 style="color:#1565c0; margin:0;">"${item.q}"</h2></div><input type="text" id="translInput" autocomplete="off" style="text-align:center; font-size:1.2rem; width:100%; padding:10px;" placeholder="Escribe en inglés..."><button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('translInput').value, '${ans.replace(/'/g, "\\'")}', false)">Comprobar</button>`;
+             
+             setTimeout(() => {
+                const inp = document.getElementById('translInput');
+                if(inp) {
+                    inp.focus();
+                    inp.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            checkAnswer(inp.value, ans, false); // false = no strict
+                        }
+                    };
+                }
+             }, 50);
+             return;
+        }
+
+        const difficultyArray = dbTarget[grade] || [];
+        const index = (lvl - 1) % difficultyArray.length;
+        const item = difficultyArray[index];
+        if(item) {
+            q = item.q; ans = item.ans; opts = [...item.opts].sort(() => Math.random() - 0.5);
+            renderQuestion(container, q, ans, opts);
+        } else { container.innerHTML = "<h3>¡Fin del contenido por ahora!</h3>"; }
     }
-
-    renderQuestion(container, q, ans, opts);
 }
-
-function r(max) { return Math.floor(Math.random() * max) + 1; }
 
 function renderQuestion(container, q, ans, opts) {
     if (!Array.isArray(opts)) opts = opts.split(',');
@@ -359,37 +753,45 @@ function checkAlgorithm() {
     }
 }
 
-// 8. LÓGICA DE PYTHON (IDE - MODO ESTRICTO PERO SMART QUOTES)
-function normalizeCode(code) {
-    // Solo arregla comillas raras de celular, pero respeta mayúsculas y espacios
-    return code
-        .trim()
-        .replace(/[“”]/g, '"')   // Smart quotes dobles -> normales
-        .replace(/[‘’]/g, "'");  // Smart quotes simples -> normales
-}
-
-function runPythonCode(validEncoded, outputEncoded) {
+// 8. LÓGICA DE PYTHON (IDE)
+function runPythonCode() {
     const code = document.getElementById('pyEditor').value;
     const cons = document.getElementById('pyConsole');
-    const valid = JSON.parse(decodeURIComponent(validEncoded));
-    const output = decodeURIComponent(outputEncoded);
+    
+    // Recuperamos de memoria global
+    const valid = currentSession.pythonValid;
+    const expectedOutput = currentSession.pythonOut;
     
     cons.innerText = "Procesando...";
-    cons.style.color = "#ffff00";
+    cons.style.color = "#ffff00"; 
 
     setTimeout(() => {
-        const userClean = normalizeCode(code);
-        // Comparación estricta (salvo comillas)
-        const match = valid.some(v => normalizeCode(v) === userClean);
+        let userClean = code.trim()
+                            .replace(/[“”]/g, '"')
+                            .replace(/[‘’]/g, "'")
+                            .replace(/'/g, '"') 
+                            .replace(/\s*([=+\-*/(),:])\s*/g, '$1'); 
+
+        const match = valid.some(v => {
+             let validClean = v.trim()
+                               .replace(/[“”]/g, '"')
+                               .replace(/[‘’]/g, "'")
+                               .replace(/'/g, '"')
+                               .replace(/\s*([=+\-*/(),:])\s*/g, '$1');
+             return userClean === validClean;
+        });
         
         if (match) {
-            cons.style.color = "#00ff00";
-            cons.innerText = ">>> " + output + "\n\n[Exit code 0]";
-            successAction("¡Código Funcional! +25 🪙", 25);
+            cons.style.color = "#00e676"; 
+            cons.innerHTML = `>>> ${code}<br>${expectedOutput}<br><br><span style='color:#aaa'>[Process finished with exit code 0]</span>`;
+            successAction("¡Código Compilado con Éxito! +30 🪙", 30);
         } else {
-            cons.style.color = "#ff4444";
-            cons.innerText = `Traceback (most recent call last):\n  File "main.py", line 1\n    ${code}\nSyntaxError: invalid syntax (o no cumple la misión)`;
-            failAction("Error en el código");
+            cons.style.color = "#ff5252"; 
+            cons.innerHTML = `Traceback (most recent call last):<br>  File "main.py", line 1<br>    ${code}<br><strong>SyntaxError:</strong> El código no hace lo que pide la misión.<br>Intenta guiarte por la pista.`;
+            failAction("Error de Sintaxis");
+            const editor = document.getElementById('pyEditor');
+            editor.classList.add('shake-anim');
+            setTimeout(() => editor.classList.remove('shake-anim'), 500);
         }
     }, 600);
 }
@@ -427,11 +829,17 @@ function savePwd() {
 }
 
 // 10. VALIDACIÓN Y UTILIDADES GENERALES
-function checkAnswer(user, correct) {
+function checkAnswer(user, correct, strict = false) {
     let isCorrect = false;
-    if (player.grade === 'prodigio' && currentSession.subject === 'teclado') { if (String(user).trim() === String(correct).trim()) isCorrect = true; }
-    else { if (String(user).toUpperCase().trim() === String(correct).toUpperCase().trim()) isCorrect = true; }
+    let u = String(user).trim();
+    let c = String(correct).trim();
 
+    if (strict) {
+        if (u === c) isCorrect = true; // Estricto (Teclado)
+    } else {
+        if (u.toUpperCase() === c.toUpperCase()) isCorrect = true; // Flexible
+    }
+    
     if (isCorrect) successAction("¡Correcto! +20 🪙", 20);
     else failAction("Incorrecto -10 🪙");
 }
@@ -441,7 +849,7 @@ function successAction(msg, coins) {
     if(currentSession.level === player.progress[player.grade][currentSession.subject]) player.progress[player.grade][currentSession.subject]++;
     saveData(); updateUI(); showToast(msg);
     if(timerInterval) clearInterval(timerInterval);
-    setTimeout(() => { if(currentSession.level < 60) playLevel(currentSession.level + 1); else closeGame(); }, 1000);
+    setTimeout(() => { if(currentSession.level < 50) playLevel(currentSession.level + 1); else closeGame(); }, 1000);
 }
 
 function failAction(msg) {
@@ -449,9 +857,24 @@ function failAction(msg) {
     saveData(); updateUI(); showToast(msg, 'error');
 }
 
-function getRandom(arr) { if(!arr) return "X"; return arr[Math.floor(Math.random() * arr.length)]; }
 function updateUsername(val) { player.name = val; saveData(); }
-function changeGrade() { player.grade = document.getElementById('gradeSelect').value; updateUI(); showToast(`Dificultad: ${player.grade.toUpperCase()}`); }
+
+function changeGrade() { 
+    player.grade = document.getElementById('gradeSelect').value; 
+    updateUI(); 
+    
+    if (document.getElementById('view-map').style.display !== 'none') {
+        renderMap(); 
+    }
+    
+    if (document.getElementById('gameModal').style.display !== 'none') {
+        closeGame();
+        showToast("Dificultad cambiada: Nivel reiniciado", "error");
+    } else {
+        showToast(`Dificultad: ${player.grade.toUpperCase()}`);
+    }
+}
+
 function showToast(msg, type='success') { const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<span>${type=='success'?'✅':'❌'}</span><span>${msg}</span>`; document.getElementById('notification-area').appendChild(t); setTimeout(() => t.remove(), 4000); }
 function resetGame() { if(confirm("¿Borrar todo?")) { localStorage.removeItem('eduPlayer'); location.reload(); } }
 
