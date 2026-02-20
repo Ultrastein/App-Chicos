@@ -169,7 +169,7 @@ const DB_GEOGRAFIA = {
         {q:"Capital de Uruguay", ans:"Montevideo", opts:["Montevideo","Punta del Este","Colonia"]},
         {q:"País con forma de bota", ans:"Italia", opts:["Italia","Francia","España"]},
         {q:"Dónde está la Torre Eiffel", ans:"Francia", opts:["Francia","Italia","Alemania"]},
-        {q:"Bandera con un Sol", ans:"Argentina", opts:["Argentina","Chile","Perú"]}
+        {q:"Bandera con un Sol", ans:"Argentina", opts:["Argentina","Chile","Perú"]},
         {q:"País de Buenos Aires", ans:"Argentina", opts:["Argentina","Brasil","Chile"]}, 
         {q:"País de Brasilia", ans:"Brasil", opts:["Brasil","Perú","Uruguay"]},
         {q:"País de Santiago", ans:"Chile", opts:["Chile","Argentina","Bolivia"]}, 
@@ -200,7 +200,7 @@ const DB_GEOGRAFIA = {
         {q:"Capital de Canadá", ans:"Ottawa", opts:["Ottawa","Toronto","Montreal"]},
         {q:"Capital de Turquía", ans:"Ankara", opts:["Ankara","Estambul","Antalya"]},
         {q:"Capital de Egipto", ans:"El Cairo", opts:["El Cairo","Alejandría","Giza"]},
-        {q:"Continente de Kenia", ans:"África", opts:["África","Asia","Europa"]}
+        {q:"Continente de Kenia", ans:"África", opts:["África","Asia","Europa"]},
         {q:"Bandera 🇧🇷", ans:"Brasil", opts:["Brasil","Portugal","Bolivia"]}, 
         {q:"Bandera 🇺🇸", ans:"EEUU", opts:["EEUU","UK","Liberia"]},
         {q:"Bandera 🇯🇵", ans:"Japón", opts:["Japón","China","Corea"]}, 
