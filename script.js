@@ -275,22 +275,232 @@ const DB_COMPUTING = {
 };
 
 const DB_ALGORITMOS = {
-    inicial: [{ title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] }, 
-            { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] }],
-    intermedia: [{ title: "Robot Laberinto", blocks: [{text: "Inicio", type: "blk-event"}, {text: "Avanzar 2", type: "blk-action"}, {text: "Girar Derecha", type: "blk-action"}, {text: "Avanzar 1", type: "blk-action"}] }],
-    dificil: [{ title: "Cuadrado", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] }],
-    experta: [{ title: "Semáforo", blocks: [{text: "Mirar luz", type: "blk-action"}, {text: "SI es Verde", type: "blk-control"}, {text: "  Cruzar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] }],
-    prodigio: [{ title: "Lluvia", blocks: [{text: "SI llueve", type: "blk-control"}, {text: "  ¿Tengo paraguas?", type: "blk-logic"}, {text: "    SI: Usarlo", type: "blk-action"}, {text: "    NO: Correr", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Caminar", type: "blk-action"}] }]
+    inicial: [
+        { title: "Lavarse los dientes", blocks: [{text: "Poner pasta", type: "blk-action"}, {text: "Cepillar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] },
+        { title: "Plantar semilla", blocks: [{text: "Hacer pozo", type: "blk-action"}, {text: "Poner semilla", type: "blk-action"}, {text: "Tapar", type: "blk-action"}, {text: "Regar", type: "blk-action"}] },
+        { title: "Hacer un Té", blocks: [{text: "Hervir agua", type: "blk-action"}, {text: "Poner saquito", type: "blk-action"}, {text: "Servir agua", type: "blk-action"}] },
+        { title: "Dibujar Círculo", blocks: [{text: "Tomar lápiz", type: "blk-action"}, {text: "Apoyar punta", type: "blk-action"}, {text: "Girar 360°", type: "blk-action"}] },
+        { title: "Cruzar Calle", blocks: [{text: "Mirar ambos lados", type: "blk-action"}, {text: "Esperar verde", type: "blk-action"}, {text: "Caminar", type: "blk-action"}] },
+        { title: "Ponerse Zapatos", blocks: [{text: "Poner medias", type: "blk-action"}, {text: "Poner zapatos", type: "blk-action"}, {text: "Atar cordones", type: "blk-action"}] },
+        { title: "Comer Banana", blocks: [{text: "Pelar fruta", type: "blk-action"}, {text: "Morder", type: "blk-action"}, {text: "Tirar cáscara", type: "blk-action"}] },
+        { title: "Hacer la Cama", blocks: [{text: "Estirar sábanas", type: "blk-action"}, {text: "Poner almohada", type: "blk-action"}, {text: "Doblar colcha", type: "blk-action"}] },
+        { title: "Llamar por Teléfono", blocks: [{text: "Desbloquear", type: "blk-action"}, {text: "Marcar número", type: "blk-action"}, {text: "Hablar", type: "blk-action"}] },
+        { title: "Sacar punta", blocks: [{text: "Poner lápiz", type: "blk-action"}, {text: "Girar manivela", type: "blk-action"}, {text: "Verificar punta", type: "blk-action"}] },
+        { title: "Cargar Tablet", blocks: [{text: "Buscar cable", type: "blk-action"}, {text: "Enchufar", type: "blk-action"}, {text: "Esperar carga", type: "blk-action"}] },
+        { title: "Lavar Manos", blocks: [{text: "Poner jabón", type: "blk-action"}, {text: "Frotar", type: "blk-action"}, {text: "Secar", type: "blk-action"}] },
+        { title: "Ver TV", blocks: [{text: "Sentarse", type: "blk-action"}, {text: "Tomar control", type: "blk-action"}, {text: "Prender", type: "blk-action"}] },
+        { title: "Dibujar Sol", blocks: [{text: "Hacer círculo", type: "blk-action"}, {text: "Hacer rayos", type: "blk-action"}, {text: "Pintar amarillo", type: "blk-action"}] },
+        { title: "Poner la Mesa", blocks: [{text: "Poner mantel", type: "blk-action"}, {text: "Poner plato", type: "blk-action"}, {text: "Poner cubiertos", type: "blk-action"}] },
+        { title: "Beber Jugo", blocks: [{text: "Servir vaso", type: "blk-action"}, {text: "Beber", type: "blk-action"}, {text: "Lavar vaso", type: "blk-action"}] },
+        { title: "Ir a la Escuela", blocks: [{text: "Poner mochila", type: "blk-action"}, {text: "Cerrar puerta", type: "blk-action"}, {text: "Caminar", type: "blk-action"}] },
+        { title: "Pintar Cuadro", blocks: [{text: "Mojar pincel", type: "blk-action"}, {text: "Pasar pintura", type: "blk-action"}, {text: "Limpiar pincel", type: "blk-action"}] },
+        { title: "Tocar Piano", blocks: [{text: "Sentarse derecho", type: "blk-action"}, {text: "Poner manos", type: "blk-action"}, {text: "Presionar tecla", type: "blk-action"}] },
+        { title: "Hacer Foto", blocks: [{text: "Apuntar", type: "blk-action"}, {text: "Sonreír", type: "blk-action"}, {text: "Presionar botón", type: "blk-action"}] },
+        { title: "Subir Escalera", blocks: [{text: "Mirar escalón", type: "blk-action"}, {text: "Levantar pie", type: "blk-action"}, {text: "Avanzar", type: "blk-action"}] },
+        { title: "Cerrar Ventana", blocks: [{text: "Acercarse", type: "blk-action"}, {text: "Empujar", type: "blk-action"}, {text: "Trabar", type: "blk-action"}] },
+        { title: "Regar Flor", blocks: [{text: "Llenar regadera", type: "blk-action"}, {text: "Ir a la flor", type: "blk-action"}, {text: "Volcar agua", type: "blk-action"}] },
+        { title: "Leer Libro", blocks: [{text: "Abrir tapa", type: "blk-action"}, {text: "Leer texto", type: "blk-action"}, {text: "Pasar página", type: "blk-action"}] },
+        { title: "Comer Galleta", blocks: [{text: "Abrir paquete", type: "blk-action"}, {text: "Sacar una", type: "blk-action"}, {text: "Masticar", type: "blk-action"}] },
+        { title: "Atarse Pelo", blocks: [{text: "Juntar pelo", type: "blk-action"}, {text: "Poner colita", type: "blk-action"}, {text: "Dar vuelta", type: "blk-action"}] },
+        { title: "Usar Gorra", blocks: [{text: "Agarrar gorra", type: "blk-action"}, {text: "Alinear frente", type: "blk-action"}, {text: "Bajar a la cabeza", type: "blk-action"}] },
+        { title: "Abrir Regalo", blocks: [{text: "Romper papel", type: "blk-action"}, {text: "Abrir caja", type: "blk-action"}, {text: "Festejar", type: "blk-action"}] },
+        { title: "Patear Pelota", blocks: [{text: "Correr", type: "blk-action"}, {text: "Mirar pelota", type: "blk-action"}, {text: "Golpear con pie", type: "blk-action"}] },
+        { title: "Hacer Nudo", blocks: [{text: "Cruzar hilos", type: "blk-action"}, {text: "Pasar por abajo", type: "blk-action"}, {text: "Tirar fuerte", type: "blk-action"}] },
+        { title: "Dormir", blocks: [{text: "Acostarse", type: "blk-action"}, {text: "Cerrar ojos", type: "blk-action"}, {text: "Soñar", type: "blk-action"}] },
+        { title: "Bañarse", blocks: [{text: "Entrar", type: "blk-action"}, {text: "Enjabonar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}] },
+        { title: "Comer Sopa", blocks: [{text: "Soplar cuchara", type: "blk-action"}, {text: "Llevar a boca", type: "blk-action"}, {text: "Tragar", type: "blk-action"}] },
+        { title: "Pelar Huevo", blocks: [{text: "Golpear cáscara", type: "blk-action"}, {text: "Sacar trozos", type: "blk-action"}, {text: "Lavar huevo", type: "blk-action"}] },
+        { title: "Hacer Puzzle", blocks: [{text: "Buscar bordes", type: "blk-action"}, {text: "Unir piezas", type: "blk-action"}, {text: "Completar", type: "blk-action"}] },
+        { title: "Guardar Auto", blocks: [{text: "Abrir garage", type: "blk-action"}, {text: "Entrar auto", type: "blk-action"}, {text: "Apagar motor", type: "blk-action"}] },
+        { title: "Volar Avión Papel", blocks: [{text: "Doblar hoja", type: "blk-action"}, {text: "Apuntar alto", type: "blk-action"}, {text: "Lanzar", type: "blk-action"}] },
+        { title: "Comer Manzana", blocks: [{text: "Lavar fruta", type: "blk-action"}, {text: "Morder", type: "blk-action"}, {text: "Tirar restos", type: "blk-action"}] },
+        { title: "Jugar Dados", blocks: [{text: "Agitar mano", type: "blk-action"}, {text: "Lanzar", type: "blk-action"}, {text: "Contar puntos", type: "blk-action"}] },
+        { title: "Apagar PC", blocks: [{text: "Guardar todo", type: "blk-action"}, {text: "Menú inicio", type: "blk-action"}, {text: "Click Apagar", type: "blk-action"}] }
+    ],
+    intermedia: [
+        { title: "Robot Laberinto", blocks: [{text: "Inicio", type: "blk-event"}, {text: "Avanzar 2", type: "blk-action"}, {text: "Girar Derecha", type: "blk-action"}, {text: "Avanzar 1", type: "blk-action"}] },
+        { title: "Hacer Pizza", blocks: [{text: "Estirar masa", type: "blk-action"}, {text: "Salsa tomate", type: "blk-action"}, {text: "Poner queso", type: "blk-action"}, {text: "Hornear 10m", type: "blk-action"}] },
+        { title: "Enviar Mail", blocks: [{text: "Escribir para:", type: "blk-action"}, {text: "Poner asunto", type: "blk-action"}, {text: "Redactar", type: "blk-action"}, {text: "Click Enviar", type: "blk-action"}] },
+        { title: "Robot Limpiador", blocks: [{text: "Prender", type: "blk-event"}, {text: "Avanzar recto", type: "blk-action"}, {text: "Girar al chocar", type: "blk-action"}, {text: "Aspirar", type: "blk-action"}] },
+        { title: "Cargar Celular", blocks: [{text: "Tomar cable", type: "blk-action"}, {text: "Conectar USB", type: "blk-action"}, {text: "Ver rayito", type: "blk-action"}, {text: "Dejar en mesa", type: "blk-action"}] },
+        { title: "Ir al Cine", blocks: [{text: "Comprar ticket", type: "blk-action"}, {text: "Comprar pochoclo", type: "blk-action"}, {text: "Buscar sala", type: "blk-action"}, {text: "Hacer silencio", type: "blk-action"}] },
+        { title: "Lavar Ropa", blocks: [{text: "Meter ropa", type: "blk-action"}, {text: "Poner jabón", type: "blk-action"}, {text: "Elegir programa", type: "blk-action"}, {text: "Dar inicio", type: "blk-action"}] },
+        { title: "Tirar Basura", blocks: [{text: "Atar bolsa", type: "blk-action"}, {text: "Sacar afuera", type: "blk-action"}, {text: "Poner en tacho", type: "blk-action"}, {text: "Volver", type: "blk-action"}] },
+        { title: "Hacer Dibujo", blocks: [{text: "Bocetar", type: "blk-action"}, {text: "Entintar", type: "blk-action"}, {text: "Borrar lápiz", type: "blk-action"}, {text: "Colorear", type: "blk-action"}] },
+        { title: "Sacar Perro", blocks: [{text: "Poner correa", type: "blk-action"}, {text: "Salir calle", type: "blk-action"}, {text: "Caminar 20m", type: "blk-action"}, {text: "Juntar cacas", type: "blk-action"}] },
+        { title: "Hacer Jugo", blocks: [{text: "Cortar naranja", type: "blk-action"}, {text: "Exprimir", type: "blk-action"}, {text: "Sacar semillas", type: "blk-action"}, {text: "Servir con hielo", type: "blk-action"}] },
+        { title: "Ir al Super", blocks: [{text: "Hacer lista", type: "blk-action"}, {text: "Llenar carro", type: "blk-action"}, {text: "Pagar cajera", type: "blk-action"}, {text: "Cargar bolsas", type: "blk-action"}] },
+        { title: "Planchar Remera", blocks: [{text: "Calentar plancha", type: "blk-action"}, {text: "Estirar tela", type: "blk-action"}, {text: "Pasar plancha", type: "blk-action"}, {text: "Doblar", type: "blk-action"}] },
+        { title: "Hacer Ensalada", blocks: [{text: "Lavar lechuga", type: "blk-action"}, {text: "Trocear tomate", type: "blk-action"}, {text: "Poner sal", type: "blk-action"}, {text: "Mezclar", type: "blk-action"}] },
+        { title: "Arreglar Cama", blocks: [{text: "Sacudir sábanas", type: "blk-action"}, {text: "Acomodar funda", type: "blk-action"}, {text: "Poner manta", type: "blk-action"}, {text: "Perfumar", type: "blk-action"}] },
+        { title: "Hacer Sandwich", blocks: [{text: "Poner pan", type: "blk-action"}, {text: "Poner jamón", type: "blk-action"}, {text: "Poner queso", type: "blk-action"}, {text: "Tapar", type: "blk-action"}] },
+        { title: "Grabar Video", blocks: [{text: "Elegir fondo", type: "blk-action"}, {text: "Check sonido", type: "blk-action"}, {text: "Click Rec", type: "blk-action"}, {text: "Hablar", type: "blk-action"}] },
+        { title: "Lavar Bici", blocks: [{text: "Mojar cuadro", type: "blk-action"}, {text: "Pasar esponja", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}, {text: "Secar cadena", type: "blk-action"}] },
+        { title: "Usar Cajero", blocks: [{text: "Poner tarjeta", type: "blk-action"}, {text: "Poner PIN", type: "blk-action"}, {text: "Elegir monto", type: "blk-action"}, {text: "Retirar billetes", type: "blk-action"}] },
+        { title: "Hacer Batido", blocks: [{text: "Poner leche", type: "blk-action"}, {text: "Poner fruta", type: "blk-action"}, {text: "Licuar", type: "blk-action"}, {text: "Poner pajita", type: "blk-action"}] },
+        { title: "Pintar Pared", blocks: [{text: "Lijar", type: "blk-action"}, {text: "Tapar grietas", type: "blk-action"}, {text: "Primera mano", type: "blk-action"}, {text: "Segunda mano", type: "blk-action"}] },
+        { title: "Cargar Nafta", blocks: [{text: "Apagar motor", type: "blk-action"}, {text: "Abrir tapa", type: "blk-action"}, {text: "Cargar litros", type: "blk-action"}, {text: "Cerrar tapa", type: "blk-action"}] },
+        { title: "Hacer Mate", blocks: [{text: "Poner yerba", type: "blk-action"}, {text: "Poner bombilla", type: "blk-action"}, {text: "Cebar tibio", type: "blk-action"}, {text: "Cebar caliente", type: "blk-action"}] },
+        { title: "Hacer Gimnasia", blocks: [{text: "Calentar", type: "blk-action"}, {text: "Hacer rutina", type: "blk-action"}, {text: "Tomar agua", type: "blk-action"}, {text: "Elongar", type: "blk-action"}] },
+        { title: "Atender Mesa", blocks: [{text: "Saludar", type: "blk-action"}, {text: "Tomar pedido", type: "blk-action"}, {text: "Traer comida", type: "blk-action"}, {text: "Cobrar", type: "blk-action"}] },
+        { title: "Hacer Gelatina", blocks: [{text: "Hervir agua", type: "blk-action"}, {text: "Disolver polvo", type: "blk-action"}, {text: "Poner agua fría", type: "blk-action"}, {text: "Enfriar 2hs", type: "blk-action"}] },
+        { title: "Usar Impresora", blocks: [{text: "Poner papel", type: "blk-action"}, {text: "Prender", type: "blk-action"}, {text: "Enviar doc", type: "blk-action"}, {text: "Retirar hoja", type: "blk-action"}] },
+        { title: "Hacer Pochoclo", blocks: [{text: "Poner aceite", type: "blk-action"}, {text: "Poner maíz", type: "blk-action"}, {text: "Calentar", type: "blk-action"}, {text: "Poner sal", type: "blk-action"}] },
+        { title: "Limpiar Mesa", blocks: [{text: "Sacar cosas", type: "blk-action"}, {text: "Pasar trapo", type: "blk-action"}, {text: "Lavar trapo", type: "blk-action"}, {text: "Acomodar sillas", type: "blk-action"}] },
+        { title: "Hacer Arroz", blocks: [{text: "Hervir agua", type: "blk-action"}, {text: "Poner arroz", type: "blk-action"}, {text: "Colar", type: "blk-action"}, {text: "Servir", type: "blk-action"}] },
+        { title: "Subir Video", blocks: [{text: "Editar", type: "blk-action"}, {text: "Poner título", type: "blk-action"}, {text: "Poner miniatura", type: "blk-action"}, {text: "Publicar", type: "blk-action"}] },
+        { title: "Plantar Arbol", blocks: [{text: "Cavar pozo", type: "blk-action"}, {text: "Poner árbol", type: "blk-action"}, {text: "Tapar raíz", type: "blk-action"}, {text: "Atar guía", type: "blk-action"}] },
+        { title: "Hacer Regalo", blocks: [{text: "Comprar objeto", type: "blk-action"}, {text: "Envolver", type: "blk-action"}, {text: "Poner tarjeta", type: "blk-action"}, {text: "Entregar", type: "blk-action"}] },
+        { title: "Lavar Platos", blocks: [{text: "Poner detergente", type: "blk-action"}, {text: "Refregar", type: "blk-action"}, {text: "Enjuagar", type: "blk-action"}, {text: "Secar", type: "blk-action"}] },
+        { title: "Armar Juguete", blocks: [{text: "Abrir caja", type: "blk-action"}, {text: "Leer manual", type: "blk-action"}, {text: "Unir piezas", type: "blk-action"}, {text: "Probar", type: "blk-action"}] }
+    ],
+    dificil: [
+        { title: "Cuadrado", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Triángulo", blocks: [{text: "Repetir 3", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 120", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Círculo (Puntos)", blocks: [{text: "Repetir 36", type: "blk-control"}, {text: "  Mover 10", type: "blk-action"}, {text: "  Girar 10", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Escalera", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Subir 1", type: "blk-action"}, {text: "  Avanzar 1", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Llenar 10 Vasos", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Llenar vaso", type: "blk-action"}, {text: "  Mover al siguiente", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Hexágono", blocks: [{text: "Repetir 6", type: "blk-control"}, {text: "  Mover 50", type: "blk-action"}, {text: "  Girar 60", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Octógono", blocks: [{text: "Repetir 8", type: "blk-control"}, {text: "  Mover 50", type: "blk-action"}, {text: "  Girar 45", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Saludar Fila", blocks: [{text: "Repetir 20", type: "blk-control"}, {text: "  Decir Hola", type: "blk-action"}, {text: "  Pasar alumno", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Clavar 5 Clavos", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Martillar", type: "blk-action"}, {text: "  Check clavo", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Borrar Pizarrón", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Pasar borrador", type: "blk-action"}, {text: "  Bajar mano", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Estrella 5", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Mover 100", type: "blk-action"}, {text: "  Girar 144", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Cargar 10 Cajas", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Alzar caja", type: "blk-action"}, {text: "  Poner en camión", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Repartir Cartas", blocks: [{text: "Repetir 40", type: "blk-control"}, {text: "  Sacar carta", type: "blk-action"}, {text: "  Entregar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Cruzar 4 Calles", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Mirar semáforo", type: "blk-action"}, {text: "  Cruzar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Limpiar Ventanas", blocks: [{text: "Repetir 8", type: "blk-control"}, {text: "  Poner líquido", type: "blk-action"}, {text: "  Secar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Caminar Cuadra", blocks: [{text: "Repetir 100", type: "blk-control"}, {text: "  Paso izquierdo", type: "blk-action"}, {text: "  Paso derecho", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Atornillar", blocks: [{text: "Repetir 15", type: "blk-control"}, {text: "  Girar derecha", type: "blk-action"}, {text: "  Presionar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Cortar Pasto", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Ir adelante", type: "blk-action"}, {text: "  Girar 180", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Subir 10 Pisos", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Entrar ascensor", type: "blk-action"}, {text: "  Subir piso", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Poner 100 Ladrillos", blocks: [{text: "Repetir 100", type: "blk-control"}, {text: "  Poner mezcla", type: "blk-action"}, {text: "  Poner ladrillo", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Inflar Rueda", blocks: [{text: "Repetir 30", type: "blk-control"}, {text: "  Bajar inflador", type: "blk-action"}, {text: "  Subir inflador", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Hacer Abdominales", blocks: [{text: "Repetir 20", type: "blk-control"}, {text: "  Subir torso", type: "blk-action"}, {text: "  Bajar suave", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Llenar Balde", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Ir al grifo", type: "blk-action"}, {text: "  Volcar agua", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Picar Cebolla", blocks: [{text: "Repetir 15", type: "blk-control"}, {text: "  Bajar cuchillo", type: "blk-action"}, {text: "  Mover cebolla", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Enrollar Cable", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Dar vuelta", type: "blk-action"}, {text: "  Sujetar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Pintar Rayas", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Pintar blanca", type: "blk-action"}, {text: "  Espacio negro", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Servir 4 Platos", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Servir comida", type: "blk-action"}, {text: "  Llevar mesa", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Saltear Verdura", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Agitar sartén", type: "blk-action"}, {text: "  Mezclar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Pedalear 1km", blocks: [{text: "Repetir 200", type: "blk-control"}, {text: "  Pedal Der", type: "blk-action"}, {text: "  Pedal Izq", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Guardar Libros", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Tomar libro", type: "blk-action"}, {text: "  Poner estante", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Barrer Patio", blocks: [{text: "Repetir 12", type: "blk-control"}, {text: "  Empujar escoba", type: "blk-action"}, {text: "  Juntar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Secar Platos", blocks: [{text: "Repetir 10", type: "blk-control"}, {text: "  Pasar trapo", type: "blk-action"}, {text: "  Guardar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Llamar 3 Veces", blocks: [{text: "Repetir 3", type: "blk-control"}, {text: "  Marcar", type: "blk-action"}, {text: "  Esperar tono", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Cargar 4 Bolsas", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Agarrar bolsa", type: "blk-action"}, {text: "  Llevar cocina", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Doblar 6 Toallas", blocks: [{text: "Repetir 6", type: "blk-control"}, {text: "  Doblar medio", type: "blk-action"}, {text: "  Apilar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Amasar Pan", blocks: [{text: "Repetir 20", type: "blk-control"}, {text: "  Aprestar", type: "blk-action"}, {text: "  Doblar masa", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Servir Café", blocks: [{text: "Repetir 2", type: "blk-control"}, {text: "  Poner azúcar", type: "blk-action"}, {text: "  Poner café", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Marcar Cancha", blocks: [{text: "Repetir 4", type: "blk-control"}, {text: "  Línea 20m", type: "blk-action"}, {text: "  Girar 90", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Poner 3 Velas", blocks: [{text: "Repetir 3", type: "blk-control"}, {text: "  Pegar vela", type: "blk-action"}, {text: "  Prender", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Aplaudi 5 veces", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  Chocar manos", type: "blk-action"}, {text: "  Separar", type: "blk-action"}, {text: "Fin Repetir", type: "blk-control"}] }
+    ],
+    experta: [
+        { title: "Semáforo", blocks: [{text: "Mirar luz", type: "blk-action"}, {text: "SI es Verde", type: "blk-control"}, {text: "  Cruzar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] },
+        { title: "Paraguas", blocks: [{text: "Mirar cielo", type: "blk-action"}, {text: "SI llueve", type: "blk-control"}, {text: "  Abrir paraguas", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Guardar", type: "blk-action"}] },
+        { title: "Despertador", blocks: [{text: "Check hora", type: "blk-action"}, {text: "SI es 7:00", type: "blk-control"}, {text: "  Sonar alarma", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Dormir", type: "blk-action"}] },
+        { title: "Cajero Dinero", blocks: [{text: "Check saldo", type: "blk-action"}, {text: "SI saldo > 0", type: "blk-control"}, {text: "  Dar billetes", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Error", type: "blk-action"}] },
+        { title: "Luz Automática", blocks: [{text: "Mirar sensor", type: "blk-action"}, {text: "SI es oscuro", type: "blk-control"}, {text: "  Prender luz", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Apagar", type: "blk-action"}] },
+        { title: "Puerta Super", blocks: [{text: "Check sensor", type: "blk-action"}, {text: "SI hay persona", type: "blk-control"}, {text: "  Abrir puerta", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Cerrar", type: "blk-action"}] },
+        { title: "Batería Celu", blocks: [{text: "Check %", type: "blk-action"}, {text: "SI es < 10%", type: "blk-control"}, {text: "  Aviso carga", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  OK", type: "blk-action"}] },
+        { title: "Helado", blocks: [{text: "Tengo plata?", type: "blk-action"}, {text: "SI tengo", type: "blk-control"}, {text: "  Comprar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Mirar", type: "blk-action"}] },
+        { title: "Examen", blocks: [{text: "Nota final", type: "blk-action"}, {text: "SI nota >= 7", type: "blk-control"}, {text: "  Aprobar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Recuperar", type: "blk-action"}] },
+        { title: "Sopa Caliente", blocks: [{text: "Probar sopa", type: "blk-action"}, {text: "SI quema", type: "blk-control"}, {text: "  Soplar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Comer", type: "blk-action"}] },
+        { title: "Voto", blocks: [{text: "Edad?", type: "blk-action"}, {text: "SI >= 16", type: "blk-control"}, {text: "  Votar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Esperar", type: "blk-action"}] },
+        { title: "Tanque Agua", blocks: [{text: "Check flotante", type: "blk-action"}, {text: "SI abajo", type: "blk-control"}, {text: "  Prender bomba", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Apagar", type: "blk-action"}] },
+        { title: "Wifi", blocks: [{text: "Check señal", type: "blk-action"}, {text: "SI conecta", type: "blk-control"}, {text: "  Navegar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Reset", type: "blk-action"}] },
+        { title: "Password", blocks: [{text: "Input pass", type: "blk-action"}, {text: "SI es correcta", type: "blk-control"}, {text: "  Acceder", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Bloquear", type: "blk-action"}] },
+        { title: "Termostato", blocks: [{text: "Check Temp", type: "blk-action"}, {text: "SI Temp < 18", type: "blk-control"}, {text: "  Calefacción", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Apagar", type: "blk-action"}] },
+        { title: "Hambre", blocks: [{text: "Check panza", type: "blk-action"}, {text: "SI ruge", type: "blk-control"}, {text: "  Cocinar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Jugar", type: "blk-action"}] },
+        { title: "Llenar Balde", blocks: [{text: "SI lleno", type: "blk-control"}, {text: "  Cerrar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Seguir", type: "blk-action"}] },
+        { title: "Edad Cine", blocks: [{text: "SI >= 13", type: "blk-control"}, {text: "  Entrar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Con adulto", type: "blk-action"}] },
+        { title: "Lavado Auto", blocks: [{text: "SI sucio", type: "blk-control"}, {text: "  Lavar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Pasear", type: "blk-action"}] },
+        { title: "Planchado", blocks: [{text: "SI arrugado", type: "blk-control"}, {text: "  Planchar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Guardar", type: "blk-action"}] },
+        { title: "Regar Jardín", blocks: [{text: "SI seco", type: "blk-control"}, {text: "  Regar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Nada", type: "blk-action"}] },
+        { title: "Comprar Pan", blocks: [{text: "SI abierto", type: "blk-control"}, {text: "  Comprar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Volver", type: "blk-action"}] },
+        { title: "Tarea", blocks: [{text: "SI termine", type: "blk-control"}, {text: "  Salir", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Seguir", type: "blk-action"}] },
+        { title: "Llamada", blocks: [{text: "SI suena", type: "blk-control"}, {text: "  Atender", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Ignorar", type: "blk-action"}] },
+        { title: "Ascensor", blocks: [{text: "SI llego", type: "blk-control"}, {text: "  Abrir", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Mover", type: "blk-action"}] },
+        { title: "Micrófono", blocks: [{text: "SI hablo", type: "blk-control"}, {text: "  Sonar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Mute", type: "blk-action"}] },
+        { title: "Mouse", blocks: [{text: "SI click", type: "blk-control"}, {text: "  Acción", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Puntero", type: "blk-action"}] },
+        { title: "Horno", blocks: [{text: "SI timer 0", type: "blk-control"}, {text: "  Pip pip", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Calor", type: "blk-action"}] },
+        { title: "Heladera", blocks: [{text: "SI abierta", type: "blk-control"}, {text: "  Luz on", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Luz off", type: "blk-action"}] },
+        { title: "Lámpara", blocks: [{text: "SI quemada", type: "blk-control"}, {text: "  Cambiar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Prender", type: "blk-action"}] },
+        { title: "Bici", blocks: [{text: "SI pinchada", type: "blk-control"}, {text: "  Parchar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Andar", type: "blk-action"}] },
+        { title: "Reloj", blocks: [{text: "SI sin pila", type: "blk-control"}, {text: "  Poner pila", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Tictac", type: "blk-action"}] },
+        { title: "Mochila", blocks: [{text: "SI pesada", type: "blk-control"}, {text: "  Sacar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Llevar", type: "blk-action"}] },
+        { title: "Silla", blocks: [{text: "SI rota", type: "blk-control"}, {text: "  Fix it", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Sentarse", type: "blk-action"}] },
+        { title: "Vaso", blocks: [{text: "SI vacío", type: "blk-control"}, {text: "  Llenar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Beber", type: "blk-action"}] },
+        { title: "Zapatos", blocks: [{text: "SI sucios", type: "blk-control"}, {text: "  Limpiar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Usar", type: "blk-action"}] },
+        { title: "Pasto", blocks: [{text: "SI largo", type: "blk-control"}, {text: "  Cortar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Jugar", type: "blk-action"}] },
+        { title: "Canilla", blocks: [{text: "SI pierde", type: "blk-control"}, {text: "  Cerrar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Nada", type: "blk-action"}] },
+        { title: "Ropa", blocks: [{text: "SI seca", type: "blk-control"}, {text: "  Guardar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Dejar", type: "blk-action"}] },
+        { title: "Lápiz", blocks: [{text: "SI sin punta", type: "blk-control"}, {text: "  Sacar", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Escribir", type: "blk-action"}] }
+    ],
+    prodigio: [
+        { title: "Lluvia Inteligente", blocks: [{text: "SI llueve", type: "blk-control"}, {text: "  ¿Tengo paraguas?", type: "blk-logic"}, {text: "    SI: Usarlo", type: "blk-action"}, {text: "    NO: Correr", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Caminar", type: "blk-action"}] },
+        { title: "Bucle Llenado", blocks: [{text: "Repetir 5", type: "blk-control"}, {text: "  SI vacío", type: "blk-control"}, {text: "    Llenar", type: "blk-action"}, {text: "  Fin SI", type: "blk-control"}, {text: "Fin Repetir", type: "blk-control"}] },
+        { title: "Alarma Robo", blocks: [{text: "SI sensor on", type: "blk-control"}, {text: "  SI es noche", type: "blk-logic"}, {text: "    Llamar 911", type: "blk-action"}, {text: "    Sirena", type: "blk-action"}, {text: "SINO", type: "blk-control"}, {text: "  Off", type: "blk-action"}] },
+        { title: "Cajero", blocks: [{text: "SI PIN OK", type: "blk-control"}, {text: "  SI plata > 0", type: "blk-logic"}, {text: "    Dar billete", type: "blk-action"}, {text: "  SINO: Error", type: "blk-action"}, {text: "SINO: Bloqueo", type: "blk-action"}] },
+        { title: "Auto Autónomo", blocks: [{text: "SI obstáculo", type: "blk-control"}, {text: "  SI hay espacio", type: "blk-logic"}, {text: "    Esquivar", type: "blk-action"}, {text: "    SINO: Frenar", type: "blk-action"}, {text: "SINO: Go", type: "blk-action"}] },
+        { title: "Logueo Web", blocks: [{text: "SI user ok", type: "blk-control"}, {text: "  SI pass ok", type: "blk-logic"}, {text: "    Dashboard", type: "blk-action"}, {text: "    SINO: Error", type: "blk-action"}, {text: "SINO: Error", type: "blk-action"}] },
+        { title: "Dron", blocks: [{text: "SI bat > 20%", type: "blk-control"}, {text: "  SI señal", type: "blk-logic"}, {text: "    Volar", type: "blk-action"}, {text: "    SINO: Volver", type: "blk-action"}, {text: "SINO: Aterrizar", type: "blk-action"}] },
+        { title: "Calefón", blocks: [{text: "SI agua fluye", type: "blk-control"}, {text: "  SI hay gas", type: "blk-logic"}, {text: "    Prender", type: "blk-action"}, {text: "    SINO: Error", type: "blk-action"}, {text: "SINO: Esperar", type: "blk-action"}] },
+        { title: "Elevador 2", blocks: [{text: "SI botón apretado", type: "blk-control"}, {text: "  SI ocupado", type: "blk-logic"}, {text: "    Cola espera", type: "blk-action"}, {text: "    SINO: Ir", type: "blk-action"}, {text: "SINO: Sleep", type: "blk-action"}] },
+        { title: "Fábrica", blocks: [{text: "SI pieza ok", type: "blk-control"}, {text: "  SI pesada", type: "blk-logic"}, {text: "    Caja A", type: "blk-action"}, {text: "    SINO: Caja B", type: "blk-action"}, {text: "SINO: Basura", type: "blk-action"}] },
+        { title: "Cajero 2", blocks: [{text: "SI tarjeta", type: "blk-control"}, {text: "  SI PIN ok", type: "blk-logic"}, {text: "    Elegir", type: "blk-action"}, {text: "    SINO: Retener", type: "blk-action"}, {text: "SINO: Nada", type: "blk-action"}] },
+        { title: "Semáforo Inteligente", blocks: [{text: "SI hay autos", type: "blk-control"}, {text: "  SI espera > 30s", type: "blk-logic"}, {text: "    Verde", type: "blk-action"}, {text: "    SINO: Rojo", type: "blk-action"}, {text: "SINO: Rojo", type: "blk-action"}] },
+        { title: "Nave Espacial", blocks: [{text: "SI combustible", type: "blk-control"}, {text: "  SI motor frío", type: "blk-logic"}, {text: "    Ignición", type: "blk-action"}, {text: "    SINO: Enfriar", type: "blk-action"}, {text: "SINO: Abortar", type: "blk-action"}] },
+        { title: "Chatbot", blocks: [{text: "SI mensaje", type: "blk-control"}, {text: "  SI es Hola", type: "blk-logic"}, {text: "    Responder", type: "blk-action"}, {text: "    SINO: Menú", type: "blk-action"}, {text: "SINO: Sleep", type: "blk-action"}] },
+        { title: "Sensor Humedad", blocks: [{text: "SI < 40%", type: "blk-control"}, {text: "  SI noche", type: "blk-logic"}, {text: "    Riego on", type: "blk-action"}, {text: "    SINO: Esperar", type: "blk-action"}, {text: "SINO: Riego off", type: "blk-action"}] },
+        { title: "Bomba Agua", blocks: [{text: "SI tanque bajo", type: "blk-control"}, {text: "  SI pozo alto", type: "blk-logic"}, {text: "    Bombear", type: "blk-action"}, {text: "    SINO: Alarma", type: "blk-action"}, {text: "SINO: Stop", type: "blk-action"}] },
+        { title: "Ventilador", blocks: [{text: "SI Temp > 25", type: "blk-control"}, {text: "  SI hay gente", type: "blk-logic"}, {text: "    Vel 3", type: "blk-action"}, {text: "    SINO: Vel 1", type: "blk-action"}, {text: "SINO: Off", type: "blk-action"}] },
+        { title: "Música", blocks: [{text: "SI play", type: "blk-control"}, {text: "  SI auriculares", type: "blk-logic"}, {text: "    Parlante off", type: "blk-action"}, {text: "    SINO: Parlante on", type: "blk-action"}, {text: "SINO: Mute", type: "blk-action"}] },
+        { title: "Seguridad", blocks: [{text: "SI huella", type: "blk-control"}, {text: "  SI admin", type: "blk-logic"}, {text: "    Full access", type: "blk-action"}, {text: "    SINO: Guest", type: "blk-action"}, {text: "SINO: Denied", type: "blk-action"}] },
+        { title: "Juego Vida", blocks: [{text: "SI vida < 0", type: "blk-control"}, {text: "  SI monedas > 10", type: "blk-logic"}, {text: "    Revivir", type: "blk-action"}, {text: "    SINO: Game Over", type: "blk-action"}, {text: "SINO: Seguir", type: "blk-action"}] },
+        { title: "Aire", blocks: [{text: "SI calor", type: "blk-control"}, {text: "  SI ventana cerrada", type: "blk-logic"}, {text: "    AC on", type: "blk-action"}, {text: "    SINO: Avisar", type: "blk-action"}, {text: "SINO: AC off", type: "blk-action"}] },
+        { title: "Tren", blocks: [{text: "SI en estación", type: "blk-control"}, {text: "  SI gente bajó", type: "blk-logic"}, {text: "    Cerrar", type: "blk-action"}, {text: "    SINO: Esperar", type: "blk-action"}, {text: "SINO: Viajar", type: "blk-action"}] },
+        { title: "Microondas", blocks: [{text: "SI puerta cerrada", type: "blk-control"}, {text: "  SI timer > 0", type: "blk-logic"}, {text: "    Girar", type: "blk-action"}, {text: "    SINO: Beep", type: "blk-action"}, {text: "SINO: Error", type: "blk-action"}] },
+        { title: "Smart TV", blocks: [{text: "SI internet", type: "blk-control"}, {text: "  SI Netflix", type: "blk-logic"}, {text: "    Ver peli", type: "blk-action"}, {text: "    SINO: Youtube", type: "blk-action"}, {text: "SINO: Cable", type: "blk-action"}] },
+        { title: "Carga Auto", blocks: [{text: "SI conectado", type: "blk-control"}, {text: "  SI < 100%", type: "blk-logic"}, {text: "    Cargar", type: "blk-action"}, {text: "    SINO: Cortar", type: "blk-action"}, {text: "SINO: Nada", type: "blk-action"}] },
+        { title: "Luz Escalera", blocks: [{text: "SI mov detectado", type: "blk-control"}, {text: "  SI noche", type: "blk-logic"}, {text: "    Prender", type: "blk-action"}, {text: "    SINO: Off", type: "blk-action"}, {text: "SINO: Off", type: "blk-action"}] },
+        { title: "Email", blocks: [{text: "SI spam", type: "blk-control"}, {text: "  SI importante", type: "blk-logic"}, {text: "    Inbox", type: "blk-action"}, {text: "    SINO: Trash", type: "blk-action"}, {text: "SINO: Inbox", type: "blk-action"}] },
+        { title: "Riego 2", blocks: [{text: "SI lunes", type: "blk-control"}, {text: "  SI no llovió", type: "blk-logic"}, {text: "    Regar", type: "blk-action"}, {text: "    SINO: Skip", type: "blk-action"}, {text: "SINO: Skip", type: "blk-action"}] },
+        { title: "Antivirus", blocks: [{text: "SI virus", type: "blk-control"}, {text: "  SI conocido", type: "blk-logic"}, {text: "    Eliminar", type: "blk-action"}, {text: "    SINO: Cuarentena", type: "blk-action"}, {text: "SINO: Scan", type: "blk-action"}] },
+        { title: "Caja Fuerte", blocks: [{text: "SI huella", type: "blk-control"}, {text: "  SI llave", type: "blk-logic"}, {text: "    Abrir", type: "blk-action"}, {text: "    SINO: Alarma", type: "blk-action"}, {text: "SINO: Bloqueo", type: "blk-action"}] },
+        { title: "Venta", blocks: [{text: "SI stock", type: "blk-control"}, {text: "  SI pago ok", type: "blk-logic"}, {text: "    Enviar", type: "blk-action"}, {text: "    SINO: Error", type: "blk-action"}, {text: "SINO: Agotado", type: "blk-action"}] },
+        { title: "Auto 2", blocks: [{text: "SI reversa", type: "blk-control"}, {text: "  SI sensor < 1m", type: "blk-logic"}, {text: "    Beep rápido", type: "blk-action"}, {text: "    SINO: Beep lento", type: "blk-action"}, {text: "SINO: Mute", type: "blk-action"}] },
+        { title: "Horario", blocks: [{text: "SI día", type: "blk-control"}, {text: "  SI escuela", type: "blk-logic"}, {text: "    Estudiar", type: "blk-action"}, {text: "    SINO: Jugar", type: "blk-action"}, {text: "SINO: Dormir", type: "blk-action"}] },
+        { title: "Clima", blocks: [{text: "SI frío", type: "blk-control"}, {text: "  SI viento", type: "blk-logic"}, {text: "    Campera", type: "blk-action"}, {text: "    SINO: Buzo", type: "blk-action"}, {text: "SINO: Remera", type: "blk-action"}] },
+        { title: "Impresora 2", blocks: [{text: "SI papel", type: "blk-control"}, {text: "  SI tinta", type: "blk-logic"}, {text: "    Imprimir", type: "blk-action"}, {text: "    SINO: Alerta", type: "blk-action"}, {text: "SINO: Alerta", type: "blk-action"}] },
+        { title: "Luz 2", blocks: [{text: "SI on", type: "blk-control"}, {text: "  SI led", type: "blk-logic"}, {text: "    Ahorrar", type: "blk-action"}, {text: "    SINO: Gastar", type: "blk-action"}, {text: "SINO: Off", type: "blk-action"}] },
+        { title: "Ascensor 3", blocks: [{text: "SI piso 10", type: "blk-control"}, {text: "  SI VIP", type: "blk-logic"}, {text: "    Directo", type: "blk-action"}, {text: "    SINO: Parar", type: "blk-action"}, {text: "SINO: Ir", type: "blk-action"}] },
+        { title: "Alarma 2", blocks: [{text: "SI 08:00", type: "blk-control"}, {text: "  SI lunes", type: "blk-logic"}, {text: "    Sonar", type: "blk-action"}, {text: "    SINO: Off", type: "blk-action"}, {text: "SINO: Off", type: "blk-action"}] },
+        { title: "Pago", blocks: [{text: "SI debito", type: "blk-control"}, {text: "  SI plata", type: "blk-logic"}, {text: "    OK", type: "blk-action"}, {text: "    SINO: Rechazo", type: "blk-action"}, {text: "SINO: Efectivo", type: "blk-action"}] },
+        { title: "Final", blocks: [{text: "SI aprendiste", type: "blk-control"}, {text: "  SI festejas", type: "blk-logic"}, {text: "    Ganaste!", type: "blk-action"}, {text: "    SINO: Chau", type: "blk-action"}, {text: "SINO: Seguir", type: "blk-action"}] }
+],
 };
 
 const DEFAULT_SHOP = [
     {id:'t1', name:'Camisa Steve', type:'torso', color:'#29b6f6', price:0},
     {id:'l1', name:'Pantalón Azul', type:'legs', color:'#3f51b5', price:0},
     {id:'h1', name:'Piel Base', type:'head', color:'#ffcc80', price:0},
-    {id:'t2', name:'Camisa Creeper', type:'torso', color:'https://i.imgur.com/u3l2j1S.png', price:100},
     {id:'h2', name:'Cara Zombie', type:'head', color:'#66bb6a', price:150},
-    {id:'t3', name:'Oro Puro', type:'torso', color:'#fbc02d', price:200}
-];
+    {id:'t2', name:'Oro Puro', type:'torso', color:'#fbc02d', price:200},
+
+    {id:'h3', name:'Alex Face', type:'head', color:'img/alex-face.png', price:150},
+    {id:'h4', name:'Cow Face', type:'head', color:'img/cow-face.png', price:150},
+    {id:'h5', name:'Creeper Face', type:'head', color:'img/creeper-face.png', price:150},
+    {id:'h6', name:'Dog Face', type:'head', color:'img/dog-face.png', price:150},
+    {id:'h7', name:'Frog Face', type:'head', color:'img/frog-face.png', price:150},
+    {id:'h8', name:'Fox Face', type:'head', color:'img/fox-face.png', price:150},
+    {id:'h9', name:'Guardian Face', type:'head', color:'img/guardian-face.png', price:150},
+    {id:'h10', name:'Pig Face', type:'head', color:'img/pig-face.png', price:150},
+    {id:'h11', name:'Steve Face', type:'head', color:'img/steve-face.png', price:150},
+    {id:'h12', name:'Vindicator Face', type:'head', color:'img/vindicator-face.png', price:150}
+];  
+
 
 // ==========================================
 // 3. ESTADO DEL JUEGO
@@ -298,7 +508,7 @@ const DEFAULT_SHOP = [
 let player = { 
     name: 'Jugador',
     grade: 'inicial', 
-    coins: 50, 
+    coins: 2000, 
     progress: {
         inicial: { matematica: 1, compu: 1, teclado: 1, ingles: 1, Geografia: 1, claves: 1, Algoritmos: 1, python: 1 },
         intermedia: { matematica: 1, compu: 1, teclado: 1, ingles: 1, Geografia: 1, claves: 1, Algoritmos: 1, python: 1 },
@@ -364,10 +574,22 @@ function updateUI() {
 function applyTexture(elementId, value) {
     const el = document.getElementById(elementId);
     if(!el) return;
-    if(value && (value.startsWith('http') || value.startsWith('data:image'))) {
-        el.style.backgroundColor = 'transparent'; el.style.backgroundImage = `url('${value}')`;
+
+    // Nueva condición: verifica si es una URL, un data:image o un archivo con extensión
+    const isImage = value && (
+        value.startsWith('http') || 
+        value.startsWith('data:image') || 
+        value.includes('.png') || 
+        value.includes('.jpg') || 
+        value.includes('.jpeg')
+    );
+
+    if(isImage) {
+        el.style.backgroundColor = 'transparent'; 
+        el.style.backgroundImage = `url('${value}')`;
     } else {
-        el.style.backgroundImage = 'none'; el.style.backgroundColor = value;
+        el.style.backgroundImage = 'none'; 
+        el.style.backgroundColor = value;
     }
 }
 
@@ -898,11 +1120,24 @@ function renderShop() {
     localDB.shopItems.forEach(it => {
         const owned = player.inventory.includes(it.id);
         const d = document.createElement('div'); d.className = 'panel center-content';
-        let bg = it.color.startsWith('http') ? `background-image:url('${it.color}'); background-size:cover;` : `background:${it.color};`;
+        
+        // --- CAMBIO AQUÍ: Lógica para detectar imagen local o color ---
+        const isImage = it.color && (it.color.includes('.') || it.color.startsWith('http'));
+        let bg = isImage ? `background-image:url('${it.color}'); background-size:cover;` : `background:${it.color};`;
+        
         d.innerHTML = `<div style="width:40px;height:40px;${bg} margin:0 auto 10px;border:2px solid #000;"></div><b>${it.name}</b><br><small>${owned?'Tuyo':it.price}</small>`;
+        
         d.onclick = () => {
-            if(owned) { player.skin[it.type] = it.color; saveData(); updateUI(); showToast("Equipado"); }
-            else if(player.coins >= it.price) { player.coins -= it.price; player.inventory.push(it.id); player.skin[it.type] = it.color; saveData(); updateUI(); renderShop(); showToast("Comprado"); }
+            if(owned) { 
+                player.skin[it.type] = it.color; 
+                saveData(); updateUI(); showToast("Equipado"); 
+            }
+            else if(player.coins >= it.price) { 
+                player.coins -= it.price; 
+                player.inventory.push(it.id); 
+                player.skin[it.type] = it.color; 
+                saveData(); updateUI(); renderShop(); showToast("Comprado"); 
+            }
             else showToast("Faltan Monedas", 'error');
         };
         g.appendChild(d);
