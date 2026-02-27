@@ -1350,3 +1350,85 @@ function adminAddLevel() {
     if (!l || !q || !a) return showToast("Faltan Datos", 'error');
     localDB.customLevels.push({ grade: g, subject: s, level: parseInt(l), question: q, answer: a, options: o }); saveData(); showToast("Nivel Guardado");
 }
+
+// ==========================================
+// AYUDAS Y SALTOS DE NIVEL
+// ==========================================
+function buyHelp() {
+    if (player.coins >= 1000) {
+        player.coins -= 1000;
+        saveData();
+        updateUI();
+
+        // Determinar qué tipo de ayuda dar basado en la materia actual
+        const subj = currentSession.subject;
+
+        if (subj === 'Algoritmos') {
+            showToast("💡 Ayuda: Revisa el orden de los primeros pasos, o intenta ejecutar el código para ver dónde falla.", "success");
+        } else if (subj === 'python') {
+            showToast("💡 Ayuda: Revisa la ortografía (mayúsculas/minúsculas) y la tabulación si usas if/for.", "success");
+        } else if (subj === 'teclado') {
+            showToast("💡 Ayuda: Trata de posicionar tus dedos índice en las teclas F y J.", "success");
+        } else if (subj === 'claves') {
+            showToast("💡 Ayuda: Puedes añadir símbolos especiales marcando la casilla.", "success");
+        } else {
+            // Eliminar opciones incorrectas en trivia o matemática
+            const currentOpts = Array.from(document.querySelectorAll('#gameContent button.mc-btn.blue'));
+            if (currentOpts.length > 2) {
+                // Dejar solo la respuesta correcta y una incorrecta
+                const correctBtn = currentOpts.find(btn => btn.getAttribute('onclick').includes(btn.innerText) || btn.innerText === currentPuzzleSolution[0] || btn.innerText == btn.getAttribute('onclick').match(/'([^']+)'\)/)?.[1]);
+
+                let removed = 0;
+                for (let i = 0; i < currentOpts.length; i++) {
+                    let btn = currentOpts[i];
+                    if (btn !== correctBtn && removed < (currentOpts.length - 2)) {
+                        btn.style.visibility = 'hidden';
+                        removed++;
+                    }
+                }
+                showToast("💡 Ayuda: Hemos ocultado algunas opciones incorrectas.", "success");
+            } else {
+                showToast("💡 Ayuda: Piensa bien tu respuesta. Esta vez no es tan fácil.", "success");
+            }
+        }
+    } else {
+        showToast("❌ No tienes suficientes monedas (1000🪙)", "error");
+        const btn = event.currentTarget;
+        btn.classList.add('shake-anim');
+        setTimeout(() => btn.classList.remove('shake-anim'), 500);
+    }
+}
+
+function buySkip() {
+    if (player.coins >= 2000) {
+        player.coins -= 2000;
+
+        // Forzar progreso en el nivel
+        const grade = player.grade;
+        const subj = currentSession.subject;
+        const p = player.progress[grade];
+
+        if (currentSession.level === p[subj]) {
+            p[subj]++;
+        }
+
+        saveData();
+        updateUI();
+        closeGame();
+
+        showToast("⏭️ Nivel Saltado", "success");
+
+        // Re-abrir el mapa actualizado
+        setTimeout(() => {
+            if (subj !== 'claves') {
+                openSubject(subj);
+            }
+        }, 500);
+
+    } else {
+        showToast("❌ No tienes suficientes monedas (2000🪙)", "error");
+        const btn = event.currentTarget;
+        btn.classList.add('shake-anim');
+        setTimeout(() => btn.classList.remove('shake-anim'), 500);
+    }
+}
