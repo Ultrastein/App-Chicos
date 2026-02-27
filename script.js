@@ -1231,21 +1231,29 @@ function resetGame() { if (confirm("¿Borrar todos los datos y avatares (irrecup
 function saveData() { localStorage.setItem('eduPlayer', JSON.stringify(player)); localStorage.setItem('eduDB', JSON.stringify(localDB)); syncWithCloud(); }
 
 // ==========================================
-// API LEADERBOARD LOGIC
+// API LEADERBOARD LOGIC (FIREBASE)
 // ==========================================
-const API_URL = "https://mock-leaderboard-api.com/api/scores"; // Placeholder API endpoint
+const firebaseConfig = {
+    apiKey: "AIzaSyD_EIqwof3YhStlpSY4PhWJLqoDtjUqsVM",
+    authDomain: "web-de-juego.firebaseapp.com",
+    projectId: "web-de-juego",
+    storageBucket: "web-de-juego.firebasestorage.app",
+    messagingSenderId: "251119316368",
+    appId: "1:251119316368:web:a755c6deb4c4b476ce9715",
+    measurementId: "G-C0QXJC0CWV"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 async function syncWithCloud() {
     try {
-        await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: player.name,
-                coins: player.coins,
-                skin: player.skin
-            })
-        });
+        await db.collection("leaderboard").doc(player.name).set({
+            name: player.name,
+            coins: player.coins,
+            skin: player.skin,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }); // Usamos merge para actualizar si ya existe o crear si no
         loadLeaderboard();
     } catch (e) {
         console.warn("API falló (modo offline), Leaderboard no sincronizado: ", e);
@@ -1254,17 +1262,28 @@ async function syncWithCloud() {
 
 async function loadLeaderboard() {
     try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("API Offline Error");
-        const players = await response.json();
+        const snapshot = await db.collection("leaderboard")
+            .orderBy("coins", "desc")
+            .limit(10)
+            .get();
 
-        // Asumiendo que `players` es un array ordenado descendentemente
-        const list = document.getElementById('leaderboardList'); list.innerHTML = '';
+        const players = [];
+        snapshot.forEach(doc => {
+            players.push(doc.data());
+        });
+
+        const list = document.getElementById('leaderboardList');
+        if (list) list.innerHTML = '';
         let rank = 1;
 
-        players.slice(0, 10).forEach(p => {
-            const row = document.createElement('div'); row.className = `leaderboard-item ${rank <= 3 ? 'rank-' + rank : ''}`;
-            const bg = (p.skin.head && p.skin.head.startsWith('http')) ? `background-image:url('${p.skin.head}'); background-size:cover;` : `background:${p.skin.head || '#ffcc80'};`;
+        players.forEach(p => {
+            const row = document.createElement('div');
+            row.className = `leaderboard-item ${rank <= 3 ? 'rank-' + rank : ''}`;
+
+            // Default skin just in case
+            const skin = p.skin || { head: '#ffcc80' };
+            const bg = (skin.head && skin.head.startsWith('http')) ? `background-image:url('${skin.head}'); background-size:cover;` : `background:${skin.head || '#ffcc80'};`;
+
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="font-size:1.1rem; color:#64748b; font-weight:900; width:20px;">#${rank}</div>
@@ -1273,12 +1292,13 @@ async function loadLeaderboard() {
                 </div>
                 <div style="color:#ca8a04;">${p.coins} 🪙</div>
             `;
-            list.appendChild(row);
+            if (list) list.appendChild(row);
             rank++;
         });
     } catch (e) {
+        console.error("Error cargando leaderboard", e);
         const list = document.getElementById('leaderboardList');
-        list.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.8rem;">🔌 Ranking Offline<br>Tus datos se guardan localmente.</div>`;
+        if (list) list.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.8rem;">🔌 Ranking Offline<br>Tus datos se guardan localmente.</div>`;
     }
 }
 
