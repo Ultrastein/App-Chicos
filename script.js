@@ -496,7 +496,7 @@ let player = {
         prodigio: { matematica: 1, compu: 1, teclado: 1, ingles: 1, Geografia: 1, claves: 1, Algoritmos: 1, python: 1 }
     },
     inventory: ['t1', 'l1', 'h1'],
-    skin: { head: '#ffcc80', torso: '#29b6f6', legs: '#3f51b5', arm: '#ffcc80' }
+    skin: { head: '#ffcc80', torso: '#29b6f6', legs: '#3f51b5', arm: '#ffcc80', pupil: '#1e3a8a' }
 };
 let localDB = { customLevels: [], shopItems: DEFAULT_SHOP };
 let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0, pythonValid: [], pythonOut: "", sequence: [], seqPoolId: null };
@@ -548,6 +548,11 @@ function updateUI() {
     applyTexture('avLegR', player.skin.legs);
     applyTexture('avArmL', player.skin.arm || player.skin.torso);
     applyTexture('avArmR', player.skin.arm || player.skin.torso);
+
+    const pl = document.getElementById('avPupilL');
+    if (pl) pl.style.backgroundColor = player.skin.pupil || '#1e3a8a';
+    const pr = document.getElementById('avPupilR');
+    if (pr) pr.style.backgroundColor = player.skin.pupil || '#1e3a8a';
 }
 
 function applyTexture(elementId, value) {
@@ -591,34 +596,46 @@ function openSubject(s) {
 // ==========================================
 function openCharacterCreator() {
     document.getElementById('avatarCreatorModal').style.display = 'flex';
-    document.getElementById('ccSkinColor').value = player.skin.head || '#ffcc80';
+    document.getElementById('ccHeadColor').value = player.skin.head || '#ffcc80';
+    document.getElementById('ccArmsColor').value = player.skin.arm || '#ffcc80';
     document.getElementById('ccTorsoColor').value = player.skin.torso || '#3b82f6';
     document.getElementById('ccLegsColor').value = player.skin.legs || '#1e3a8a';
+    document.getElementById('ccPupilColor').value = player.skin.pupil || '#1e3a8a';
     updateCreatorPreview();
 }
 
 function updateCreatorPreview() {
-    const skin = document.getElementById('ccSkinColor').value;
+    const head = document.getElementById('ccHeadColor').value;
+    const arms = document.getElementById('ccArmsColor').value;
     const torso = document.getElementById('ccTorsoColor').value;
     const legs = document.getElementById('ccLegsColor').value;
+    const pupil = document.getElementById('ccPupilColor').value;
 
-    applyTexture('prevHead', skin);
-    applyTexture('prevArmL', skin);
-    applyTexture('prevArmR', skin);
+    applyTexture('prevHead', head);
+    applyTexture('prevArmL', arms);
+    applyTexture('prevArmR', arms);
     applyTexture('prevTorso', torso);
     applyTexture('prevLegL', legs);
     applyTexture('prevLegR', legs);
+
+    const ppl = document.getElementById('prevPupilL');
+    if (ppl) ppl.style.backgroundColor = pupil;
+    const ppr = document.getElementById('prevPupilR');
+    if (ppr) ppr.style.backgroundColor = pupil;
 }
 
 function saveCharacterCreator() {
-    const skin = document.getElementById('ccSkinColor').value;
+    const head = document.getElementById('ccHeadColor').value;
+    const arms = document.getElementById('ccArmsColor').value;
     const torso = document.getElementById('ccTorsoColor').value;
     const legs = document.getElementById('ccLegsColor').value;
+    const pupil = document.getElementById('ccPupilColor').value;
 
-    player.skin.head = skin;
+    player.skin.head = head;
+    player.skin.arm = arms;
     player.skin.torso = torso;
-    player.skin.arm = skin;
     player.skin.legs = legs;
+    player.skin.pupil = pupil;
 
     saveData();
     updateUI();

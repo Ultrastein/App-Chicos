@@ -50,10 +50,10 @@
                     <div class="mc-head mc-part" id="avHead">
                         <div class="mc-eyes">
                             <div class="eye">
-                                <div class="pupil"></div>
+                                <div class="pupil" id="avPupilL"></div>
                             </div>
                             <div class="eye">
-                                <div class="pupil"></div>
+                                <div class="pupil" id="avPupilR"></div>
                             </div>
                         </div>
                     </div>
@@ -67,9 +67,6 @@
                         <div class="mc-leg mc-part" id="avLegR"></div>
                     </div>
                 </div>
-                <div
-                    style="font-size:0.6rem; color:#888; font-weight:bold; margin-top:-5px; margin-bottom:15px; text-transform:uppercase;">
-                    ✏️ Click para Editar</div>
                 <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
                     <button class="mc-btn blue" onclick="showDashboard()">🗺️ MUNDOS</button>
                     <button class="mc-btn green" onclick="showShop()">🛍️ TIENDA</button>
@@ -231,10 +228,10 @@
                     <div class="mc-head mc-part" id="prevHead">
                         <div class="mc-eyes">
                             <div class="eye">
-                                <div class="pupil"></div>
+                                <div class="pupil" id="prevPupilL"></div>
                             </div>
                             <div class="eye">
-                                <div class="pupil"></div>
+                                <div class="pupil" id="prevPupilR"></div>
                             </div>
                         </div>
                     </div>
@@ -246,10 +243,14 @@
                 </div>
             </div>
 
-            <div style="background:#f1f5f9; padding:15px; border-radius:10px; text-align:left;">
-                <label style="font-weight:bold; color:#64748b; font-size:0.9rem;">Color de Piel (Cabeza y
-                    Brazos):</label>
-                <input type="color" id="ccSkinColor" value="#ffcc80"
+            <div style="background:#f1f5f9; padding:15px; border-radius:10px; text-align:left; max-height: 250px; overflow-y: auto;">
+                <label style="font-weight:bold; color:#64748b; font-size:0.9rem;">Color de Cabeza:</label>
+                <input type="color" id="ccHeadColor" value="#ffcc80"
+                    style="width:100%; height:40px; border:none; border-radius:8px; cursor:pointer; margin-bottom:10px;"
+                    onchange="updateCreatorPreview()">
+
+                <label style="font-weight:bold; color:#64748b; font-size:0.9rem;">Color de Brazos:</label>
+                <input type="color" id="ccArmsColor" value="#ffcc80"
                     style="width:100%; height:40px; border:none; border-radius:8px; cursor:pointer; margin-bottom:10px;"
                     onchange="updateCreatorPreview()">
 
@@ -260,6 +261,11 @@
 
                 <label style="font-weight:bold; color:#64748b; font-size:0.9rem;">Color de Pantalón (Piernas):</label>
                 <input type="color" id="ccLegsColor" value="#1e3a8a"
+                    style="width:100%; height:40px; border:none; border-radius:8px; cursor:pointer; margin-bottom:10px;"
+                    onchange="updateCreatorPreview()">
+
+                <label style="font-weight:bold; color:#64748b; font-size:0.9rem;">Color de Ojos:</label>
+                <input type="color" id="ccPupilColor" value="#1e3a8a"
                     style="width:100%; height:40px; border:none; border-radius:8px; cursor:pointer; margin-bottom:10px;"
                     onchange="updateCreatorPreview()">
             </div>
