@@ -460,6 +460,1390 @@ const GAME_CONTENT = {
     }
 };
 
+
+const compuExtra = {
+    inicial: [
+        { q: "Para escuchar sonido", ans: "Parlante", opts: ["Parlante", "Teclado", "Mouse"] },
+        { q: "Nos muestra la imagen", ans: "Display", opts: ["Display", "Ratón", "Escáner"] },
+        { q: "Para videollamadas", ans: "Cámara", opts: ["Cámara", "CPU", "Disco"] },
+        { q: "Para grabar voces", ans: "Micrófono", opts: ["Micrófono", "Impresora", "Pantalla"] },
+        { q: "Escuchar en silencio", ans: "Auriculares", opts: ["Auriculares", "Monitor", "Teclado"] },
+        { q: "Da internet sin cables", ans: "WiFi", opts: ["WiFi", "Pendrive", "CPU"] },
+        { q: "Lo usamos para clickear", ans: "Mouse", opts: ["Mouse", "Pantalla", "Teclado"] },
+        { q: "Guardamos cosas de llevar", ans: "Pendrive", opts: ["Pendrive", "Cable", "Cámara"] },
+        { q: "Da energía a la compu", ans: "Cargador", opts: ["Cargador", "Ratón", "Escáner"] },
+        { q: "Saca copias a papel", ans: "Impresora", opts: ["Impresora", "Monitor", "Micrófono"] }
+    ],
+    intermedia: [
+        { q: "Para mandar correos", ans: "Gmail", opts: ["Gmail", "Word", "Paint"] },
+        { q: "Planilla de cálculo", ans: "Excel", opts: ["Excel", "Chrome", "YouTube"] },
+        { q: "Buscador famoso", ans: "Google", opts: ["Google", "Windows", "Office"] },
+        { q: "Red sin cables", ans: "WiFi", opts: ["WiFi", "USB", "Cable"] },
+        { q: "Programa de dibujo", ans: "Paint", opts: ["Paint", "Chrome", "Excel"] },
+        { q: "Chatear desde el celu", ans: "WhatsApp", opts: ["WhatsApp", "Word", "Excel"] },
+        { q: "Para videollamadas", ans: "Zoom", opts: ["Zoom", "Paint", "Chrome"] },
+        { q: "Formato de documentos", ans: "PDF", opts: ["PDF", "JPG", "MP3"] },
+        { q: "El corazón de internet", ans: "Servidor", opts: ["Servidor", "Monitor", "Teclado"] },
+        { q: "Sistema de Apple", ans: "MacOS", opts: ["MacOS", "Windows", "Linux"] }
+    ],
+    dificil: [
+        { q: "Tipo de archivo de foto", ans: "JPG", opts: ["JPG", "MP3", "EXE"] },
+        { q: "Tipo de archivo de música", ans: "MP3", opts: ["MP3", "PDF", "JPG"] },
+        { q: "Para descomprimir", ans: "WinRAR", opts: ["WinRAR", "Chrome", "Word"] },
+        { q: "Conecta disp. de cerca", ans: "Bluetooth", opts: ["Bluetooth", "WiFi", "Ethernet"] },
+        { q: "Cable de red local", ans: "Ethernet", opts: ["Ethernet", "HDMI", "VGA"] },
+        { q: "Formato de video", ans: "MP4", opts: ["MP4", "TXT", "ZIP"] },
+        { q: "Tarjeta base", ans: "Motherboard", opts: ["Motherboard", "CPU", "RAM"] },
+        { q: "Cable de video", ans: "HDMI", opts: ["HDMI", "USB", "Audio"] },
+        { q: "Ejecutable Windows", ans: "EXE", opts: ["EXE", "PDF", "PNG"] },
+        { q: "Para leer PDFs", ans: "Acrobat", opts: ["Acrobat", "Excel", "WinRAR"] }
+    ],
+    experta: [
+        { q: "Dirección de página web", ans: "URL", opts: ["URL", "DNS", "IP"] },
+        { q: "Servidor de nombres", ans: "DNS", opts: ["DNS", "IP", "FTP"] },
+        { q: "Para copiar texto", ans: "Ctrl+C", opts: ["Ctrl+C", "Ctrl+V", "Ctrl+X"] },
+        { q: "Para pegar texto", ans: "Ctrl+V", opts: ["Ctrl+V", "Ctrl+C", "Ctrl+Z"] },
+        { q: "Deshacer acción", ans: "Ctrl+Z", opts: ["Ctrl+Z", "Ctrl+X", "Ctrl+C"] },
+        { q: "Protocolo web", ans: "HTTP", opts: ["HTTP", "FTP", "SSH"] },
+        { q: "Subir archivos relamp.", ans: "FTP", opts: ["FTP", "DNS", "IP"] },
+        { q: "Lenguaje hojas de estilo", ans: "CSS", opts: ["CSS", "HTML", "PHP"] },
+        { q: "Ataque a sitios web", ans: "DDoS", opts: ["DDoS", "Spam", "Phishing"] },
+        { q: "Red Segura", ans: "HTTPS", opts: ["HTTPS", "HTTP", "FTP"] }
+    ],
+    prodigio: [
+        { q: "Programa espía", ans: "Spyware", opts: ["Spyware", "Adware", "Trojan"] },
+        { q: "Correo basura", ans: "Spam", opts: ["Spam", "Phishing", "Malware"] },
+        { q: "Robo de identidad digital", ans: "Phishing", opts: ["Phishing", "Spam", "Ransomware"] },
+        { q: "Cortafuegos de red", ans: "Firewall", opts: ["Firewall", "Antivirus", "Proxy"] },
+        { q: "Red privada virtual", ans: "VPN", opts: ["VPN", "LAN", "WAN"] },
+        { q: "Ataque por secuestro", ans: "Ransomware", opts: ["Ransomware", "Troyano", "Gusano"] },
+        { q: "Dirección física de Red", ans: "MAC", opts: ["MAC", "IP", "DNS"] },
+        { q: "Sistema de Google celular", ans: "Android", opts: ["Android", "iOS", "Windows"] },
+        { q: "Intermediario red", ans: "Proxy", opts: ["Proxy", "Switch", "Hub"] },
+        { q: "Publicidad no deseada", ans: "Adware", opts: ["Adware", "Malware", "Spyware"] }
+    ]
+};
+
+const algoritmosExtra = {
+    "inicial": [
+        {
+            "title": "Abrir Puerta",
+            "blocks": [
+                {
+                    "text": "Poner llave",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Girar llave",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Empujar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Encender Fuego",
+            "blocks": [
+                {
+                    "text": "Juntar leña",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Usar fósforo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Soplar suave",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Cortar Papel",
+            "blocks": [
+                {
+                    "text": "Tomar tijera",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Abrir hojas",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Cerrar en papel",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Leer Mensaje",
+            "blocks": [
+                {
+                    "text": "Tomar celu",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Desbloquear",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Abrir chat",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Comer Helado",
+            "blocks": [
+                {
+                    "text": "Quitar papel",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Poner en boca",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Saborear",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Dibujar Casa",
+            "blocks": [
+                {
+                    "text": "Hacer cuadrado",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Hacer techo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Hacer puerta",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Cazar Mosquito",
+            "blocks": [
+                {
+                    "text": "Verlo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Apuntar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Aplaudir",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Sonarse Nariz",
+            "blocks": [
+                {
+                    "text": "Tomar pañuelo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Poner en nariz",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Soplar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Lavar Cara",
+            "blocks": [
+                {
+                    "text": "Agarrar agua",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Frotar cara",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Secar toalla",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Vestirse",
+            "blocks": [
+                {
+                    "text": "Remera",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Pantalón",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Zapatillas",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Pisar Uva",
+            "blocks": [
+                {
+                    "text": "Poner uva",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Saltar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Hacer jugo",
+                    "type": "blk-action"
+                }
+            ]
+        }
+    ],
+    "intermedia": [
+        {
+            "title": "Armar Torre",
+            "blocks": [
+                {
+                    "text": "Base grande",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Base media",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Cubo chico",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Punta",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Jugar Cartas",
+            "blocks": [
+                {
+                    "text": "Mezclar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Repartir",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Mirar mano",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Lanzar carta",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Manejar Bici",
+            "blocks": [
+                {
+                    "text": "Subir",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Pedal Der",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Pedal Izq",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Frenar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Cocinar Huevo",
+            "blocks": [
+                {
+                    "text": "Sartén al fuego",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Poner aceite",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Romper huevo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Sacar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Comprar Helado",
+            "blocks": [
+                {
+                    "text": "Pedir gusto",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Dar billete",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Recibir vuelto",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Comer",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Bañar Perro",
+            "blocks": [
+                {
+                    "text": "Mojar pelo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Poner shampoo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Enjuagar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Secar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Sembrar",
+            "blocks": [
+                {
+                    "text": "Hacer pozo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Poner semilla",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Tapar tierra",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Regar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Viajar Colectivo",
+            "blocks": [
+                {
+                    "text": "Hacer parada",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Subir",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Pagar boleto",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Sentarse",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Mirar Cine",
+            "blocks": [
+                {
+                    "text": "Entrar sala",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Boleto al señor",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Sentarse en butaca",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Mirar silencio",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Pintar Uñas",
+            "blocks": [
+                {
+                    "text": "Abrir esmalte",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Pasar pincel",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Dejar secar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Segunda capa",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Cortar Pelo",
+            "blocks": [
+                {
+                    "text": "Poner capa",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Cortar mechón",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Peinar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Espejo final",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Lavar Auto",
+            "blocks": [
+                {
+                    "text": "Manguera",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Esponja jabón",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Enjuagar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Secar trapo",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Correr Carrera",
+            "blocks": [
+                {
+                    "text": "En sus marcas",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Listos",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Ya!",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Correr meta",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Hacer Yoga",
+            "blocks": [
+                {
+                    "text": "Sentarse loto",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Respirar hondo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Estirar brazos",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Soltar aire",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Construir Muro",
+            "blocks": [
+                {
+                    "text": "Poner cemento",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Poner ladrillo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Nivelar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Sacar sobra",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Apagar Fuego",
+            "blocks": [
+                {
+                    "text": "Agarrar extintor",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Sacar seguro",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Apuntar base",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Apretar",
+                    "type": "blk-action"
+                }
+            ]
+        }
+    ],
+    "dificil": [
+        {
+            "title": "Salto 5 vallas",
+            "blocks": [
+                {
+                    "text": "Repetir 5",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Correr",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Saltar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Estirar 10 veces",
+            "blocks": [
+                {
+                    "text": "Repetir 10",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Brazo arriba",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Brazo abajo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Servir 5 Vasos",
+            "blocks": [
+                {
+                    "text": "Repetir 5",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Poner vaso",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Llenarlo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Borrar 8 errores",
+            "blocks": [
+                {
+                    "text": "Repetir 8",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Backspace",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Limpiar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Leer 3 páginas",
+            "blocks": [
+                {
+                    "text": "Repetir 3",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Mirar texto",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Pasar hoja",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Saltar soga 100",
+            "blocks": [
+                {
+                    "text": "Repetir 100",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Girar soga",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Saltar alto",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Decir 5 hola",
+            "blocks": [
+                {
+                    "text": "Repetir 5",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Abrir boca",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Decir Hola",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Clavar 3 clavos",
+            "blocks": [
+                {
+                    "text": "Repetir 3",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Poner clavo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Golpear",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Cortar 6 rebanadas",
+            "blocks": [
+                {
+                    "text": "Repetir 6",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Bajar cuchillo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Subir cuchillo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Revisar 4 ruedas",
+            "blocks": [
+                {
+                    "text": "Repetir 4",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Ir a rueda",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Tocar goma",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        },
+        {
+            "title": "Regar 10 Plantas",
+            "blocks": [
+                {
+                    "text": "Repetir 10",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Mover a planta",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "  Echar agua",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "Fin Repetir",
+                    "type": "blk-control"
+                }
+            ]
+        }
+    ],
+    "experta": [
+        {
+            "title": "Si llueve",
+            "blocks": [
+                {
+                    "text": "Mirar clima",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI llueve",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Botas",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Zapas",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Batería 0",
+            "blocks": [
+                {
+                    "text": "Ver batería",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI 0%",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Apagar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Prendido",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Si es dulce",
+            "blocks": [
+                {
+                    "text": "Probar comida",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI es dulce",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Sonreír",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Arrugar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Si hay luz",
+            "blocks": [
+                {
+                    "text": "Mirar foco",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI luz on",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Leer",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Dormir",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Si es caro",
+            "blocks": [
+                {
+                    "text": "Ver precio",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI caro",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Ahorrar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Comprar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Luz Roja",
+            "blocks": [
+                {
+                    "text": "Semáforo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI rojo",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Frenar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Avanzar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Si es feriado",
+            "blocks": [
+                {
+                    "text": "Ver calendario",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI feriado",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Descansar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Trabajar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Perro ladra",
+            "blocks": [
+                {
+                    "text": "Perro ve algo",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI es ladrón",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Ladrar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Mover cola",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Planta seca",
+            "blocks": [
+                {
+                    "text": "Tocar tierra",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI seca",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Agua",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Nada",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Coche sin nafta",
+            "blocks": [
+                {
+                    "text": "Mirar tanque",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI vacío",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Cargar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Manejar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Película de terror",
+            "blocks": [
+                {
+                    "text": "Ver género",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SI terror",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Cerrar ojos",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  Mirar",
+                    "type": "blk-action"
+                }
+            ]
+        }
+    ],
+    "prodigio": [
+        {
+            "title": "Clave cajero",
+            "blocks": [
+                {
+                    "text": "SI clave ok",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI saldo ok",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Retirar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Rechazado",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Alarma",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Viaje Avión",
+            "blocks": [
+                {
+                    "text": "SI hay ticket",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI pasaporte ok",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Embarcar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: A casa",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Llorar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Cine 3D",
+            "blocks": [
+                {
+                    "text": "SI hay entrada",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI dan lentes",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Mirar peli",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Quejarse",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Irse",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Juego Online",
+            "blocks": [
+                {
+                    "text": "SI hay ping",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI es bajo",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Jugar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Lag",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Desconect",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Robot Cocina",
+            "blocks": [
+                {
+                    "text": "SI hay olla",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI hay fuego",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Cocinar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Prender",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Buscar",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Navegar GPS",
+            "blocks": [
+                {
+                    "text": "SI destino ok",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI satélite ok",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Ruta",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Buscando",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Error",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Ascensor VIP",
+            "blocks": [
+                {
+                    "text": "SI tarjeta VIP",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI piso 100",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Subir",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Normal",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Denegado",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Lavarropas Auto",
+            "blocks": [
+                {
+                    "text": "SI puerta cierra",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI peso ok",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Lavar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Sacar ropa",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Bip",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Dron Reparto",
+            "blocks": [
+                {
+                    "text": "SI caja pesa",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI < 2kg",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Volar",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Caer",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Vacío",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Alarma Humo",
+            "blocks": [
+                {
+                    "text": "SI hay humo",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI es espeso",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Agua!",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Bip",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Todo ok",
+                    "type": "blk-action"
+                }
+            ]
+        },
+        {
+            "title": "Frenado Auto",
+            "blocks": [
+                {
+                    "text": "SI obstáculo",
+                    "type": "blk-control"
+                },
+                {
+                    "text": "  SI < 5m",
+                    "type": "blk-logic"
+                },
+                {
+                    "text": "    Freno seco",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "    SINO: Despacio",
+                    "type": "blk-action"
+                },
+                {
+                    "text": "SINO: Avanzar",
+                    "type": "blk-action"
+                }
+            ]
+        }
+    ]
+};
+Object.keys(compuExtra).forEach(k => GAME_CONTENT.compu[k].push(...compuExtra[k]));
+Object.keys(algoritmosExtra).forEach(k => GAME_CONTENT.algoritmos[k].push(...algoritmosExtra[k]));
+
+
 const DEFAULT_SHOP = [
     { id: 't1', name: 'Camisa Steve', type: 'torso', color: '#29b6f6', price: 0 },
     { id: 'l1', name: 'Pantalón Azul', type: 'legs', color: '#3f51b5', price: 0 },
@@ -488,6 +1872,7 @@ let player = {
     name: 'Jugador',
     grade: 'inicial',
     coins: 2000,
+    answered: [],
     progress: {
         inicial: { matematica: 1, compu: 1, teclado: 1, ingles: 1, Geografia: 1, claves: 1, Algoritmos: 1, python: 1 },
         intermedia: { matematica: 1, compu: 1, teclado: 1, ingles: 1, Geografia: 1, claves: 1, Algoritmos: 1, python: 1 },
@@ -520,6 +1905,7 @@ window.onload = function () {
                 }
             });
             player = saved;
+            if (!player.answered) player.answered = [];
         } catch (e) { console.error("Error save", e); }
     }
     if (localStorage.getItem('eduDB')) localDB = JSON.parse(localStorage.getItem('eduDB'));
@@ -673,6 +2059,7 @@ function playLevel(lvl) {
     currentSession.level = lvl;
     currentSession.startTime = null;
     currentSession.backspaces = 0;
+    currentSession.currentQuestionId = null;
     isTransitioning = false;
     if (timerInterval) clearInterval(timerInterval);
 
@@ -699,8 +2086,8 @@ function playLevel(lvl) {
 
 function getShuffledItem(pool, subj, grade, lvl) {
     if (!pool || pool.length === 0) return null;
+    if (!player.answered) player.answered = [];
 
-    // PRNG to generate a deterministic random number based on seed
     function seededRandom(seed) {
         let t = seed += 0x6D2B79F5;
         t = Math.imul(t ^ t >>> 15, t | 1);
@@ -708,29 +2095,29 @@ function getShuffledItem(pool, subj, grade, lvl) {
         return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
 
-    // Create a unique seed for this specific subject, grade, and player name
     let baseSeed = 0;
     const poolId = subj + "_" + grade + "_" + player.name;
     for (let i = 0; i < poolId.length; i++) {
         baseSeed += poolId.charCodeAt(i);
     }
 
-    // Generate a fixed permutation of the array indices (creates a cycle)
     let seq = Array.from({ length: pool.length }, (_, i) => i);
-    let rand = seededRandom;
-    // We pass baseSeed to the random function wrapper
     let currentSeed = baseSeed;
-    function nextRand() { currentSeed += 1; return rand(currentSeed); }
+    function nextRand() { currentSeed += 1; return seededRandom(currentSeed); }
 
     for (let i = seq.length - 1; i > 0; i--) {
         const j = Math.floor(nextRand() * (i + 1));
         [seq[i], seq[j]] = [seq[j], seq[i]];
     }
 
-    // Take the indexed item based on user level
-    // When they pass pool.length levels, it just repeats the cycle exactly
-    const idx = seq[(lvl - 1) % pool.length];
-    return pool[idx];
+    let availableIdxs = seq.filter(idx => {
+        let item = pool[idx];
+        let qId = item.title || item.q || (typeof item === 'string' ? item : item.ans);
+        return !player.answered.includes(qId);
+    });
+
+    if (availableIdxs.length === 0) return null;
+    return pool[availableIdxs[0]];
 }
 
 function generateProceduralLevel(container, subj, lvl) {
@@ -739,7 +2126,9 @@ function generateProceduralLevel(container, subj, lvl) {
 
     // --- MATEMÁTICA ---
     if (subj === 'matematica') {
-        let n1, n2, n3;
+        let n1, n2, n3, mathAttempts = 0;
+        if (!player.answered) player.answered = [];
+        do {
 
         if (grade === 'inicial') {
             if (lvl <= 25) {
@@ -816,6 +2205,10 @@ function generateProceduralLevel(container, subj, lvl) {
         let distractor3 = ans + 10;
         opts = [...new Set([ans, distractor1, distractor2, distractor3])].sort(() => Math.random() - 0.5);
 
+        currentSession.currentQuestionId = q;
+        mathAttempts++;
+        } while (player.answered.includes(q) && mathAttempts < 50);
+
         renderQuestion(container, q, ans, opts);
         return;
     }
@@ -828,6 +2221,8 @@ function generateProceduralLevel(container, subj, lvl) {
             // TEORÍA
             const pool = GAME_CONTENT.python[grade] || GAME_CONTENT.python['inicial'];
             const item = getShuffledItem(pool, 'python', grade, Math.floor((lvl - 1) / 2) + 1);
+            if (!item) { container.innerHTML = "<h3>¡Felicidades! Completaste toda la teoría.</h3>"; return; }
+            currentSession.currentQuestionId = item.title || item.q || item.ans;
             q = `<span style="font-size:0.8rem; color:#1565c0;">TEORÍA:</span><br>${item.q}`;
             ans = item.ans; opts = [...item.opts].sort(() => Math.random() - 0.5);
             renderQuestion(container, q, ans, opts);
@@ -940,7 +2335,12 @@ function generateProceduralLevel(container, subj, lvl) {
             else if (lvl <= 30) { subPool = pool.conTildeFacil; prompt = "Atención a las tildes:"; }
             else if (lvl <= 40) { subPool = pool.conTildeDificil; prompt = "Frase compleja con tildes:"; }
             else { subPool = pool.dieresis; prompt = "Palabras con Diéresis (ü):"; }
-            target = subPool[Math.floor(Math.random() * subPool.length)];
+            let typingAttempts = 0;
+            if (!player.answered) player.answered = [];
+            do {
+                target = subPool[Math.floor(Math.random() * subPool.length)];
+                typingAttempts++;
+            } while (player.answered.includes(target) && typingAttempts < 50);
         } else if (player.grade === 'experta') {
             const pool = GAME_CONTENT.teclado.experta; target = getShuffledItem(pool, 'teclado', 'experta', lvl); prompt = "Escribe la oración exacta:";
         } else {
@@ -948,6 +2348,8 @@ function generateProceduralLevel(container, subj, lvl) {
         }
 
         ans = target;
+        if (!ans) { container.innerHTML = "<h3>¡Felicidades! Completaste todas las misiones de tipeo.</h3>"; return; }
+        currentSession.currentQuestionId = ans;
         let inputStyle = "text-align:center; font-size:1.2rem; width:100%; padding:15px;";
         let statsHTML = '';
         if (isProdigio) {
@@ -976,6 +2378,8 @@ function generateProceduralLevel(container, subj, lvl) {
         if (subj === 'ingles' && grade === 'prodigio') {
             const pool = dbTarget.prodigio;
             const item = getShuffledItem(pool, subj, grade, lvl);
+            if (!item) { container.innerHTML = "<h3>¡Completaste este modo!</h3>"; return; }
+            currentSession.currentQuestionId = item.title || item.q || item.ans;
             ans = item.ans;
             container.innerHTML = `<h3 style="color:#555;">Traduce al Inglés:</h3><div style="background:#fff; padding:15px; border-radius:8px; border:2px solid #ccc; margin-bottom:15px;"><h2 style="color:#1565c0; margin:0;">"${item.q}"</h2></div><input type="text" id="translInput" autocomplete="off" style="text-align:center; font-size:1.2rem; width:100%; padding:10px;" placeholder="Escribe en inglés..."><button class="mc-btn green" style="width:100%; margin-top:15px;" onclick="checkAnswer(document.getElementById('translInput').value, '${ans.replace(/'/g, "\\'")}', false)">Comprobar</button>`;
 
@@ -996,6 +2400,7 @@ function generateProceduralLevel(container, subj, lvl) {
         const difficultyArray = dbTarget[grade] || [];
         const item = getShuffledItem(difficultyArray, subj, grade, lvl);
         if (item) {
+            currentSession.currentQuestionId = item.title || item.q || item.ans;
             q = item.q; ans = item.ans; opts = [...item.opts].sort(() => Math.random() - 0.5);
             renderQuestion(container, q, ans, opts);
         } else { container.innerHTML = "<h3>¡Fin del contenido por ahora!</h3>"; }
@@ -1015,6 +2420,11 @@ function generateAlgorithmLevel(container, lvl) {
     const difficulty = player.grade;
     const pool = GAME_CONTENT.algoritmos[difficulty] || GAME_CONTENT.algoritmos['inicial'];
     const puzzle = getShuffledItem(pool, 'Algoritmos', difficulty, lvl);
+    if (!puzzle) {
+        container.innerHTML = "<h3>¡Completaste todas las misiones de lógica!</h3>";
+        return;
+    }
+    currentSession.currentQuestionId = puzzle.title;
     currentPuzzleSolution = puzzle.blocks.map(b => b.text);
     let shuffled = [...puzzle.blocks].sort(() => Math.random() - 0.5);
 
@@ -1192,6 +2602,13 @@ function checkAnswer(user, correct, strict = false) {
 function successAction(msg, coins) {
     player.coins += coins;
     if (currentSession.level === player.progress[player.grade][currentSession.subject]) player.progress[player.grade][currentSession.subject]++;
+    
+    // Anotar la pregunta correcta como respondida
+    if (!player.answered) player.answered = [];
+    if (currentSession.currentQuestionId && !player.answered.includes(currentSession.currentQuestionId)) {
+        player.answered.push(currentSession.currentQuestionId);
+    }
+    
     saveData(); updateUI(); showToast(msg);
     if (timerInterval) clearInterval(timerInterval);
     setTimeout(() => {
