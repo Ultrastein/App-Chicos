@@ -1090,3 +1090,20 @@ select:focus {
 .bm-slot.bounce {
     animation: bmBounce 0.4s ease;
 }
+
+/* BeatMaker — responsive */
+@media (max-width: 768px) {
+    .bm-theme-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bm-slot {
+        width: 50px;
+        height: 60px;
+    }
+
+    .bm-char {
+        width: 52px;
+        height: 62px;
+    }
+}
