@@ -1,4 +1,66 @@
 // ==========================================
+// BEATMAKER — THEMES & CHARACTERS
+// ==========================================
+const BEATMAKER_THEMES = {
+    minecraft: {
+        name: "Minecraft Beats",
+        emoji: "⛏️",
+        btnColor: "#5d4037",
+        benchBg: "#1a0f0a",
+        characters: [
+            { id: "steve",    name: "Steve",   emoji: "⛏️", soundType: "bass",    freq: 80,     color: "#5d4037" },
+            { id: "creeper",  name: "Creeper", emoji: "💚", soundType: "beat",    freq: null,   color: "#2e7d32" },
+            { id: "villager", name: "Aldean",  emoji: "🏘️", soundType: "melody",  scale: [261.63, 293.66, 329.63, 392, 440], color: "#f57f17" },
+            { id: "cerdo",    name: "Cerdo",   emoji: "🐷", soundType: "beat",    freq: null,   color: "#ec407a" },
+            { id: "zombie",   name: "Zombie",  emoji: "🧟", soundType: "harmony", freq: 110,    color: "#558b2f" },
+            { id: "araña",    name: "Araña",   emoji: "🕷️", soundType: "high",    freq: 220,    color: "#4a148c" }
+        ]
+    },
+    animales: {
+        name: "Animales",
+        emoji: "🐸",
+        btnColor: "#2e7d32",
+        benchBg: "#0a1a0a",
+        characters: [
+            { id: "rana",   name: "Rana",  emoji: "🐸", soundType: "bass",    freq: 90,  color: "#2e7d32" },
+            { id: "vaca",   name: "Vaca",  emoji: "🐄", soundType: "melody",  scale: [220, 246.94, 277.18, 329.63, 369.99], color: "#795548" },
+            { id: "perro",  name: "Perro", emoji: "🐕", soundType: "beat",    freq: null, color: "#f57f17" },
+            { id: "gato",   name: "Gato",  emoji: "🐱", soundType: "harmony", freq: 165, color: "#ff8f00" },
+            { id: "pato",   name: "Pato",  emoji: "🦆", soundType: "beat",    freq: null, color: "#fdd835" },
+            { id: "zorro",  name: "Zorro", emoji: "🦊", soundType: "high",    freq: 200, color: "#e64a19" }
+        ]
+    },
+    robots: {
+        name: "Robots",
+        emoji: "🤖",
+        btnColor: "#1565c0",
+        benchBg: "#0a0a1a",
+        characters: [
+            { id: "rkick",  name: "R-Kick",  emoji: "🤖", soundType: "bass",    freq: 60,  color: "#1565c0" },
+            { id: "rbass",  name: "R-Bass",  emoji: "🦾", soundType: "bass",    freq: 100, color: "#0288d1" },
+            { id: "rarp",   name: "R-Arp",   emoji: "⚙️", soundType: "high",    freq: 440, color: "#00838f" },
+            { id: "rclap",  name: "R-Clap",  emoji: "🔧", soundType: "beat",    freq: null, color: "#37474f" },
+            { id: "rbeep",  name: "R-Beep",  emoji: "💡", soundType: "melody",  scale: [523.25, 587.33, 659.25, 783.99, 880], color: "#f9a825" },
+            { id: "rnoise", name: "R-Noise", emoji: "📡", soundType: "beat",    freq: null, color: "#6a1b9a" }
+        ]
+    },
+    escuela: {
+        name: "Banda Escolar",
+        emoji: "📚",
+        btnColor: "#e65100",
+        benchBg: "#1a0a00",
+        characters: [
+            { id: "tambor",   name: "Tambor",   emoji: "🥁", soundType: "beat",    freq: null,   color: "#b71c1c" },
+            { id: "bajo",     name: "Bajo",     emoji: "🎸", soundType: "bass",    freq: 73.42,  color: "#1b5e20" },
+            { id: "piano",    name: "Piano",    emoji: "🎹", soundType: "chord",   freq: 261.63, color: "#1a237e" },
+            { id: "trompeta", name: "Trompeta", emoji: "🎺", soundType: "melody",  scale: [329.63, 369.99, 415.3, 493.88, 523.25], color: "#e65100" },
+            { id: "flauta",   name: "Flauta",   emoji: "🎵", soundType: "high",    freq: 523.25, color: "#00695c" },
+            { id: "maracas",  name: "Maracas",  emoji: "🪇", soundType: "beat",    freq: null,   color: "#6d4c41" }
+        ]
+    }
+};
+
+// ==========================================
 // 1. GAME CONTENT DATABASE (Scalable)
 // ==========================================
 
