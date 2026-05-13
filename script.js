@@ -2313,6 +2313,70 @@ function stopBeatMaker() {
     document.querySelectorAll('.bm-slot').forEach(s => s.style.opacity = '0.5');
 }
 
+function dropCharacterOnSlot(charId, slotIndex, themeKey) {
+    const theme = BEATMAKER_THEMES[themeKey];
+    const char = theme.characters.find(c => c.id === charId);
+    if (!char) return;
+
+    // If slot already has a character, remove it first
+    if (beatSlots[slotIndex]) removeCharacterFromSlot(slotIndex);
+
+    // Place character in slot
+    beatSlots[slotIndex] = charId;
+
+    const slot = document.querySelector(`.bm-slot[data-index="${slotIndex}"]`);
+    slot.innerHTML = `${char.emoji}<span class="bm-slot-name">${char.name}</span>`;
+    slot.classList.add('filled');
+    slot.classList.remove('bounce');
+    // Trigger bounce
+    void slot.offsetWidth; // reflow to restart animation
+    slot.classList.add('bounce');
+
+    // Play sound
+    if (beatEngine) beatEngine.play(char);
+
+    // Start visualizer if not running
+    if (!beatVisualizerInterval) startBeatVisualizer();
+
+    checkBeatCompletion();
+}
+
+function removeCharacterFromSlot(slotIndex) {
+    const charId = beatSlots[slotIndex];
+    if (!charId) return;
+
+    beatSlots[slotIndex] = null;
+
+    if (beatEngine) beatEngine.stop(charId);
+
+    const slot = document.querySelector(`.bm-slot[data-index="${slotIndex}"]`);
+    slot.innerHTML = `<span style="color:#4a7a4a;font-size:1.4rem;">+</span><span class="bm-slot-name">vacío</span>`;
+    slot.classList.remove('filled', 'bounce');
+    slot.style.opacity = '';
+
+    // Stop visualizer if no characters active
+    const anyActive = beatSlots.some(s => s !== null);
+    if (!anyActive && beatVisualizerInterval) {
+        clearInterval(beatVisualizerInterval);
+        beatVisualizerInterval = null;
+        document.querySelectorAll('.bm-bar').forEach(b => b.style.height = '4px');
+    }
+}
+
+function startBeatVisualizer() {
+    if (beatVisualizerInterval) clearInterval(beatVisualizerInterval);
+    beatVisualizerInterval = setInterval(() => {
+        const activeCount = beatSlots.filter(s => s !== null).length;
+        document.querySelectorAll('.bm-bar').forEach(bar => {
+            const h = activeCount > 0
+                ? 6 + Math.random() * (10 + activeCount * 5)
+                : 4;
+            bar.style.height = h + 'px';
+            bar.classList.toggle('active', activeCount > 0);
+        });
+    }, 120);
+}
+
 function showShop() { setView('view-shop'); renderShop(); }
 function setView(id) {
     ['view-dashboard', 'view-map', 'view-shop', 'view-beatmaker-menu', 'view-beatmaker-game'].forEach(v => document.getElementById(v).style.display = 'none');
