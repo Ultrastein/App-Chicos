@@ -1,0 +1,42 @@
+<h2>3 maneras de hacer el sonido</h2>
+<p class="subtitle">El gameplay es igual en los 3 casos: drag & drop, 4 temas, monedas al completar. Solo cambia cómo se generan los sonidos.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>⭐ Web Audio API puro (recomendado)</h3>
+      <p>Los sonidos se generan directo en el navegador con osciladores y efectos. Sin archivos externos, funciona sin internet. Los loops suenan tipo sintetizador/electrónico — perfecto para robots, muy bueno para los demás temas.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Sin dependencias externas</li><li>Funciona offline</li><li>Liviano</li><li>Fácil de personalizar por tema</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Sonidos más sintéticos (no "reales")</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Tone.js (librería de audio)</h3>
+      <p>Usa Tone.js (CDN), una librería especializada en música para web. Más fácil de hacer ritmos y loops con buen timing. Sonidos más ricos que el Web Audio puro.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Ritmos más precisos</li><li>Mejor calidad de sonido</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Requiere internet para cargar la librería</li><li>Dependencia externa</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Samples de audio (archivos .mp3/.wav)</h3>
+      <p>Cargás archivos de audio reales (grabados o descargados). Sonidos más auténticos — voz de vaca, explosión de Minecraft, etc.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Sonidos más realistas</li><li>Temáticos por personaje</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Hay que conseguir y hostear los archivos</li><li>Más pesado para cargar</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
