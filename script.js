@@ -61,6 +61,124 @@ const BEATMAKER_THEMES = {
 };
 
 // ==========================================
+// BEATMAKER — AUDIO ENGINE
+// ==========================================
+class BeatMakerEngine {
+    constructor() {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.bpm = 120;
+        this.beatMs = (60 / this.bpm) * 1000; // 500ms per beat
+        this.nodes = {};   // charId -> { timers: [] }
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.45;
+        this.master.connect(this.ctx.destination);
+    }
+
+    play(char) {
+        if (this.nodes[char.id]) return;
+        this.nodes[char.id] = { timers: [] };
+        this._loop(char);
+    }
+
+    stop(charId) {
+        if (!this.nodes[charId]) return;
+        this.nodes[charId].timers.forEach(t => clearTimeout(t));
+        delete this.nodes[charId];
+    }
+
+    stopAll() {
+        Object.keys(this.nodes).forEach(id => this.stop(id));
+        try { if (this.ctx.state !== 'closed') this.ctx.close(); } catch(e) {}
+    }
+
+    _loop(char) {
+        const repeatBeats = { bass: 2, beat: 1, melody: 4, harmony: 4, high: 1, chord: 2 };
+        const interval = this.beatMs * (repeatBeats[char.soundType] || 2);
+        const fire = () => {
+            if (!this.nodes[char.id]) return;
+            this._playSound(char);
+            const t = setTimeout(fire, interval);
+            this.nodes[char.id].timers.push(t);
+        };
+        fire();
+    }
+
+    _playSound(char) {
+        const t = this.ctx.currentTime;
+        switch (char.soundType) {
+            case 'bass':    this._bass(char.freq || 80, t);    break;
+            case 'beat':    this._beat(t);                     break;
+            case 'melody':  this._melody(char.scale, t);       break;
+            case 'harmony': this._harmony(char.freq || 220, t); break;
+            case 'high':    this._high(char.freq || 440, t);   break;
+            case 'chord':   this._chord(char.freq || 261.63, t); break;
+        }
+    }
+
+    _osc(type, freq, gainVal, duration, startTime) {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(gainVal, startTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+        osc.connect(g);
+        g.connect(this.master);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+    }
+
+    _bass(freq, t) {
+        this._osc('sine', freq, 0.9, 0.45, t);
+    }
+
+    _beat(t) {
+        const size = this.ctx.sampleRate * 0.08;
+        const buf = this.ctx.createBuffer(1, size, this.ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < size; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / size);
+        const src = this.ctx.createBufferSource();
+        src.buffer = buf;
+        const filt = this.ctx.createBiquadFilter();
+        filt.type = 'bandpass';
+        filt.frequency.value = 800;
+        filt.Q.value = 0.8;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(1.2, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+        src.connect(filt);
+        filt.connect(g);
+        g.connect(this.master);
+        src.start(t);
+        src.stop(t + 0.1);
+    }
+
+    _melody(scale, t) {
+        const notes = scale || [261.63, 293.66, 329.63, 392, 440];
+        const note = notes[Math.floor(Math.random() * notes.length)];
+        this._osc('triangle', note, 0.5, 0.28, t);
+    }
+
+    _harmony(freq, t) {
+        [1, 1.25, 1.5].forEach(mult => this._osc('sine', freq * mult, 0.18, 0.85, t));
+    }
+
+    _high(freq, t) {
+        const note = freq * (1 + Math.floor(Math.random() * 3) * 0.5);
+        this._osc('sawtooth', note, 0.25, 0.12, t);
+    }
+
+    _chord(root, t) {
+        [1, 1.2599, 1.4983].forEach(mult => this._osc('square', root * mult, 0.14, 0.42, t));
+    }
+}
+
+let beatEngine = null;
+let beatSlots = [null, null, null, null, null]; // charId or null per slot
+let beatCompleted = false;
+let beatVisualizerInterval = null;
+
+// ==========================================
 // 1. GAME CONTENT DATABASE (Scalable)
 // ==========================================
 
