@@ -68,7 +68,7 @@ class BeatMakerEngine {
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         this.bpm = 120;
         this.beatMs = (60 / this.bpm) * 1000; // 500ms per beat
-        this.nodes = {};   // charId -> { timers: [] }
+        this.nodes = {};   // charId -> { timer: null }
         this.master = this.ctx.createGain();
         this.master.gain.value = 0.45;
         this.master.connect(this.ctx.destination);
@@ -76,13 +76,17 @@ class BeatMakerEngine {
 
     play(char) {
         if (this.nodes[char.id]) return;
-        this.nodes[char.id] = { timers: [] };
-        this._loop(char);
+        this.nodes[char.id] = { timer: null };
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume().then(() => this._loop(char));
+        } else {
+            this._loop(char);
+        }
     }
 
     stop(charId) {
         if (!this.nodes[charId]) return;
-        this.nodes[charId].timers.forEach(t => clearTimeout(t));
+        clearTimeout(this.nodes[charId].timer);
         delete this.nodes[charId];
     }
 
@@ -97,8 +101,7 @@ class BeatMakerEngine {
         const fire = () => {
             if (!this.nodes[char.id]) return;
             this._playSound(char);
-            const t = setTimeout(fire, interval);
-            this.nodes[char.id].timers.push(t);
+            this.nodes[char.id].timer = setTimeout(fire, interval);
         };
         fire();
     }
@@ -2320,6 +2323,10 @@ function dropCharacterOnSlot(charId, slotIndex, themeKey) {
 
     // If slot already has a character, remove it first
     if (beatSlots[slotIndex]) removeCharacterFromSlot(slotIndex);
+
+    // If this character is already in another slot, remove it from there first
+    const existingSlot = beatSlots.findIndex((s, idx) => s === charId && idx !== slotIndex);
+    if (existingSlot !== -1) removeCharacterFromSlot(existingSlot);
 
     // Place character in slot
     beatSlots[slotIndex] = charId;
