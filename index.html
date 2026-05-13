@@ -114,6 +114,10 @@
                         <div style="font-size:2rem; margin-bottom:10px;">🔐</div>
                         Claves<br><br><small>Herramienta</small>
                     </button>
+                    <button class="mc-btn pink big-btn" onclick="openBeatMaker()" style="background:linear-gradient(135deg,#6a1b9a,#c2185b);">
+                        <div style="font-size:2rem; margin-bottom:10px;">🎵</div>
+                        BeatMaker<br><br><small>¡Hacer música!</small>
+                    </button>
                 </div>
             </div>
 
@@ -133,6 +137,34 @@
                     <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Salir</button>
                 </div>
                 <div class="subject-grid" id="shopGrid"></div>
+            </div>
+
+            <div id="view-beatmaker-menu" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                    <h3 style="margin:0;">🎵 BeatMaker — Elegí tu banda</h3>
+                    <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Volver</button>
+                </div>
+                <div class="bm-theme-grid" id="bmThemeGrid"></div>
+            </div>
+
+            <div id="view-beatmaker-game" style="display:none;">
+                <div class="bm-bottom-bar" style="margin-bottom:12px;">
+                    <button class="mc-btn gray" style="width:auto; padding:8px 14px; font-size:0.8rem;" onclick="closeBeatTheme()">← Temas</button>
+                    <h3 id="bmGameTitle" style="margin:0; font-size:1rem;"></h3>
+                    <button class="mc-btn red" style="width:auto; padding:8px 14px; font-size:0.8rem;" onclick="stopBeatMaker()">🔇 Parar</button>
+                </div>
+                <div class="bm-stage-area">
+                    <div class="bm-stage-label">🎵 ESCENARIO — completá los 5 slots</div>
+                    <div class="bm-slots" id="bmSlots"></div>
+                </div>
+                <div class="bm-visualizer" id="bmVisualizer"></div>
+                <div class="bm-bench-area" id="bmBenchArea">
+                    <div class="bm-bench-label">🎭 PERSONAJES — arrastrá al escenario</div>
+                    <div class="bm-bench" id="bmBench"></div>
+                </div>
+                <div class="bm-bottom-bar">
+                    <span class="bm-reward-hint">🏆 Completá los 5 slots → <strong>200 🪙</strong></span>
+                </div>
             </div>
         </main>
 
