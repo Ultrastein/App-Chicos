@@ -2209,10 +2209,113 @@ function saveCharacterCreator() {
     showToast("¡Avatar actualizado!");
 }
 
-function showDashboard() { setView('view-dashboard'); }
+function showDashboard() {
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    beatSlots = [null, null, null, null, null];
+    beatCompleted = false;
+    setView('view-dashboard');
+}
+
+// ==========================================
+// BEATMAKER — VIEW FUNCTIONS
+// ==========================================
+function openBeatMaker() {
+    setView('view-beatmaker-menu');
+    const grid = document.getElementById('bmThemeGrid');
+    grid.innerHTML = '';
+    Object.entries(BEATMAKER_THEMES).forEach(([key, theme]) => {
+        const btn = document.createElement('button');
+        btn.className = 'bm-theme-btn';
+        btn.style.background = theme.btnColor;
+        btn.innerHTML = `<span class="bm-theme-emoji">${theme.emoji}</span>${theme.name}`;
+        btn.onclick = () => startBeatTheme(key);
+        grid.appendChild(btn);
+    });
+}
+
+function startBeatTheme(themeKey) {
+    // Stop any previous engine
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    beatSlots = [null, null, null, null, null];
+    beatCompleted = false;
+
+    const theme = BEATMAKER_THEMES[themeKey];
+    document.getElementById('bmGameTitle').textContent = `${theme.emoji} ${theme.name}`;
+    document.getElementById('bmBenchArea').style.background = theme.benchBg;
+
+    // Render slots
+    const slotsEl = document.getElementById('bmSlots');
+    slotsEl.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'bm-slot';
+        slot.dataset.index = i;
+        slot.innerHTML = `<span style="color:#4a7a4a;font-size:1.4rem;">+</span><span class="bm-slot-name">vacío</span>`;
+        slot.ondragover = e => { e.preventDefault(); slot.classList.add('dragover'); };
+        slot.ondragleave = () => slot.classList.remove('dragover');
+        slot.ondrop = e => {
+            e.preventDefault();
+            slot.classList.remove('dragover');
+            const charId = e.dataTransfer.getData('charId');
+            if (charId) dropCharacterOnSlot(charId, i, themeKey);
+        };
+        slot.onclick = () => { if (beatSlots[i]) removeCharacterFromSlot(i); };
+        slotsEl.appendChild(slot);
+    }
+
+    // Render bench
+    const bench = document.getElementById('bmBench');
+    bench.innerHTML = '';
+    theme.characters.forEach(char => {
+        const card = document.createElement('div');
+        card.className = 'bm-char';
+        card.id = `bmChar-${char.id}`;
+        card.style.background = char.color;
+        card.draggable = true;
+        card.innerHTML = `${char.emoji}<span class="bm-char-name">${char.name}</span>`;
+        card.ondragstart = e => {
+            e.dataTransfer.setData('charId', char.id);
+            card.classList.add('dragging');
+        };
+        card.ondragend = () => card.classList.remove('dragging');
+        bench.appendChild(card);
+    });
+
+    // Init visualizer bars
+    const viz = document.getElementById('bmVisualizer');
+    viz.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bm-bar';
+        bar.style.height = '4px';
+        viz.appendChild(bar);
+    }
+
+    // Create engine
+    beatEngine = new BeatMakerEngine();
+
+    setView('view-beatmaker-game');
+}
+
+function closeBeatTheme() {
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    beatSlots = [null, null, null, null, null];
+    beatCompleted = false;
+    openBeatMaker();
+}
+
+function stopBeatMaker() {
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    document.querySelectorAll('.bm-slot').forEach(s => s.style.opacity = '0.5');
+}
+
 function showShop() { setView('view-shop'); renderShop(); }
 function setView(id) {
-    ['view-dashboard', 'view-map', 'view-shop'].forEach(v => document.getElementById(v).style.display = 'none');
+    ['view-dashboard', 'view-map', 'view-shop', 'view-beatmaker-menu', 'view-beatmaker-game'].forEach(v => document.getElementById(v).style.display = 'none');
     document.getElementById(id).style.display = 'block';
 }
 
