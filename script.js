@@ -2377,6 +2377,31 @@ function startBeatVisualizer() {
     }, 120);
 }
 
+function checkBeatCompletion() {
+    if (beatCompleted) return;
+    const allFilled = beatSlots.every(s => s !== null);
+    if (!allFilled) return;
+
+    beatCompleted = true;
+
+    // Award coins
+    player.coins += 200;
+    updateUI();
+    saveData();
+    showToast("🎵 ¡Ritmo completo! +200 🪙");
+
+    // Flash all slots gold briefly
+    document.querySelectorAll('.bm-slot.filled').forEach(slot => {
+        const origBorder = slot.style.borderColor;
+        slot.style.borderColor = '#ffd54f';
+        slot.style.boxShadow = '0 0 12px #ffd54f88';
+        setTimeout(() => {
+            slot.style.borderColor = origBorder;
+            slot.style.boxShadow = '';
+        }, 1200);
+    });
+}
+
 function showShop() { setView('view-shop'); renderShop(); }
 function setView(id) {
     ['view-dashboard', 'view-map', 'view-shop', 'view-beatmaker-menu', 'view-beatmaker-game'].forEach(v => document.getElementById(v).style.display = 'none');
