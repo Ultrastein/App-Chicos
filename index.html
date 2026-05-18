@@ -158,6 +158,7 @@
                     <div class="bm-slots" id="bmSlots"></div>
                 </div>
                 <div class="bm-visualizer" id="bmVisualizer"></div>
+                <div class="bm-steps" id="bmSteps"></div>
                 <div class="bm-bench-area" id="bmBenchArea">
                     <div class="bm-bench-label">🎭 PERSONAJES — arrastrá al escenario</div>
                     <div class="bm-bench" id="bmBench"></div>
@@ -258,6 +259,7 @@
             <div style="background:#e8f5e9; padding:15px; border:2px solid #81c784; margin-top:15px;">
                 <h4 style="margin-top:0; color:#2e7d32;">🎵 BeatMaker — Personajes</h4>
 
+                <!-- ── AGREGAR ── -->
                 <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #a5d6a7;">
                     <strong style="font-size:0.85rem; color:#1b5e20;">➕ Agregar personaje</strong>
                     <select id="admBeatTheme" style="margin-top:8px;">
@@ -269,7 +271,7 @@
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
                         <input type="text" id="admBeatName" placeholder="Nombre" style="flex:1; min-width:100px;">
                         <input type="text" id="admBeatEmoji" placeholder="Emoji 🎸" style="width:70px;">
-                        <input type="color" id="admBeatColor" value="#e53935" title="Color del personaje" style="width:45px; height:36px; padding:2px; border-radius:6px; border:2px solid #ccc; cursor:pointer;">
+                        <input type="color" id="admBeatColor" value="#e53935" title="Color" style="width:45px; height:36px; padding:2px; border-radius:6px; border:2px solid #ccc; cursor:pointer;">
                     </div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
                         <select id="admBeatSoundType" onchange="admBeatToggleFreq()" style="flex:1;">
@@ -279,12 +281,31 @@
                             <option value="harmony">🎶 harmony — armonía</option>
                             <option value="high">🎺 high — agudo</option>
                             <option value="chord">🎹 chord — acorde</option>
+                            <option value="sample">🎙️ sample — MP3</option>
                         </select>
                         <input type="number" id="admBeatFreq" placeholder="Hz (ej: 80)" style="width:110px; display:none;" min="20" max="2000">
                     </div>
-                    <button class="mc-btn green" style="margin-top:8px; width:100%;" onclick="adminBeatAddChar()">➕ Agregar personaje</button>
+
+                    <!-- MP3 upload (solo visible cuando tipo = sample) -->
+                    <div id="admBeatMp3Wrap" style="display:none; margin-top:6px;">
+                        <label style="font-size:0.8rem; color:#555;">Archivo MP3/WAV (máx 2MB):</label>
+                        <input type="file" id="admBeatMp3" accept="audio/*" onchange="admBeatHandleMp3New(this)" style="margin-top:4px;">
+                        <div id="admBeatMp3Status" style="font-size:0.75rem; color:#888; margin-top:3px;"></div>
+                    </div>
+
+                    <!-- Compás 16 pasos -->
+                    <div style="margin-top:10px;">
+                        <label style="font-size:0.8rem; color:#555; font-weight:bold;">🥁 Compás (16 pasos — click para activar):</label>
+                        <div class="adm-beat-grid" id="admBeatPatternNew"></div>
+                    </div>
+
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <button class="mc-btn green" style="flex:2;" onclick="adminBeatAddChar()">➕ Agregar</button>
+                        <button class="mc-btn blue" style="flex:1; font-size:0.75rem;" onclick="admBeatPreviewSound('new')">▶ Escuchar</button>
+                    </div>
                 </div>
 
+                <!-- ── EDITAR ── -->
                 <div>
                     <strong style="font-size:0.85rem; color:#1b5e20;">✏️ Editar / eliminar personaje</strong>
                     <div style="display:flex; gap:8px; margin-top:8px;">
@@ -312,11 +333,27 @@
                                 <option value="harmony">🎶 harmony</option>
                                 <option value="high">🎺 high</option>
                                 <option value="chord">🎹 chord</option>
+                                <option value="sample">🎙️ sample</option>
                             </select>
                             <input type="number" id="admBeatEditFreq" placeholder="Hz" style="width:90px;" min="20" max="2000">
                         </div>
+
+                        <!-- MP3 upload en edición -->
+                        <div id="admBeatEditMp3Wrap" style="display:none; margin-top:6px;">
+                            <label style="font-size:0.8rem; color:#555;">Reemplazar MP3/WAV:</label>
+                            <input type="file" id="admBeatEditMp3" accept="audio/*" onchange="admBeatHandleMp3Edit(this)" style="margin-top:4px;">
+                            <div id="admBeatEditMp3Status" style="font-size:0.75rem; color:#888; margin-top:3px;"></div>
+                        </div>
+
+                        <!-- Compás edición -->
+                        <div style="margin-top:10px;">
+                            <label style="font-size:0.8rem; color:#555; font-weight:bold;">🥁 Compás:</label>
+                            <div class="adm-beat-grid" id="admBeatPatternEdit"></div>
+                        </div>
+
                         <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button class="mc-btn blue" style="flex:1;" onclick="adminBeatSaveChar()">💾 Guardar</button>
+                            <button class="mc-btn blue" style="flex:1; font-size:0.75rem;" onclick="admBeatPreviewSound('edit')">▶ Escuchar</button>
+                            <button class="mc-btn green" style="flex:1;" onclick="adminBeatSaveChar()">💾 Guardar</button>
                             <button class="mc-btn red" style="flex:1;" onclick="adminBeatDeleteChar()">🗑️ Eliminar</button>
                         </div>
                     </div>

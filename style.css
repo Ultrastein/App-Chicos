@@ -1095,6 +1095,64 @@ select:focus {
     animation: bmBounce 0.4s ease;
 }
 
+/* Step indicator dots in game */
+.bm-steps {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    padding: 5px 0 2px 0;
+    flex-wrap: nowrap;
+}
+.bm-step-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #1a3a1a;
+    flex-shrink: 0;
+    transition: background 0.05s;
+}
+.bm-step-dot.on-beat {
+    background: #2e5c2e;
+}
+.bm-step-dot.current {
+    background: #4caf50 !important;
+    box-shadow: 0 0 6px #4caf5099;
+}
+
+/* Admin beat grid */
+.adm-beat-grid {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    margin: 6px 0;
+    flex-wrap: nowrap;
+}
+.adm-beat-sep {
+    width: 5px;
+    flex-shrink: 0;
+}
+.adm-beat-step {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    border: 2px solid #b0bec5;
+    background: #eceff1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.1s, border-color 0.1s, transform 0.08s;
+}
+.adm-beat-step:hover {
+    transform: scale(1.1);
+}
+.adm-beat-step.on {
+    background: #4caf50;
+    border-color: #2e7d32;
+}
+.adm-beat-step.preview-playing {
+    background: #ffd54f !important;
+    border-color: #f9a825 !important;
+}
+
 /* BeatMaker — responsive */
 @media (max-width: 768px) {
     .bm-theme-grid {

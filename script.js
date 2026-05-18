@@ -61,60 +61,95 @@ const BEATMAKER_THEMES = {
 };
 
 // ==========================================
-// BEATMAKER — AUDIO ENGINE
+// BEATMAKER — DEFAULT PATTERNS (16 steps)
+// ==========================================
+const BM_DEFAULT_PATTERNS = {
+    beat:    [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+    bass:    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+    melody:  [1,0,0,1, 0,0,1,0, 0,1,0,0, 1,0,0,0],
+    harmony: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    high:    [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
+    chord:   [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
+    sample:  [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+};
+
+// ==========================================
+// BEATMAKER — AUDIO ENGINE (Step Sequencer)
 // ==========================================
 class BeatMakerEngine {
     constructor() {
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         this.bpm = 120;
-        this.beatMs = (60 / this.bpm) * 1000; // 500ms per beat
-        this.nodes = {};   // charId -> { timer: null }
+        this.stepMs = (60 / this.bpm / 4) * 1000; // 16th note = 125ms at 120bpm
+        this.currentStep = 0;
+        this.activeChars = {};      // charId -> char object
+        this.sampleBuffers = {};    // charId -> decoded AudioBuffer
+        this.schedulerTimer = null;
         this.master = this.ctx.createGain();
         this.master.gain.value = 0.45;
         this.master.connect(this.ctx.destination);
+        this.onStep = null; // callback(step) for visualizer
     }
 
     play(char) {
-        if (this.nodes[char.id]) return;
-        this.nodes[char.id] = { timer: null };
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume().then(() => this._loop(char));
-        } else {
-            this._loop(char);
+        if (this.activeChars[char.id]) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        this.activeChars[char.id] = char;
+        if (char.soundType === 'sample' && char.sampleData && !this.sampleBuffers[char.id]) {
+            this._loadSample(char);
         }
+        if (!this.schedulerTimer) this._startScheduler();
     }
 
     stop(charId) {
-        if (!this.nodes[charId]) return;
-        clearTimeout(this.nodes[charId].timer);
-        delete this.nodes[charId];
+        delete this.activeChars[charId];
+        if (Object.keys(this.activeChars).length === 0) this._stopScheduler();
     }
 
     stopAll() {
-        Object.keys(this.nodes).forEach(id => this.stop(id));
+        this._stopScheduler();
+        this.activeChars = {};
         try { if (this.ctx.state !== 'closed') this.ctx.close(); } catch(e) {}
     }
 
-    _loop(char) {
-        const repeatBeats = { bass: 2, beat: 1, melody: 4, harmony: 4, high: 1, chord: 2 };
-        const interval = this.beatMs * (repeatBeats[char.soundType] || 2);
-        const fire = () => {
-            if (!this.nodes[char.id]) return;
-            this._playSound(char);
-            this.nodes[char.id].timer = setTimeout(fire, interval);
-        };
-        fire();
+    _startScheduler() {
+        this.currentStep = 0;
+        this._tick();
     }
 
-    _playSound(char) {
+    _tick() {
         const t = this.ctx.currentTime;
+        Object.values(this.activeChars).forEach(char => {
+            const pattern = char.pattern || BM_DEFAULT_PATTERNS[char.soundType] || BM_DEFAULT_PATTERNS.beat;
+            if (pattern[this.currentStep]) this._playSound(char, t);
+        });
+        if (this.onStep) this.onStep(this.currentStep);
+        this.currentStep = (this.currentStep + 1) % 16;
+        this.schedulerTimer = setTimeout(() => this._tick(), this.stepMs);
+    }
+
+    _stopScheduler() {
+        if (this.schedulerTimer) { clearTimeout(this.schedulerTimer); this.schedulerTimer = null; }
+    }
+
+    async _loadSample(char) {
+        try {
+            const bin = atob(char.sampleData);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            this.sampleBuffers[char.id] = await this.ctx.decodeAudioData(bytes.buffer.slice(0));
+        } catch(e) { console.warn('Sample decode error:', e); }
+    }
+
+    _playSound(char, t) {
         switch (char.soundType) {
-            case 'bass':    this._bass(char.freq || 80, t);    break;
-            case 'beat':    this._beat(t);                     break;
-            case 'melody':  this._melody(char.scale, t);       break;
-            case 'harmony': this._harmony(char.freq || 220, t); break;
-            case 'high':    this._high(char.freq || 440, t);   break;
-            case 'chord':   this._chord(char.freq || 261.63, t); break;
+            case 'bass':    this._bass(char.freq || 80, t);       break;
+            case 'beat':    this._beat(t);                        break;
+            case 'melody':  this._melody(char.scale, t);          break;
+            case 'harmony': this._harmony(char.freq || 220, t);   break;
+            case 'high':    this._high(char.freq || 440, t);      break;
+            case 'chord':   this._chord(char.freq || 261.63, t);  break;
+            case 'sample':  this._sample(char.id, t);             break;
         }
     }
 
@@ -125,15 +160,18 @@ class BeatMakerEngine {
         osc.frequency.value = freq;
         g.gain.setValueAtTime(gainVal, startTime);
         g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-        osc.connect(g);
-        g.connect(this.master);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
+        osc.connect(g); g.connect(this.master);
+        osc.start(startTime); osc.stop(startTime + duration);
     }
 
-    _bass(freq, t) {
-        this._osc('sine', freq, 0.9, 0.45, t);
+    _bass(freq, t)    { this._osc('sine', freq, 0.9, 0.45, t); }
+    _melody(scale, t) {
+        const notes = scale || [261.63, 293.66, 329.63, 392, 440];
+        this._osc('triangle', notes[Math.floor(Math.random() * notes.length)], 0.5, 0.28, t);
     }
+    _harmony(freq, t) { [1, 1.25, 1.5].forEach(m => this._osc('sine', freq * m, 0.18, 0.85, t)); }
+    _high(freq, t)    { this._osc('sawtooth', freq * (1 + Math.floor(Math.random() * 3) * 0.5), 0.25, 0.12, t); }
+    _chord(root, t)   { [1, 1.2599, 1.4983].forEach(m => this._osc('square', root * m, 0.14, 0.42, t)); }
 
     _beat(t) {
         const size = this.ctx.sampleRate * 0.08;
@@ -143,41 +181,26 @@ class BeatMakerEngine {
         const src = this.ctx.createBufferSource();
         src.buffer = buf;
         const filt = this.ctx.createBiquadFilter();
-        filt.type = 'bandpass';
-        filt.frequency.value = 800;
-        filt.Q.value = 0.8;
+        filt.type = 'bandpass'; filt.frequency.value = 800; filt.Q.value = 0.8;
         const g = this.ctx.createGain();
         g.gain.setValueAtTime(1.2, t);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
-        src.connect(filt);
-        filt.connect(g);
-        g.connect(this.master);
+        src.connect(filt); filt.connect(g); g.connect(this.master);
+        src.start(t); src.stop(t + 0.1);
+    }
+
+    _sample(charId, t) {
+        const buf = this.sampleBuffers[charId];
+        if (!buf) return;
+        const src = this.ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(this.master);
         src.start(t);
-        src.stop(t + 0.1);
-    }
-
-    _melody(scale, t) {
-        const notes = scale || [261.63, 293.66, 329.63, 392, 440];
-        const note = notes[Math.floor(Math.random() * notes.length)];
-        this._osc('triangle', note, 0.5, 0.28, t);
-    }
-
-    _harmony(freq, t) {
-        [1, 1.25, 1.5].forEach(mult => this._osc('sine', freq * mult, 0.18, 0.85, t));
-    }
-
-    _high(freq, t) {
-        const note = freq * (1 + Math.floor(Math.random() * 3) * 0.5);
-        this._osc('sawtooth', note, 0.25, 0.12, t);
-    }
-
-    _chord(root, t) {
-        [1, 1.2599, 1.4983].forEach(mult => this._osc('square', root * mult, 0.14, 0.42, t));
     }
 }
 
 let beatEngine = null;
-let beatSlots = [null, null, null, null, null]; // charId or null per slot
+let beatSlots = [null, null, null, null, null];
 let beatCompleted = false;
 let beatVisualizerInterval = null;
 
@@ -2305,8 +2328,32 @@ function startBeatTheme(themeKey) {
         viz.appendChild(bar);
     }
 
-    // Create engine
+    // Init step dots (compás)
+    const stepsEl = document.getElementById('bmSteps');
+    stepsEl.innerHTML = '';
+    for (let i = 0; i < 16; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'bm-step-dot';
+        dot.dataset.step = i;
+        stepsEl.appendChild(dot);
+    }
+
+    // Create engine and hook up step callback
     beatEngine = new BeatMakerEngine();
+    beatEngine.onStep = (step) => {
+        document.querySelectorAll('.bm-step-dot').forEach((d, i) => {
+            d.classList.toggle('current', i === step);
+            d.classList.toggle('on-beat', i % 4 === 0 && i !== step);
+        });
+        // animate visualizer bars in sync
+        const activeCount = beatSlots.filter(s => s !== null).length;
+        if (activeCount > 0) {
+            document.querySelectorAll('.bm-bar').forEach(bar => {
+                bar.style.height = (6 + Math.random() * (8 + activeCount * 5)) + 'px';
+                bar.classList.add('active');
+            });
+        }
+    };
 
     setView('view-beatmaker-game');
 }
@@ -2379,19 +2426,7 @@ function removeCharacterFromSlot(slotIndex) {
     }
 }
 
-function startBeatVisualizer() {
-    if (beatVisualizerInterval) clearInterval(beatVisualizerInterval);
-    beatVisualizerInterval = setInterval(() => {
-        const activeCount = beatSlots.filter(s => s !== null).length;
-        document.querySelectorAll('.bm-bar').forEach(bar => {
-            const h = activeCount > 0
-                ? 6 + Math.random() * (10 + activeCount * 5)
-                : 4;
-            bar.style.height = h + 'px';
-            bar.classList.toggle('active', activeCount > 0);
-        });
-    }, 120);
-}
+function startBeatVisualizer() { /* handled by beatEngine.onStep */ }
 
 function checkBeatCompletion() {
     if (beatCompleted) return;
@@ -3142,7 +3177,9 @@ function closeAdmin() { document.getElementById('adminPanelModal').style.display
 function openAdminPanel() {
     document.getElementById('adminLoginModal').style.display = 'none';
     document.getElementById('adminPanelModal').style.display = 'flex';
-    admBeatLoadChars(); // preload first theme's chars
+    // Init beat grids with default pattern for "beat" type
+    _admBeatBuildGrid('admBeatPatternNew',  BM_DEFAULT_PATTERNS.beat);
+    admBeatLoadChars();
 }
 function adminAddManualPlayer() {
     const name = document.getElementById('manualName').value, coins = parseInt(document.getElementById('manualCoins').value);
@@ -3164,18 +3201,111 @@ function adminAddLevel() {
 // ==========================================
 // BEATMAKER — ADMIN FUNCTIONS
 // ==========================================
+
+// Temp storage for MP3 data while filling the "add" form
+let _admBeatNewMp3 = null;
+let _admBeatEditMp3 = null;
+
+// ── Helpers ──────────────────────────────
+function _admBeatNoFreqTypes() { return ['beat', 'sample']; }
+
 function admBeatToggleFreq() {
     const type = document.getElementById('admBeatSoundType').value;
-    const freqEl = document.getElementById('admBeatFreq');
-    freqEl.style.display = (type === 'beat') ? 'none' : 'inline-block';
+    document.getElementById('admBeatFreq').style.display     = _admBeatNoFreqTypes().includes(type) ? 'none' : 'inline-block';
+    document.getElementById('admBeatMp3Wrap').style.display  = (type === 'sample') ? 'block' : 'none';
+    _admBeatBuildGrid('admBeatPatternNew', BM_DEFAULT_PATTERNS[type] || BM_DEFAULT_PATTERNS.beat);
 }
 
 function admBeatToggleEditFreq() {
     const type = document.getElementById('admBeatEditSoundType').value;
-    const freqEl = document.getElementById('admBeatEditFreq');
-    freqEl.style.display = (type === 'beat') ? 'none' : 'inline-block';
+    document.getElementById('admBeatEditFreq').style.display    = _admBeatNoFreqTypes().includes(type) ? 'none' : 'inline-block';
+    document.getElementById('admBeatEditMp3Wrap').style.display = (type === 'sample') ? 'block' : 'none';
 }
 
+// ── Beat grid builder ────────────────────
+function _admBeatBuildGrid(containerId, pattern) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    for (let i = 0; i < 16; i++) {
+        if (i > 0 && i % 4 === 0) {
+            const sep = document.createElement('div');
+            sep.className = 'adm-beat-sep';
+            el.appendChild(sep);
+        }
+        const btn = document.createElement('div');
+        btn.className = 'adm-beat-step' + (pattern[i] ? ' on' : '');
+        btn.dataset.step = i;
+        btn.title = `Paso ${i + 1}`;
+        btn.onclick = () => { btn.classList.toggle('on'); };
+        el.appendChild(btn);
+    }
+}
+
+function _admBeatReadGrid(containerId) {
+    return Array.from(document.querySelectorAll(`#${containerId} .adm-beat-step`))
+        .map(btn => btn.classList.contains('on') ? 1 : 0);
+}
+
+// ── MP3 handlers ─────────────────────────
+function admBeatHandleMp3New(input) {
+    _admBeatReadMp3(input, (b64, name) => {
+        _admBeatNewMp3 = b64;
+        document.getElementById('admBeatMp3Status').textContent = `✅ ${name}`;
+    });
+}
+
+function admBeatHandleMp3Edit(input) {
+    _admBeatReadMp3(input, (b64, name) => {
+        _admBeatEditMp3 = b64;
+        document.getElementById('admBeatEditMp3Status').textContent = `✅ ${name}`;
+    });
+}
+
+function _admBeatReadMp3(input, cb) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) return showToast('El archivo es muy grande (máx 2MB)', 'error');
+    const reader = new FileReader();
+    reader.onload = e => {
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(e.target.result)));
+        cb(b64, file.name);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// ── Preview ──────────────────────────────
+function admBeatPreviewSound(mode) {
+    const isNew = mode === 'new';
+    const sType = document.getElementById(isNew ? 'admBeatSoundType'     : 'admBeatEditSoundType').value;
+    const freq  = parseFloat(document.getElementById(isNew ? 'admBeatFreq' : 'admBeatEditFreq').value) || null;
+    const mp3   = isNew ? _admBeatNewMp3 : _admBeatEditMp3;
+    const gridId = isNew ? 'admBeatPatternNew' : 'admBeatPatternEdit';
+    const pattern = _admBeatReadGrid(gridId);
+
+    // Build a temporary char
+    const char = { id: '_preview', soundType: sType, freq, pattern };
+    if (sType === 'sample' && mp3) char.sampleData = mp3;
+
+    // Create a temp engine, play 2 bars then stop
+    const eng = new BeatMakerEngine();
+    eng.master.gain.value = 0.55;
+    let stepCount = 0;
+    eng.onStep = (step) => {
+        // highlight grid while playing
+        document.querySelectorAll(`#${gridId} .adm-beat-step`).forEach((btn, i) => {
+            btn.classList.toggle('preview-playing', i === step);
+        });
+        stepCount++;
+        if (stepCount >= 32) { // 2 bars
+            eng.stopAll();
+            document.querySelectorAll(`#${gridId} .adm-beat-step`).forEach(btn => btn.classList.remove('preview-playing'));
+        }
+    };
+    eng.play(char);
+    showToast('▶ Reproduciendo 2 compases...', 'success');
+}
+
+// ── Save / load ──────────────────────────
 function admBeatSaveTheme(themeKey) {
     localDB.beatChars[themeKey] = BEATMAKER_THEMES[themeKey].characters.map(c => Object.assign({}, c));
     saveData();
@@ -3188,19 +3318,26 @@ function adminBeatAddChar() {
     const color    = document.getElementById('admBeatColor').value;
     const sType    = document.getElementById('admBeatSoundType').value;
     const freqVal  = parseFloat(document.getElementById('admBeatFreq').value);
+    const pattern  = _admBeatReadGrid('admBeatPatternNew');
 
     if (!name || !emoji) return showToast("Faltan nombre o emoji", 'error');
+    if (sType === 'sample' && !_admBeatNewMp3) return showToast("Subí un archivo de audio", 'error');
 
     const id = 'custom_' + Date.now();
-    const char = { id, name, emoji, color, soundType: sType };
-    if (sType !== 'beat' && !isNaN(freqVal)) char.freq = freqVal;
+    const char = { id, name, emoji, color, soundType: sType, pattern };
+    if (!_admBeatNoFreqTypes().includes(sType) && !isNaN(freqVal)) char.freq = freqVal;
     if (sType === 'melody' && !char.freq) char.scale = [261.63, 293.66, 329.63, 392, 440];
+    if (sType === 'sample') char.sampleData = _admBeatNewMp3;
 
     BEATMAKER_THEMES[themeKey].characters.push(char);
     admBeatSaveTheme(themeKey);
 
-    document.getElementById('admBeatName').value = '';
+    // Reset form
+    document.getElementById('admBeatName').value  = '';
     document.getElementById('admBeatEmoji').value = '';
+    _admBeatNewMp3 = null;
+    document.getElementById('admBeatMp3Status').textContent = '';
+    _admBeatBuildGrid('admBeatPatternNew', BM_DEFAULT_PATTERNS[sType] || BM_DEFAULT_PATTERNS.beat);
     showToast(`✅ "${name}" agregado a ${BEATMAKER_THEMES[themeKey].name}`);
 }
 
@@ -3221,7 +3358,6 @@ function admBeatLoadChar() {
     const themeKey = document.getElementById('admBeatEditTheme').value;
     const charId   = document.getElementById('admBeatEditChar').value;
     const fields   = document.getElementById('admBeatEditFields');
-
     if (!charId) { fields.style.display = 'none'; return; }
 
     const char = BEATMAKER_THEMES[themeKey].characters.find(c => c.id === charId);
@@ -3232,10 +3368,14 @@ function admBeatLoadChar() {
     document.getElementById('admBeatEditColor').value     = char.color || '#888888';
     document.getElementById('admBeatEditSoundType').value = char.soundType;
     document.getElementById('admBeatEditFreq').value      = char.freq || '';
+    document.getElementById('admBeatEditFreq').style.display    = _admBeatNoFreqTypes().includes(char.soundType) ? 'none' : 'inline-block';
+    document.getElementById('admBeatEditMp3Wrap').style.display = char.soundType === 'sample' ? 'block' : 'none';
+    document.getElementById('admBeatEditMp3Status').textContent = char.sampleData ? '🎵 Ya tiene audio cargado' : '';
 
-    const freqEl = document.getElementById('admBeatEditFreq');
-    freqEl.style.display = (char.soundType === 'beat') ? 'none' : 'inline-block';
+    const pat = char.pattern || BM_DEFAULT_PATTERNS[char.soundType] || BM_DEFAULT_PATTERNS.beat;
+    _admBeatBuildGrid('admBeatPatternEdit', pat);
 
+    _admBeatEditMp3 = null;
     fields.style.display = 'block';
 }
 
@@ -3247,13 +3387,15 @@ function adminBeatSaveChar() {
     const char = BEATMAKER_THEMES[themeKey].characters.find(c => c.id === charId);
     if (!char) return;
 
-    char.name      = document.getElementById('admBeatEditName').value.trim() || char.name;
+    char.name      = document.getElementById('admBeatEditName').value.trim()  || char.name;
     char.emoji     = document.getElementById('admBeatEditEmoji').value.trim() || char.emoji;
     char.color     = document.getElementById('admBeatEditColor').value;
     char.soundType = document.getElementById('admBeatEditSoundType').value;
-    const freqVal  = parseFloat(document.getElementById('admBeatEditFreq').value);
-    if (!isNaN(freqVal)) char.freq = freqVal;
-    else delete char.freq;
+    char.pattern   = _admBeatReadGrid('admBeatPatternEdit');
+
+    const freqVal = parseFloat(document.getElementById('admBeatEditFreq').value);
+    if (!isNaN(freqVal)) char.freq = freqVal; else delete char.freq;
+    if (_admBeatEditMp3) char.sampleData = _admBeatEditMp3;
 
     admBeatSaveTheme(themeKey);
     admBeatLoadChars();
@@ -3268,7 +3410,6 @@ function adminBeatDeleteChar() {
     const theme = BEATMAKER_THEMES[themeKey];
     const char  = theme.characters.find(c => c.id === charId);
     if (!char) return;
-
     if (!confirm(`¿Eliminar "${char.name}" de ${theme.name}?`)) return;
 
     theme.characters = theme.characters.filter(c => c.id !== charId);
