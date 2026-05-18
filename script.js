@@ -1,4 +1,187 @@
 // ==========================================
+// BEATMAKER — THEMES & CHARACTERS
+// ==========================================
+const BEATMAKER_THEMES = {
+    minecraft: {
+        name: "Minecraft Beats",
+        emoji: "⛏️",
+        btnColor: "#5d4037",
+        benchBg: "#1a0f0a",
+        characters: [
+            { id: "steve",    name: "Steve",   emoji: "⛏️", soundType: "bass",    freq: 80,     color: "#5d4037" },
+            { id: "creeper",  name: "Creeper", emoji: "💚", soundType: "beat",    freq: null,   color: "#2e7d32" },
+            { id: "villager", name: "Aldean",  emoji: "🏘️", soundType: "melody",  scale: [261.63, 293.66, 329.63, 392, 440], color: "#f57f17" },
+            { id: "cerdo",    name: "Cerdo",   emoji: "🐷", soundType: "beat",    freq: null,   color: "#ec407a" },
+            { id: "zombie",   name: "Zombie",  emoji: "🧟", soundType: "harmony", freq: 110,    color: "#558b2f" },
+            { id: "araña",    name: "Araña",   emoji: "🕷️", soundType: "high",    freq: 220,    color: "#4a148c" }
+        ]
+    },
+    animales: {
+        name: "Animales",
+        emoji: "🐸",
+        btnColor: "#2e7d32",
+        benchBg: "#0a1a0a",
+        characters: [
+            { id: "rana",   name: "Rana",  emoji: "🐸", soundType: "bass",    freq: 90,  color: "#2e7d32" },
+            { id: "vaca",   name: "Vaca",  emoji: "🐄", soundType: "melody",  scale: [220, 246.94, 277.18, 329.63, 369.99], color: "#795548" },
+            { id: "perro",  name: "Perro", emoji: "🐕", soundType: "beat",    freq: null, color: "#f57f17" },
+            { id: "gato",   name: "Gato",  emoji: "🐱", soundType: "harmony", freq: 165, color: "#ff8f00" },
+            { id: "pato",   name: "Pato",  emoji: "🦆", soundType: "beat",    freq: null, color: "#fdd835" },
+            { id: "zorro",  name: "Zorro", emoji: "🦊", soundType: "high",    freq: 200, color: "#e64a19" }
+        ]
+    },
+    robots: {
+        name: "Robots",
+        emoji: "🤖",
+        btnColor: "#1565c0",
+        benchBg: "#0a0a1a",
+        characters: [
+            { id: "rkick",  name: "R-Kick",  emoji: "🤖", soundType: "bass",    freq: 60,  color: "#1565c0" },
+            { id: "rbass",  name: "R-Bass",  emoji: "🦾", soundType: "bass",    freq: 100, color: "#0288d1" },
+            { id: "rarp",   name: "R-Arp",   emoji: "⚙️", soundType: "high",    freq: 440, color: "#00838f" },
+            { id: "rclap",  name: "R-Clap",  emoji: "🔧", soundType: "beat",    freq: null, color: "#37474f" },
+            { id: "rbeep",  name: "R-Beep",  emoji: "💡", soundType: "melody",  scale: [523.25, 587.33, 659.25, 783.99, 880], color: "#f9a825" },
+            { id: "rnoise", name: "R-Noise", emoji: "📡", soundType: "beat",    freq: null, color: "#6a1b9a" }
+        ]
+    },
+    escuela: {
+        name: "Banda Escolar",
+        emoji: "📚",
+        btnColor: "#e65100",
+        benchBg: "#1a0a00",
+        characters: [
+            { id: "tambor",   name: "Tambor",   emoji: "🥁", soundType: "beat",    freq: null,   color: "#b71c1c" },
+            { id: "bajo",     name: "Bajo",     emoji: "🎸", soundType: "bass",    freq: 73.42,  color: "#1b5e20" },
+            { id: "piano",    name: "Piano",    emoji: "🎹", soundType: "chord",   freq: 261.63, color: "#1a237e" },
+            { id: "trompeta", name: "Trompeta", emoji: "🎺", soundType: "melody",  scale: [329.63, 369.99, 415.3, 493.88, 523.25], color: "#e65100" },
+            { id: "flauta",   name: "Flauta",   emoji: "🎵", soundType: "high",    freq: 523.25, color: "#00695c" },
+            { id: "maracas",  name: "Maracas",  emoji: "🪇", soundType: "beat",    freq: null,   color: "#6d4c41" }
+        ]
+    }
+};
+
+// ==========================================
+// BEATMAKER — AUDIO ENGINE
+// ==========================================
+class BeatMakerEngine {
+    constructor() {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.bpm = 120;
+        this.beatMs = (60 / this.bpm) * 1000; // 500ms per beat
+        this.nodes = {};   // charId -> { timer: null }
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.45;
+        this.master.connect(this.ctx.destination);
+    }
+
+    play(char) {
+        if (this.nodes[char.id]) return;
+        this.nodes[char.id] = { timer: null };
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume().then(() => this._loop(char));
+        } else {
+            this._loop(char);
+        }
+    }
+
+    stop(charId) {
+        if (!this.nodes[charId]) return;
+        clearTimeout(this.nodes[charId].timer);
+        delete this.nodes[charId];
+    }
+
+    stopAll() {
+        Object.keys(this.nodes).forEach(id => this.stop(id));
+        try { if (this.ctx.state !== 'closed') this.ctx.close(); } catch(e) {}
+    }
+
+    _loop(char) {
+        const repeatBeats = { bass: 2, beat: 1, melody: 4, harmony: 4, high: 1, chord: 2 };
+        const interval = this.beatMs * (repeatBeats[char.soundType] || 2);
+        const fire = () => {
+            if (!this.nodes[char.id]) return;
+            this._playSound(char);
+            this.nodes[char.id].timer = setTimeout(fire, interval);
+        };
+        fire();
+    }
+
+    _playSound(char) {
+        const t = this.ctx.currentTime;
+        switch (char.soundType) {
+            case 'bass':    this._bass(char.freq || 80, t);    break;
+            case 'beat':    this._beat(t);                     break;
+            case 'melody':  this._melody(char.scale, t);       break;
+            case 'harmony': this._harmony(char.freq || 220, t); break;
+            case 'high':    this._high(char.freq || 440, t);   break;
+            case 'chord':   this._chord(char.freq || 261.63, t); break;
+        }
+    }
+
+    _osc(type, freq, gainVal, duration, startTime) {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(gainVal, startTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+        osc.connect(g);
+        g.connect(this.master);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+    }
+
+    _bass(freq, t) {
+        this._osc('sine', freq, 0.9, 0.45, t);
+    }
+
+    _beat(t) {
+        const size = this.ctx.sampleRate * 0.08;
+        const buf = this.ctx.createBuffer(1, size, this.ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < size; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / size);
+        const src = this.ctx.createBufferSource();
+        src.buffer = buf;
+        const filt = this.ctx.createBiquadFilter();
+        filt.type = 'bandpass';
+        filt.frequency.value = 800;
+        filt.Q.value = 0.8;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(1.2, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+        src.connect(filt);
+        filt.connect(g);
+        g.connect(this.master);
+        src.start(t);
+        src.stop(t + 0.1);
+    }
+
+    _melody(scale, t) {
+        const notes = scale || [261.63, 293.66, 329.63, 392, 440];
+        const note = notes[Math.floor(Math.random() * notes.length)];
+        this._osc('triangle', note, 0.5, 0.28, t);
+    }
+
+    _harmony(freq, t) {
+        [1, 1.25, 1.5].forEach(mult => this._osc('sine', freq * mult, 0.18, 0.85, t));
+    }
+
+    _high(freq, t) {
+        const note = freq * (1 + Math.floor(Math.random() * 3) * 0.5);
+        this._osc('sawtooth', note, 0.25, 0.12, t);
+    }
+
+    _chord(root, t) {
+        [1, 1.2599, 1.4983].forEach(mult => this._osc('square', root * mult, 0.14, 0.42, t));
+    }
+}
+
+let beatEngine = null;
+let beatSlots = [null, null, null, null, null]; // charId or null per slot
+let beatCompleted = false;
+let beatVisualizerInterval = null;
+
+// ==========================================
 // 1. GAME CONTENT DATABASE (Scalable)
 // ==========================================
 
@@ -2029,10 +2212,206 @@ function saveCharacterCreator() {
     showToast("¡Avatar actualizado!");
 }
 
-function showDashboard() { setView('view-dashboard'); }
+function showDashboard() {
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    beatSlots = [null, null, null, null, null];
+    beatCompleted = false;
+    setView('view-dashboard');
+}
+
+// ==========================================
+// BEATMAKER — VIEW FUNCTIONS
+// ==========================================
+function openBeatMaker() {
+    setView('view-beatmaker-menu');
+    const grid = document.getElementById('bmThemeGrid');
+    grid.innerHTML = '';
+    Object.entries(BEATMAKER_THEMES).forEach(([key, theme]) => {
+        const btn = document.createElement('button');
+        btn.className = 'bm-theme-btn';
+        btn.style.background = theme.btnColor;
+        btn.innerHTML = `<span class="bm-theme-emoji">${theme.emoji}</span>${theme.name}`;
+        btn.onclick = () => startBeatTheme(key);
+        grid.appendChild(btn);
+    });
+}
+
+function startBeatTheme(themeKey) {
+    // Stop any previous engine
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    beatSlots = [null, null, null, null, null];
+    beatCompleted = false;
+
+    const theme = BEATMAKER_THEMES[themeKey];
+    document.getElementById('bmGameTitle').textContent = `${theme.emoji} ${theme.name}`;
+    document.getElementById('bmBenchArea').style.background = theme.benchBg;
+
+    // Render slots
+    const slotsEl = document.getElementById('bmSlots');
+    slotsEl.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'bm-slot';
+        slot.dataset.index = i;
+        slot.innerHTML = `<span style="color:#4a7a4a;font-size:1.4rem;">+</span><span class="bm-slot-name">vacío</span>`;
+        slot.ondragover = e => { e.preventDefault(); slot.classList.add('dragover'); };
+        slot.ondragleave = () => slot.classList.remove('dragover');
+        slot.ondrop = e => {
+            e.preventDefault();
+            slot.classList.remove('dragover');
+            const charId = e.dataTransfer.getData('charId');
+            if (charId) dropCharacterOnSlot(charId, i, themeKey);
+        };
+        slot.onclick = () => { if (beatSlots[i]) removeCharacterFromSlot(i); };
+        slotsEl.appendChild(slot);
+    }
+
+    // Render bench
+    const bench = document.getElementById('bmBench');
+    bench.innerHTML = '';
+    theme.characters.forEach(char => {
+        const card = document.createElement('div');
+        card.className = 'bm-char';
+        card.id = `bmChar-${char.id}`;
+        card.style.background = char.color;
+        card.draggable = true;
+        card.innerHTML = `${char.emoji}<span class="bm-char-name">${char.name}</span>`;
+        card.ondragstart = e => {
+            e.dataTransfer.setData('charId', char.id);
+            card.classList.add('dragging');
+        };
+        card.ondragend = () => card.classList.remove('dragging');
+        bench.appendChild(card);
+    });
+
+    // Init visualizer bars
+    const viz = document.getElementById('bmVisualizer');
+    viz.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bm-bar';
+        bar.style.height = '4px';
+        viz.appendChild(bar);
+    }
+
+    // Create engine
+    beatEngine = new BeatMakerEngine();
+
+    setView('view-beatmaker-game');
+}
+
+function closeBeatTheme() {
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    beatSlots = [null, null, null, null, null];
+    beatCompleted = false;
+    openBeatMaker();
+}
+
+function stopBeatMaker() {
+    if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
+    if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
+    document.querySelectorAll('.bm-slot').forEach(s => s.style.opacity = '0.5');
+}
+
+function dropCharacterOnSlot(charId, slotIndex, themeKey) {
+    const theme = BEATMAKER_THEMES[themeKey];
+    const char = theme.characters.find(c => c.id === charId);
+    if (!char) return;
+
+    // If slot already has a character, remove it first
+    if (beatSlots[slotIndex]) removeCharacterFromSlot(slotIndex);
+
+    // If this character is already in another slot, remove it from there first
+    const existingSlot = beatSlots.findIndex((s, idx) => s === charId && idx !== slotIndex);
+    if (existingSlot !== -1) removeCharacterFromSlot(existingSlot);
+
+    // Place character in slot
+    beatSlots[slotIndex] = charId;
+
+    const slot = document.querySelector(`.bm-slot[data-index="${slotIndex}"]`);
+    slot.innerHTML = `${char.emoji}<span class="bm-slot-name">${char.name}</span>`;
+    slot.classList.add('filled');
+    slot.classList.remove('bounce');
+    // Trigger bounce
+    void slot.offsetWidth; // reflow to restart animation
+    slot.classList.add('bounce');
+
+    // Play sound
+    if (beatEngine) beatEngine.play(char);
+
+    // Start visualizer if not running
+    if (!beatVisualizerInterval) startBeatVisualizer();
+
+    checkBeatCompletion();
+}
+
+function removeCharacterFromSlot(slotIndex) {
+    const charId = beatSlots[slotIndex];
+    if (!charId) return;
+
+    beatSlots[slotIndex] = null;
+
+    if (beatEngine) beatEngine.stop(charId);
+
+    const slot = document.querySelector(`.bm-slot[data-index="${slotIndex}"]`);
+    slot.innerHTML = `<span style="color:#4a7a4a;font-size:1.4rem;">+</span><span class="bm-slot-name">vacío</span>`;
+    slot.classList.remove('filled', 'bounce');
+    slot.style.opacity = '';
+
+    // Stop visualizer if no characters active
+    const anyActive = beatSlots.some(s => s !== null);
+    if (!anyActive && beatVisualizerInterval) {
+        clearInterval(beatVisualizerInterval);
+        beatVisualizerInterval = null;
+        document.querySelectorAll('.bm-bar').forEach(b => b.style.height = '4px');
+    }
+}
+
+function startBeatVisualizer() {
+    if (beatVisualizerInterval) clearInterval(beatVisualizerInterval);
+    beatVisualizerInterval = setInterval(() => {
+        const activeCount = beatSlots.filter(s => s !== null).length;
+        document.querySelectorAll('.bm-bar').forEach(bar => {
+            const h = activeCount > 0
+                ? 6 + Math.random() * (10 + activeCount * 5)
+                : 4;
+            bar.style.height = h + 'px';
+            bar.classList.toggle('active', activeCount > 0);
+        });
+    }, 120);
+}
+
+function checkBeatCompletion() {
+    if (beatCompleted) return;
+    const allFilled = beatSlots.every(s => s !== null);
+    if (!allFilled) return;
+
+    beatCompleted = true;
+
+    // Award coins
+    player.coins += 200;
+    updateUI();
+    saveData();
+    showToast("🎵 ¡Ritmo completo! +200 🪙");
+
+    // Flash all slots gold briefly
+    document.querySelectorAll('.bm-slot.filled').forEach(slot => {
+        const origBorder = slot.style.borderColor;
+        slot.style.borderColor = '#ffd54f';
+        slot.style.boxShadow = '0 0 12px #ffd54f88';
+        setTimeout(() => {
+            slot.style.borderColor = origBorder;
+            slot.style.boxShadow = '';
+        }, 1200);
+    });
+}
+
 function showShop() { setView('view-shop'); renderShop(); }
 function setView(id) {
-    ['view-dashboard', 'view-map', 'view-shop'].forEach(v => document.getElementById(v).style.display = 'none');
+    ['view-dashboard', 'view-map', 'view-shop', 'view-beatmaker-menu', 'view-beatmaker-game'].forEach(v => document.getElementById(v).style.display = 'none');
     document.getElementById(id).style.display = 'block';
 }
 
