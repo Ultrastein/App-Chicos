@@ -2066,7 +2066,7 @@ let player = {
     inventory: ['t1', 'l1', 'h1'],
     skin: { head: '#ffcc80', torso: '#29b6f6', legs: '#3f51b5', arm: '#ffcc80', pupil: '#1e3a8a' }
 };
-let localDB = { customLevels: [], shopItems: DEFAULT_SHOP };
+let localDB = { customLevels: [], shopItems: DEFAULT_SHOP, beatChars: {} };
 let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0, pythonValid: [], pythonOut: "", sequence: [], seqPoolId: null };
 let timerInterval = null;
 let currentPuzzleSolution = [];
@@ -2091,7 +2091,16 @@ window.onload = function () {
             if (!player.answered) player.answered = [];
         } catch (e) { console.error("Error save", e); }
     }
-    if (localStorage.getItem('eduDB')) localDB = JSON.parse(localStorage.getItem('eduDB'));
+    if (localStorage.getItem('eduDB')) {
+        localDB = JSON.parse(localStorage.getItem('eduDB'));
+        if (!localDB.beatChars) localDB.beatChars = {};
+    }
+    // Apply admin BeatMaker customizations to BEATMAKER_THEMES
+    Object.keys(localDB.beatChars).forEach(themeKey => {
+        if (BEATMAKER_THEMES[themeKey]) {
+            BEATMAKER_THEMES[themeKey].characters = localDB.beatChars[themeKey];
+        }
+    });
 
     document.getElementById('usernameInput').value = player.name;
     document.getElementById('gradeSelect').value = player.grade;
@@ -3128,8 +3137,13 @@ function renderShop() {
 }
 
 function openAdminLogin() { document.getElementById('adminLoginModal').style.display = 'flex'; }
-function checkAdmin() { if (document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === 'minecraft') { document.getElementById('adminLoginModal').style.display = 'none'; document.getElementById('adminPanelModal').style.display = 'flex'; } else showToast("Error", 'error'); }
+function checkAdmin() { if (document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === 'minecraft') { openAdminPanel(); } else showToast("Error", 'error'); }
 function closeAdmin() { document.getElementById('adminPanelModal').style.display = 'none'; }
+function openAdminPanel() {
+    document.getElementById('adminLoginModal').style.display = 'none';
+    document.getElementById('adminPanelModal').style.display = 'flex';
+    admBeatLoadChars(); // preload first theme's chars
+}
 function adminAddManualPlayer() {
     const name = document.getElementById('manualName').value, coins = parseInt(document.getElementById('manualCoins').value);
     if (!name || isNaN(coins)) return showToast("Datos incorrectos", 'error');
@@ -3145,6 +3159,123 @@ function adminAddLevel() {
     const g = document.getElementById('admGrade').value, s = document.getElementById('admSubj').value, l = document.getElementById('admLvlNum').value, q = document.getElementById('admQ').value, a = document.getElementById('admAns').value, o = document.getElementById('admOpts').value;
     if (!l || !q || !a) return showToast("Faltan Datos", 'error');
     localDB.customLevels.push({ grade: g, subject: s, level: parseInt(l), question: q, answer: a, options: o }); saveData(); showToast("Nivel Guardado");
+}
+
+// ==========================================
+// BEATMAKER — ADMIN FUNCTIONS
+// ==========================================
+function admBeatToggleFreq() {
+    const type = document.getElementById('admBeatSoundType').value;
+    const freqEl = document.getElementById('admBeatFreq');
+    freqEl.style.display = (type === 'beat') ? 'none' : 'inline-block';
+}
+
+function admBeatToggleEditFreq() {
+    const type = document.getElementById('admBeatEditSoundType').value;
+    const freqEl = document.getElementById('admBeatEditFreq');
+    freqEl.style.display = (type === 'beat') ? 'none' : 'inline-block';
+}
+
+function admBeatSaveTheme(themeKey) {
+    localDB.beatChars[themeKey] = BEATMAKER_THEMES[themeKey].characters.map(c => Object.assign({}, c));
+    saveData();
+}
+
+function adminBeatAddChar() {
+    const themeKey = document.getElementById('admBeatTheme').value;
+    const name     = document.getElementById('admBeatName').value.trim();
+    const emoji    = document.getElementById('admBeatEmoji').value.trim();
+    const color    = document.getElementById('admBeatColor').value;
+    const sType    = document.getElementById('admBeatSoundType').value;
+    const freqVal  = parseFloat(document.getElementById('admBeatFreq').value);
+
+    if (!name || !emoji) return showToast("Faltan nombre o emoji", 'error');
+
+    const id = 'custom_' + Date.now();
+    const char = { id, name, emoji, color, soundType: sType };
+    if (sType !== 'beat' && !isNaN(freqVal)) char.freq = freqVal;
+    if (sType === 'melody' && !char.freq) char.scale = [261.63, 293.66, 329.63, 392, 440];
+
+    BEATMAKER_THEMES[themeKey].characters.push(char);
+    admBeatSaveTheme(themeKey);
+
+    document.getElementById('admBeatName').value = '';
+    document.getElementById('admBeatEmoji').value = '';
+    showToast(`✅ "${name}" agregado a ${BEATMAKER_THEMES[themeKey].name}`);
+}
+
+function admBeatLoadChars() {
+    const themeKey = document.getElementById('admBeatEditTheme').value;
+    const sel = document.getElementById('admBeatEditChar');
+    sel.innerHTML = '<option value="">— elegir —</option>';
+    BEATMAKER_THEMES[themeKey].characters.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.emoji} ${c.name}`;
+        sel.appendChild(opt);
+    });
+    document.getElementById('admBeatEditFields').style.display = 'none';
+}
+
+function admBeatLoadChar() {
+    const themeKey = document.getElementById('admBeatEditTheme').value;
+    const charId   = document.getElementById('admBeatEditChar').value;
+    const fields   = document.getElementById('admBeatEditFields');
+
+    if (!charId) { fields.style.display = 'none'; return; }
+
+    const char = BEATMAKER_THEMES[themeKey].characters.find(c => c.id === charId);
+    if (!char) return;
+
+    document.getElementById('admBeatEditName').value      = char.name;
+    document.getElementById('admBeatEditEmoji').value     = char.emoji;
+    document.getElementById('admBeatEditColor').value     = char.color || '#888888';
+    document.getElementById('admBeatEditSoundType').value = char.soundType;
+    document.getElementById('admBeatEditFreq').value      = char.freq || '';
+
+    const freqEl = document.getElementById('admBeatEditFreq');
+    freqEl.style.display = (char.soundType === 'beat') ? 'none' : 'inline-block';
+
+    fields.style.display = 'block';
+}
+
+function adminBeatSaveChar() {
+    const themeKey = document.getElementById('admBeatEditTheme').value;
+    const charId   = document.getElementById('admBeatEditChar').value;
+    if (!charId) return showToast("Elegí un personaje primero", 'error');
+
+    const char = BEATMAKER_THEMES[themeKey].characters.find(c => c.id === charId);
+    if (!char) return;
+
+    char.name      = document.getElementById('admBeatEditName').value.trim() || char.name;
+    char.emoji     = document.getElementById('admBeatEditEmoji').value.trim() || char.emoji;
+    char.color     = document.getElementById('admBeatEditColor').value;
+    char.soundType = document.getElementById('admBeatEditSoundType').value;
+    const freqVal  = parseFloat(document.getElementById('admBeatEditFreq').value);
+    if (!isNaN(freqVal)) char.freq = freqVal;
+    else delete char.freq;
+
+    admBeatSaveTheme(themeKey);
+    admBeatLoadChars();
+    showToast(`✅ "${char.name}" actualizado`);
+}
+
+function adminBeatDeleteChar() {
+    const themeKey = document.getElementById('admBeatEditTheme').value;
+    const charId   = document.getElementById('admBeatEditChar').value;
+    if (!charId) return showToast("Elegí un personaje primero", 'error');
+
+    const theme = BEATMAKER_THEMES[themeKey];
+    const char  = theme.characters.find(c => c.id === charId);
+    if (!char) return;
+
+    if (!confirm(`¿Eliminar "${char.name}" de ${theme.name}?`)) return;
+
+    theme.characters = theme.characters.filter(c => c.id !== charId);
+    admBeatSaveTheme(themeKey);
+    admBeatLoadChars();
+    document.getElementById('admBeatEditFields').style.display = 'none';
+    showToast(`🗑️ "${char.name}" eliminado`);
 }
 
 // ==========================================

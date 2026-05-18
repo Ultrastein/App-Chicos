@@ -255,6 +255,74 @@
                 <button class="mc-btn blue" style="margin-top:10px;" onclick="adminAddLevel()">Guardar</button>
             </div>
 
+            <div style="background:#e8f5e9; padding:15px; border:2px solid #81c784; margin-top:15px;">
+                <h4 style="margin-top:0; color:#2e7d32;">🎵 BeatMaker — Personajes</h4>
+
+                <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #a5d6a7;">
+                    <strong style="font-size:0.85rem; color:#1b5e20;">➕ Agregar personaje</strong>
+                    <select id="admBeatTheme" style="margin-top:8px;">
+                        <option value="minecraft">⛏️ Minecraft</option>
+                        <option value="animales">🐸 Animales</option>
+                        <option value="robots">🤖 Robots</option>
+                        <option value="escuela">📚 Banda Escolar</option>
+                    </select>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+                        <input type="text" id="admBeatName" placeholder="Nombre" style="flex:1; min-width:100px;">
+                        <input type="text" id="admBeatEmoji" placeholder="Emoji 🎸" style="width:70px;">
+                        <input type="color" id="admBeatColor" value="#e53935" title="Color del personaje" style="width:45px; height:36px; padding:2px; border-radius:6px; border:2px solid #ccc; cursor:pointer;">
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+                        <select id="admBeatSoundType" onchange="admBeatToggleFreq()" style="flex:1;">
+                            <option value="beat">🥁 beat — percusión</option>
+                            <option value="bass">🎸 bass — bajo</option>
+                            <option value="melody">🎵 melody — melodía</option>
+                            <option value="harmony">🎶 harmony — armonía</option>
+                            <option value="high">🎺 high — agudo</option>
+                            <option value="chord">🎹 chord — acorde</option>
+                        </select>
+                        <input type="number" id="admBeatFreq" placeholder="Hz (ej: 80)" style="width:110px; display:none;" min="20" max="2000">
+                    </div>
+                    <button class="mc-btn green" style="margin-top:8px; width:100%;" onclick="adminBeatAddChar()">➕ Agregar personaje</button>
+                </div>
+
+                <div>
+                    <strong style="font-size:0.85rem; color:#1b5e20;">✏️ Editar / eliminar personaje</strong>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <select id="admBeatEditTheme" onchange="admBeatLoadChars()" style="flex:1;">
+                            <option value="minecraft">⛏️ Minecraft</option>
+                            <option value="animales">🐸 Animales</option>
+                            <option value="robots">🤖 Robots</option>
+                            <option value="escuela">📚 Banda Escolar</option>
+                        </select>
+                        <select id="admBeatEditChar" onchange="admBeatLoadChar()" style="flex:1;">
+                            <option value="">— elegir —</option>
+                        </select>
+                    </div>
+                    <div id="admBeatEditFields" style="display:none; margin-top:10px; background:#f1f8f1; padding:10px; border-radius:8px;">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+                            <input type="text" id="admBeatEditName" placeholder="Nombre" style="flex:1; min-width:100px;">
+                            <input type="text" id="admBeatEditEmoji" placeholder="Emoji" style="width:70px;">
+                            <input type="color" id="admBeatEditColor" title="Color" style="width:45px; height:36px; padding:2px; border-radius:6px; border:2px solid #ccc; cursor:pointer;">
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <select id="admBeatEditSoundType" onchange="admBeatToggleEditFreq()" style="flex:1;">
+                                <option value="beat">🥁 beat</option>
+                                <option value="bass">🎸 bass</option>
+                                <option value="melody">🎵 melody</option>
+                                <option value="harmony">🎶 harmony</option>
+                                <option value="high">🎺 high</option>
+                                <option value="chord">🎹 chord</option>
+                            </select>
+                            <input type="number" id="admBeatEditFreq" placeholder="Hz" style="width:90px;" min="20" max="2000">
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <button class="mc-btn blue" style="flex:1;" onclick="adminBeatSaveChar()">💾 Guardar</button>
+                            <button class="mc-btn red" style="flex:1;" onclick="adminBeatDeleteChar()">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <button class="mc-btn gray" style="margin-top:20px; width:100%;" onclick="closeAdmin()">Cerrar</button>
         </div>
     </div>
