@@ -3547,7 +3547,13 @@ function _admBeatBuildGrid(containerId, pattern) {
         btn.className = 'adm-beat-step' + (pattern[i] ? ' on' : '');
         btn.dataset.step = i;
         btn.title = `Paso ${i + 1}`;
-        btn.onclick = () => { btn.classList.toggle('on'); };
+        btn.onclick = () => {
+            btn.classList.toggle('on');
+            // Si hay preview activo, aplicar el patrón nuevo en tiempo real
+            if (_admPreviewEng && _admPreviewEng.activeChars['_preview']) {
+                _admPreviewEng.activeChars['_preview'].pattern = _admBeatReadGrid(containerId);
+            }
+        };
         el.appendChild(btn);
     }
 }
