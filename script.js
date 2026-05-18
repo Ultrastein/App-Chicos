@@ -91,6 +91,12 @@ class BeatMakerEngine {
         this.onStep = null; // callback(step) for visualizer
     }
 
+    start() {
+        // Start the sequencer ticking even with no chars (for visualizer)
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if (!this.schedulerTimer) this._startScheduler();
+    }
+
     play(char) {
         if (this.activeChars[char.id]) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -103,7 +109,7 @@ class BeatMakerEngine {
 
     stop(charId) {
         delete this.activeChars[charId];
-        if (Object.keys(this.activeChars).length === 0) this._stopScheduler();
+        // Do NOT stop the scheduler — keep ticking for visualizer
     }
 
     stopAll() {
@@ -2338,22 +2344,24 @@ function startBeatTheme(themeKey) {
         stepsEl.appendChild(dot);
     }
 
-    // Create engine and hook up step callback
+    // Create engine, hook up step callback, and start ticking immediately
     beatEngine = new BeatMakerEngine();
     beatEngine.onStep = (step) => {
+        // Step dots
         document.querySelectorAll('.bm-step-dot').forEach((d, i) => {
             d.classList.toggle('current', i === step);
             d.classList.toggle('on-beat', i % 4 === 0 && i !== step);
         });
-        // animate visualizer bars in sync
+        // Visualizer bars — always animate, louder when more chars active
         const activeCount = beatSlots.filter(s => s !== null).length;
-        if (activeCount > 0) {
-            document.querySelectorAll('.bm-bar').forEach(bar => {
-                bar.style.height = (6 + Math.random() * (8 + activeCount * 5)) + 'px';
-                bar.classList.add('active');
-            });
-        }
+        const isOnBeat = step % 4 === 0;
+        document.querySelectorAll('.bm-bar').forEach(bar => {
+            const base = activeCount > 0 ? 6 + Math.random() * (8 + activeCount * 5) : (isOnBeat ? 6 : 2 + Math.random() * 4);
+            bar.style.height = base + 'px';
+            bar.classList.toggle('active', activeCount > 0);
+        });
     };
+    beatEngine.start();
 
     setView('view-beatmaker-game');
 }
@@ -2370,6 +2378,8 @@ function stopBeatMaker() {
     if (beatEngine) { beatEngine.stopAll(); beatEngine = null; }
     if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
     document.querySelectorAll('.bm-slot').forEach(s => s.style.opacity = '0.5');
+    document.querySelectorAll('.bm-step-dot').forEach(d => d.classList.remove('current', 'on-beat'));
+    document.querySelectorAll('.bm-bar').forEach(b => { b.style.height = '4px'; b.classList.remove('active'); });
 }
 
 function dropCharacterOnSlot(charId, slotIndex, themeKey) {
