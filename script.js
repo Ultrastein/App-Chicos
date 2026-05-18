@@ -61,6 +61,46 @@ const BEATMAKER_THEMES = {
 };
 
 // ==========================================
+// BEAT COMPOSER — 24 CHROMATIC NOTES (2 octaves, high→low)
+// ==========================================
+const BC_NOTES = [
+    { name: "Si5",   solfege: "Si 5",   freq: 987.77,  sharp: false },
+    { name: "La#5",  solfege: "La# 5",  freq: 932.33,  sharp: true  },
+    { name: "La5",   solfege: "La 5",   freq: 880.00,  sharp: false },
+    { name: "Sol#5", solfege: "Sol# 5", freq: 830.61,  sharp: true  },
+    { name: "Sol5",  solfege: "Sol 5",  freq: 783.99,  sharp: false },
+    { name: "Fa#5",  solfege: "Fa# 5",  freq: 739.99,  sharp: true  },
+    { name: "Fa5",   solfege: "Fa 5",   freq: 698.46,  sharp: false },
+    { name: "Mi5",   solfege: "Mi 5",   freq: 659.25,  sharp: false },
+    { name: "Re#5",  solfege: "Re# 5",  freq: 622.25,  sharp: true  },
+    { name: "Re5",   solfege: "Re 5",   freq: 587.33,  sharp: false },
+    { name: "Do#5",  solfege: "Do# 5",  freq: 554.37,  sharp: true  },
+    { name: "Do5",   solfege: "Do 5",   freq: 523.25,  sharp: false },
+    { name: "Si4",   solfege: "Si 4",   freq: 493.88,  sharp: false },
+    { name: "La#4",  solfege: "La# 4",  freq: 466.16,  sharp: true  },
+    { name: "La4",   solfege: "La 4",   freq: 440.00,  sharp: false },
+    { name: "Sol#4", solfege: "Sol# 4", freq: 415.30,  sharp: true  },
+    { name: "Sol4",  solfege: "Sol 4",  freq: 392.00,  sharp: false },
+    { name: "Fa#4",  solfege: "Fa# 4",  freq: 369.99,  sharp: true  },
+    { name: "Fa4",   solfege: "Fa 4",   freq: 349.23,  sharp: false },
+    { name: "Mi4",   solfege: "Mi 4",   freq: 329.63,  sharp: false },
+    { name: "Re#4",  solfege: "Re# 4",  freq: 311.13,  sharp: true  },
+    { name: "Re4",   solfege: "Re 4",   freq: 293.66,  sharp: false },
+    { name: "Do#4",  solfege: "Do# 4",  freq: 277.18,  sharp: true  },
+    { name: "Do4",   solfege: "Do 4",   freq: 261.63,  sharp: false },
+];
+
+// Play order column sequences (index 0-15 → column to read)
+const BC_COL_SEQUENCES = {
+    normal:   [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+    reverse:  [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0],
+    bounce:   [0,2,4,6,8,10,12,14,15,13,11,9,7,5,3,1],
+    cruzado:  [0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15],
+    diagonal: [0,5,10,15,3,8,13,2,7,12,1,6,11,4,9,14],
+    // 'random' handled dynamically per char in the engine
+};
+
+// ==========================================
 // BEATMAKER — DEFAULT PATTERNS (16 steps)
 // ==========================================
 const BM_DEFAULT_PATTERNS = {
@@ -89,6 +129,7 @@ class BeatMakerEngine {
         this.master.gain.value = 0.45;
         this.master.connect(this.ctx.destination);
         this.onStep = null; // callback(step) for visualizer
+        this._bcRandCols = {}; // per-char shuffled column order for 'random' play mode
     }
 
     start() {
@@ -126,12 +167,63 @@ class BeatMakerEngine {
     _tick() {
         const t = this.ctx.currentTime;
         Object.values(this.activeChars).forEach(char => {
-            const pattern = char.pattern || BM_DEFAULT_PATTERNS[char.soundType] || BM_DEFAULT_PATTERNS.beat;
-            if (pattern[this.currentStep]) this._playSound(char, t);
+            if (char.soundType === 'custom') {
+                const col = this._bcGetEffectiveCol(char);
+                this._playCustomCol(char, col, t);
+            } else {
+                const pattern = char.pattern || BM_DEFAULT_PATTERNS[char.soundType] || BM_DEFAULT_PATTERNS.beat;
+                if (pattern[this.currentStep]) this._playSound(char, t);
+            }
         });
         if (this.onStep) this.onStep(this.currentStep);
         this.currentStep = (this.currentStep + 1) % 16;
         this.schedulerTimer = setTimeout(() => this._tick(), this.stepMs);
+    }
+
+    // ---- Beat Composer helpers ----
+    _bcGetEffectiveCol(char) {
+        const order = char.bcPlayOrder || 'normal';
+        const s = this.currentStep;
+        if (order === 'random') {
+            if (!this._bcRandCols[char.id] || s === 0) {
+                const arr = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+                for (let i = 15; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                this._bcRandCols[char.id] = arr;
+            }
+            return this._bcRandCols[char.id][s];
+        }
+        return (BC_COL_SEQUENCES[order] || BC_COL_SEQUENCES.normal)[s];
+    }
+
+    _playCustomCol(char, col, t) {
+        if (!char.bcGrid) return;
+        char.bcGrid.forEach((row, noteIdx) => {
+            if (row[col]) this._playCustomNote(BC_NOTES[noteIdx].freq, char.bcInstrument || 'piano', t);
+        });
+    }
+
+    _playCustomNote(freq, instrument, t) {
+        switch (instrument) {
+            case 'synth':
+                this._osc('sawtooth', freq, 0.32, 0.26, t);
+                break;
+            case 'pluck': {
+                const osc = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = freq;
+                g.gain.setValueAtTime(0.55, t);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+                osc.connect(g); g.connect(this.master);
+                osc.start(t); osc.stop(t + 0.2);
+                break;
+            }
+            default: // piano
+                this._osc('triangle', freq, 0.52, 0.32, t);
+        }
     }
 
     _stopScheduler() {
@@ -2282,6 +2374,8 @@ function startBeatTheme(themeKey) {
     beatSlots = [null, null, null, null, null];
     beatCompleted = false;
 
+    bcCurrentThemeKey = themeKey;
+
     const theme = BEATMAKER_THEMES[themeKey];
     document.getElementById('bmGameTitle').textContent = `${theme.emoji} ${theme.name}`;
     document.getElementById('bmBenchArea').style.background = theme.benchBg;
@@ -2461,6 +2555,212 @@ function checkBeatCompletion() {
             slot.style.boxShadow = '';
         }, 1200);
     });
+}
+
+// ==========================================
+// BEAT COMPOSER — Piano Roll inside BeatMaker
+// ==========================================
+let bcGridState = [];          // 24×16 — bcGridState[row][col] = 0|1
+let bcPlayMode = 'normal';
+let bcInstrumentType = 'piano';
+let bcPreviewEngine = null;
+let bcCurrentThemeKey = null;
+let bcCustomCharCounter = 0;
+let bcTapCtx = null;           // persistent AudioContext for cell-tap previews
+
+function bcEnsureTapCtx() {
+    if (!bcTapCtx || bcTapCtx.state === 'closed') {
+        bcTapCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (bcTapCtx.state === 'suspended') bcTapCtx.resume();
+    return bcTapCtx;
+}
+
+function openBeatComposer() {
+    // Init grid state if fresh
+    if (!bcGridState.length) {
+        bcGridState = Array.from({ length: 24 }, () => new Array(16).fill(0));
+    }
+    bcBuildGrid();
+    document.getElementById('beatComposerModal').style.display = 'flex';
+}
+
+function bcClose() {
+    bcPreviewStop();
+    if (bcTapCtx && bcTapCtx.state !== 'closed') { bcTapCtx.close(); bcTapCtx = null; }
+    document.getElementById('beatComposerModal').style.display = 'none';
+}
+
+function bcBuildGrid() {
+    const gridEl = document.getElementById('bcGrid');
+    gridEl.innerHTML = '';
+
+    // Header row: blank label cell + 16 step-number cells
+    const blank = document.createElement('div');
+    blank.style.height = '18px';
+    gridEl.appendChild(blank);
+    for (let c = 0; c < 16; c++) {
+        const hdr = document.createElement('div');
+        hdr.className = 'bc-col-hdr';
+        hdr.id = `bcColHdr-${c}`;
+        hdr.textContent = c + 1;
+        gridEl.appendChild(hdr);
+    }
+
+    // 24 note rows (high to low)
+    BC_NOTES.forEach((note, row) => {
+        const label = document.createElement('div');
+        label.className = 'bc-row-label' + (note.sharp ? ' sharp' : '');
+        label.textContent = note.solfege;
+        gridEl.appendChild(label);
+
+        for (let col = 0; col < 16; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'bc-cell' + (bcGridState[row] && bcGridState[row][col] ? ' on' : '');
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            cell.onclick = () => bcToggleCell(row, col);
+            gridEl.appendChild(cell);
+        }
+    });
+}
+
+function bcToggleCell(row, col) {
+    bcGridState[row][col] = bcGridState[row][col] ? 0 : 1;
+    const cell = document.querySelector(`.bc-cell[data-row="${row}"][data-col="${col}"]`);
+    if (cell) cell.classList.toggle('on', !!bcGridState[row][col]);
+
+    // One-shot tap preview when activating a cell
+    if (bcGridState[row][col]) {
+        try {
+            const ctx = bcEnsureTapCtx();
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = BC_NOTES[row].freq;
+            g.gain.setValueAtTime(0.4, ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+            osc.connect(g); g.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+    }
+}
+
+function bcSetPlayOrder(val) {
+    bcPlayMode = val;
+    // update live if preview running
+    if (bcPreviewEngine && bcPreviewEngine.activeChars['__bc_preview__']) {
+        bcPreviewEngine.activeChars['__bc_preview__'].bcPlayOrder = val;
+    }
+}
+
+function bcSetInstrument(val) {
+    bcInstrumentType = val;
+    if (bcPreviewEngine && bcPreviewEngine.activeChars['__bc_preview__']) {
+        bcPreviewEngine.activeChars['__bc_preview__'].bcInstrument = val;
+    }
+}
+
+function bcPreviewPlay() {
+    bcPreviewStop();
+    const customChar = {
+        id: '__bc_preview__',
+        name: 'Preview',
+        soundType: 'custom',
+        bcGrid: bcGridState.map(row => [...row]),
+        bcPlayOrder: bcPlayMode,
+        bcInstrument: bcInstrumentType,
+    };
+    bcPreviewEngine = new BeatMakerEngine();
+    bcPreviewEngine.onStep = (step) => {
+        // Highlight current column headers and cells
+        for (let c = 0; c < 16; c++) {
+            const hdr = document.getElementById(`bcColHdr-${c}`);
+            if (hdr) hdr.classList.toggle('current', c === step);
+        }
+        document.querySelectorAll('.bc-cell').forEach(cell => {
+            cell.classList.toggle('current-col', parseInt(cell.dataset.col) === step);
+        });
+    };
+    bcPreviewEngine.play(customChar);
+    bcPreviewEngine.start();
+    document.getElementById('bcPreviewBtn').style.display = 'none';
+    document.getElementById('bcStopBtn').style.display = 'inline-block';
+}
+
+function bcPreviewStop() {
+    if (bcPreviewEngine) { bcPreviewEngine.stopAll(); bcPreviewEngine = null; }
+    // Clear column highlight
+    for (let c = 0; c < 16; c++) {
+        const hdr = document.getElementById(`bcColHdr-${c}`);
+        if (hdr) hdr.classList.remove('current');
+    }
+    document.querySelectorAll('.bc-cell').forEach(c => c.classList.remove('current-col'));
+    const preBtn = document.getElementById('bcPreviewBtn');
+    const stopBtn = document.getElementById('bcStopBtn');
+    if (preBtn) preBtn.style.display = 'inline-block';
+    if (stopBtn) stopBtn.style.display = 'none';
+}
+
+function bcAddToStage() {
+    const hasNotes = bcGridState.some(row => row.some(v => v));
+    if (!hasNotes) { showToast('❌ Activá al menos una nota primero.', 'error'); return; }
+
+    const name  = (document.getElementById('bcCharName').value  || '').trim() || 'Mi Melodía';
+    const emoji = (document.getElementById('bcCharEmoji').value || '').trim() || '🎵';
+    const color = document.getElementById('bcCharColor').value || '#388bfd';
+
+    bcCustomCharCounter++;
+    const charId = `bc_custom_${bcCustomCharCounter}`;
+
+    const customChar = {
+        id:           charId,
+        name:         name,
+        emoji:        emoji,
+        color:        color,
+        soundType:    'custom',
+        bcGrid:       bcGridState.map(row => [...row]),
+        bcPlayOrder:  bcPlayMode,
+        bcInstrument: bcInstrumentType,
+    };
+
+    // Register in the active theme so dropCharacterOnSlot can find it
+    if (bcCurrentThemeKey && BEATMAKER_THEMES[bcCurrentThemeKey]) {
+        BEATMAKER_THEMES[bcCurrentThemeKey].characters.push(customChar);
+    }
+
+    // Add draggable card to bench
+    const bench = document.getElementById('bmBench');
+    if (bench) {
+        const card = document.createElement('div');
+        card.className = 'bm-char';
+        card.id = `bmChar-${charId}`;
+        card.style.background = color;
+        card.draggable = true;
+        card.innerHTML = `${emoji}<span class="bm-char-name">${name}</span>`;
+        card.ondragstart = e => { e.dataTransfer.setData('charId', charId); card.classList.add('dragging'); };
+        card.ondragend = () => card.classList.remove('dragging');
+        bench.appendChild(card);
+    }
+
+    bcClose();
+    showToast(`🎼 ${emoji} ${name} ¡agregado al escenario!`);
+
+    // Reset for next composition
+    bcGridState = Array.from({ length: 24 }, () => new Array(16).fill(0));
+    document.getElementById('bcCharName').value  = 'Mi Melodía';
+    document.getElementById('bcCharEmoji').value = '🎵';
+    document.getElementById('bcCharColor').value = '#388bfd';
+    document.getElementById('bcPlayOrder').value = 'normal';
+    document.getElementById('bcInstrument').value = 'piano';
+    bcPlayMode = 'normal';
+    bcInstrumentType = 'piano';
+}
+
+function bcClear() {
+    bcGridState = Array.from({ length: 24 }, () => new Array(16).fill(0));
+    document.querySelectorAll('.bc-cell').forEach(c => c.classList.remove('on'));
 }
 
 function showShop() { setView('view-shop'); renderShop(); }

@@ -163,8 +163,9 @@
                     <div class="bm-bench-label">🎭 PERSONAJES — arrastrá al escenario</div>
                     <div class="bm-bench" id="bmBench"></div>
                 </div>
-                <div class="bm-bottom-bar">
+                <div class="bm-bottom-bar" style="justify-content:space-between;">
                     <span class="bm-reward-hint">🏆 Completá los 5 slots → <strong>200 🪙</strong></span>
+                    <button class="mc-btn purple" style="width:auto;padding:8px 16px;font-size:0.82rem;" onclick="openBeatComposer()">🎼 Compositor</button>
                 </div>
             </div>
         </main>
@@ -192,6 +193,57 @@
             </div>
 
             <button class="mc-btn red" onclick="closeGame()">Salir</button>
+        </div>
+    </div>
+
+    <!-- ===================== BEAT COMPOSER MODAL ===================== -->
+    <div class="overlay" id="beatComposerModal" style="display:none;">
+        <div class="bc-modal-box">
+            <div class="bc-header">
+                <h3>🎼 Compositor de Melodías</h3>
+                <button class="mc-btn gray" style="width:auto;padding:6px 12px;font-size:0.8rem;" onclick="bcClose()">✕ Cerrar</button>
+            </div>
+
+            <!-- Controls -->
+            <div class="bc-controls">
+                <label>Orden de lectura:</label>
+                <select id="bcPlayOrder" onchange="bcSetPlayOrder(this.value)">
+                    <option value="normal">➡ Normal</option>
+                    <option value="reverse">⬅ Reverso</option>
+                    <option value="bounce">↔ Rebote</option>
+                    <option value="cruzado">✕ Cruzado</option>
+                    <option value="diagonal">↗ Diagonal</option>
+                    <option value="random">🎲 Aleatorio</option>
+                </select>
+                <label>Instrumento:</label>
+                <select id="bcInstrument" onchange="bcSetInstrument(this.value)">
+                    <option value="piano">🎹 Piano</option>
+                    <option value="synth">🎸 Sintetizador</option>
+                    <option value="pluck">🪕 Pluck</option>
+                </select>
+            </div>
+
+            <!-- 24-note × 16-step piano roll -->
+            <div class="bc-grid-wrap">
+                <div class="bc-grid" id="bcGrid">
+                    <!-- built by bcBuildGrid() -->
+                </div>
+            </div>
+
+            <!-- Character name / emoji / color -->
+            <div class="bc-name-row">
+                <input type="text" id="bcCharName" placeholder="Nombre del personaje" maxlength="14" value="Mi Melodía">
+                <input type="text" id="bcCharEmoji" placeholder="🎵" maxlength="2" style="width:52px;text-align:center;" value="🎵">
+                <input type="color" id="bcCharColor" value="#388bfd" title="Color del personaje">
+            </div>
+
+            <!-- Action buttons -->
+            <div class="bc-btn-row">
+                <button class="mc-btn green"  style="width:auto;padding:8px 14px;font-size:0.82rem;" id="bcPreviewBtn" onclick="bcPreviewPlay()">▶ Previsualizar</button>
+                <button class="mc-btn red"    style="width:auto;padding:8px 14px;font-size:0.82rem;display:none;" id="bcStopBtn" onclick="bcPreviewStop()">⏹ Detener</button>
+                <button class="mc-btn blue"   style="width:auto;padding:8px 14px;font-size:0.82rem;" onclick="bcAddToStage()">➕ Agregar al escenario</button>
+                <button class="mc-btn gray"   style="width:auto;padding:8px 14px;font-size:0.82rem;" onclick="bcClear()">🗑️ Limpiar</button>
+            </div>
         </div>
     </div>
 
