@@ -301,7 +301,8 @@
 
                     <div style="display:flex; gap:8px; margin-top:8px;">
                         <button class="mc-btn green" style="flex:2;" onclick="adminBeatAddChar()">➕ Agregar</button>
-                        <button class="mc-btn blue" style="flex:1; font-size:0.75rem;" onclick="admBeatPreviewSound('new')">▶ Escuchar</button>
+                        <button id="admPreviewPlayNew" class="mc-btn blue adm-preview-play-btn" style="flex:1; font-size:0.75rem;" onclick="admBeatPreviewSound('new')">▶ Escuchar</button>
+                        <button id="admPreviewStopNew" class="mc-btn red adm-preview-stop-btn" style="flex:1; font-size:0.75rem; display:none;" onclick="admBeatStopPreview()">⏹ Parar</button>
                     </div>
                 </div>
 
@@ -351,8 +352,9 @@
                             <div class="adm-beat-grid" id="admBeatPatternEdit"></div>
                         </div>
 
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button class="mc-btn blue" style="flex:1; font-size:0.75rem;" onclick="admBeatPreviewSound('edit')">▶ Escuchar</button>
+                        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                            <button id="admPreviewPlayEdit" class="mc-btn blue adm-preview-play-btn" style="flex:1; font-size:0.75rem;" onclick="admBeatPreviewSound('edit')">▶ Escuchar</button>
+                            <button id="admPreviewStopEdit" class="mc-btn red adm-preview-stop-btn" style="flex:1; font-size:0.75rem; display:none;" onclick="admBeatStopPreview()">⏹ Parar</button>
                             <button class="mc-btn green" style="flex:1;" onclick="adminBeatSaveChar()">💾 Guardar</button>
                             <button class="mc-btn red" style="flex:1;" onclick="adminBeatDeleteChar()">🗑️ Eliminar</button>
                         </div>

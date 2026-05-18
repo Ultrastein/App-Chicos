@@ -3205,6 +3205,7 @@ function adminAddLevel() {
 // Temp storage for MP3 data while filling the "add" form
 let _admBeatNewMp3 = null;
 let _admBeatEditMp3 = null;
+let _admPreviewEng = null; // currently running preview engine
 
 // ── Helpers ──────────────────────────────
 function _admBeatNoFreqTypes() { return ['beat', 'sample']; }
@@ -3274,35 +3275,45 @@ function _admBeatReadMp3(input, cb) {
 }
 
 // ── Preview ──────────────────────────────
+function admBeatStopPreview() {
+    if (_admPreviewEng) {
+        _admPreviewEng.stopAll();
+        _admPreviewEng = null;
+    }
+    document.querySelectorAll('.adm-beat-step').forEach(btn => btn.classList.remove('preview-playing'));
+    document.querySelectorAll('.adm-preview-stop-btn').forEach(btn => btn.style.display = 'none');
+    document.querySelectorAll('.adm-preview-play-btn').forEach(btn => btn.style.display = 'inline-block');
+}
+
 function admBeatPreviewSound(mode) {
-    const isNew = mode === 'new';
-    const sType = document.getElementById(isNew ? 'admBeatSoundType'     : 'admBeatEditSoundType').value;
-    const freq  = parseFloat(document.getElementById(isNew ? 'admBeatFreq' : 'admBeatEditFreq').value) || null;
-    const mp3   = isNew ? _admBeatNewMp3 : _admBeatEditMp3;
+    // Stop any running preview first
+    admBeatStopPreview();
+
+    const isNew  = mode === 'new';
+    const sType  = document.getElementById(isNew ? 'admBeatSoundType'  : 'admBeatEditSoundType').value;
+    const freq   = parseFloat(document.getElementById(isNew ? 'admBeatFreq' : 'admBeatEditFreq').value) || null;
+    const mp3    = isNew ? _admBeatNewMp3 : _admBeatEditMp3;
     const gridId = isNew ? 'admBeatPatternNew' : 'admBeatPatternEdit';
     const pattern = _admBeatReadGrid(gridId);
 
-    // Build a temporary char
     const char = { id: '_preview', soundType: sType, freq, pattern };
     if (sType === 'sample' && mp3) char.sampleData = mp3;
 
-    // Create a temp engine, play 2 bars then stop
     const eng = new BeatMakerEngine();
     eng.master.gain.value = 0.55;
-    let stepCount = 0;
+    _admPreviewEng = eng;
+
+    // Show stop button for this mode
+    const suffix = isNew ? 'New' : 'Edit';
+    document.getElementById('admPreviewPlay' + suffix).style.display = 'none';
+    document.getElementById('admPreviewStop' + suffix).style.display = 'inline-block';
+
     eng.onStep = (step) => {
-        // highlight grid while playing
         document.querySelectorAll(`#${gridId} .adm-beat-step`).forEach((btn, i) => {
             btn.classList.toggle('preview-playing', i === step);
         });
-        stepCount++;
-        if (stepCount >= 32) { // 2 bars
-            eng.stopAll();
-            document.querySelectorAll(`#${gridId} .adm-beat-step`).forEach(btn => btn.classList.remove('preview-playing'));
-        }
     };
     eng.play(char);
-    showToast('▶ Reproduciendo 2 compases...', 'success');
 }
 
 // ── Save / load ──────────────────────────
