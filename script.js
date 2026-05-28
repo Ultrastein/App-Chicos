@@ -13,7 +13,12 @@ const BEATMAKER_THEMES = {
             { id: "villager", name: "Aldean",  emoji: "🏘️", soundType: "melody",  scale: [261.63, 293.66, 329.63, 392, 440], color: "#f57f17" },
             { id: "cerdo",    name: "Cerdo",   emoji: "🐷", soundType: "beat",    freq: null,   color: "#ec407a" },
             { id: "zombie",   name: "Zombie",  emoji: "🧟", soundType: "harmony", freq: 110,    color: "#558b2f" },
-            { id: "araña",    name: "Araña",   emoji: "🕷️", soundType: "high",    freq: 220,    color: "#4a148c" }
+            { id: "araña",    name: "Araña",   emoji: "🕷️", soundType: "high",    freq: 220,    color: "#4a148c" },
+            { id: "enderman", name: "Enderman",emoji: "👁️", soundType: "harmony", freq: 73,     color: "#311b92" },
+            { id: "diamond",  name: "Diamante",emoji: "💎", soundType: "high",    freq: 1046,   color: "#00acc1" },
+            { id: "tnt",      name: "TNT",     emoji: "💥", soundType: "beat",    freq: null,   color: "#c62828" },
+            { id: "esqueleto",name: "Esqueleto",emoji:"💀", soundType: "melody",  scale: [220, 246.94, 261.63, 293.66, 329.63], color: "#78909c" },
+            { id: "wither",   name: "Wither",  emoji: "🌑", soundType: "bass",    freq: 41,     color: "#1a237e" }
         ]
     },
     animales: {
@@ -27,7 +32,12 @@ const BEATMAKER_THEMES = {
             { id: "perro",  name: "Perro", emoji: "🐕", soundType: "beat",    freq: null, color: "#f57f17" },
             { id: "gato",   name: "Gato",  emoji: "🐱", soundType: "harmony", freq: 165, color: "#ff8f00" },
             { id: "pato",   name: "Pato",  emoji: "🦆", soundType: "beat",    freq: null, color: "#fdd835" },
-            { id: "zorro",  name: "Zorro", emoji: "🦊", soundType: "high",    freq: 200, color: "#e64a19" }
+            { id: "zorro",    name: "Zorro",   emoji: "🦊", soundType: "high",    freq: 200, color: "#e64a19" },
+            { id: "elefante", name: "Elefante",emoji: "🐘", soundType: "bass",    freq: 48,  color: "#546e7a" },
+            { id: "leon",     name: "León",    emoji: "🦁", soundType: "beat",    freq: null, color: "#bf360c" },
+            { id: "loro",     name: "Loro",    emoji: "🦜", soundType: "melody",  scale: [659.25, 783.99, 880, 987.77, 1046.5], color: "#2e7d32" },
+            { id: "ballena",  name: "Ballena", emoji: "🐋", soundType: "harmony", freq: 60,  color: "#01579b" },
+            { id: "mono",     name: "Mono",    emoji: "🐒", soundType: "high",    freq: 330, color: "#6d4c41" }
         ]
     },
     robots: {
@@ -41,7 +51,12 @@ const BEATMAKER_THEMES = {
             { id: "rarp",   name: "R-Arp",   emoji: "⚙️", soundType: "high",    freq: 440, color: "#00838f" },
             { id: "rclap",  name: "R-Clap",  emoji: "🔧", soundType: "beat",    freq: null, color: "#37474f" },
             { id: "rbeep",  name: "R-Beep",  emoji: "💡", soundType: "melody",  scale: [523.25, 587.33, 659.25, 783.99, 880], color: "#f9a825" },
-            { id: "rnoise", name: "R-Noise", emoji: "📡", soundType: "beat",    freq: null, color: "#6a1b9a" }
+            { id: "rnoise",  name: "R-Noise", emoji: "📡", soundType: "beat",    freq: null, color: "#6a1b9a" },
+            { id: "rchord",  name: "R-Chord", emoji: "⚡", soundType: "chord",   freq: 220,  color: "#f9a825" },
+            { id: "rzap",    name: "R-Zap",   emoji: "🔴", soundType: "high",    freq: 1320, color: "#b71c1c" },
+            { id: "rdeep",   name: "R-Deep",  emoji: "🎛️", soundType: "bass",    freq: 38,   color: "#1a237e" },
+            { id: "recho",   name: "R-Echo",  emoji: "🌀", soundType: "harmony", freq: 165,  color: "#00695c" },
+            { id: "rdrm",    name: "R-Drum",  emoji: "🥁", soundType: "beat",    freq: null, color: "#4e342e" }
         ]
     },
     escuela: {
@@ -3625,6 +3640,10 @@ function admBeatPreviewSound(mode) {
     document.getElementById('admPreviewStop' + suffix).style.display = 'inline-block';
 
     eng.onStep = (step) => {
+        // Siempre sincronizar el patrón desde el DOM — así cualquier click es inmediato
+        const activeChar = _admPreviewEng && _admPreviewEng.activeChars['_preview'];
+        if (activeChar) activeChar.pattern = _admBeatReadGrid(gridId);
+
         document.querySelectorAll(`#${gridId} .adm-beat-step`).forEach((btn, i) => {
             btn.classList.toggle('preview-playing', i === step);
         });
