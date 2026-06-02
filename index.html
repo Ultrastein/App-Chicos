@@ -94,9 +94,10 @@
                         <div style="font-size:2rem; margin-bottom:10px;">⌨️</div>Teclado<br><br><small>Nivel <span
                                 id="lbl-typing">1</span></small>
                     </button>
-                    <button class="mc-btn purple big-btn" onclick="openSubject('ingles')">
+                    <button class="mc-btn purple big-btn" onclick="openSubject('ingles')" style="position:relative; overflow:hidden;">
                         <div style="font-size:2rem; margin-bottom:10px;">🗣️</div>Ingles<br><br><small>Nivel <span
                                 id="lbl-ingles">1</span></small>
+                        <div style="position:absolute; top:22px; left:-28px; width:130px; background:#ef4444; color:white; font-size:0.45rem; font-weight:900; padding:5px 0; text-align:center; transform:rotate(-45deg); font-family:'Nunito',sans-serif; letter-spacing:0.5px; text-transform:uppercase; box-shadow:0 2px 6px rgba(0,0,0,0.4); border-top:1px solid #b91c1c; border-bottom:1px solid #b91c1c;">⚠️ ATENCIÓN — EN PROCESO</div>
                     </button>
                     <button class="mc-btn pink big-btn" onclick="openSubject('Geografia')">
                         <div style="font-size:2rem; margin-bottom:10px;">🌍</div>Geografía<br><br><small>Nivel <span
@@ -117,6 +118,18 @@
                     <button class="mc-btn pink big-btn" onclick="openBeatMaker()" style="background:linear-gradient(135deg,#6a1b9a,#c2185b);">
                         <div style="font-size:2rem; margin-bottom:10px;">🎵</div>
                         BeatMaker<br><br><small>¡Hacer música!</small>
+                    </button>
+                    <button class="mc-btn green big-btn" onclick="openPuzzle()" style="background:linear-gradient(135deg,#f97316,#eab308); border-color:#b45309; color:#1c0701;">
+                        <div style="font-size:2rem; margin-bottom:10px;">🔤</div>
+                        Encontrá la letra<br><br><small>Palabras: <span id="lbl-puzzle">0</span></small>
+                    </button>
+                    <button class="mc-btn blue big-btn" onclick="openCoordenadas()" style="background:linear-gradient(135deg,#0f766e,#0891b2); border-color:#134e4a;">
+                        <div style="font-size:2rem; margin-bottom:10px;">🐾</div>
+                        Buscá el Animal<br><br><small>Coordenadas</small>
+                    </button>
+                    <button class="mc-btn blue big-btn" onclick="openBatallaNaval()" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8); border-color:#1e3a8a;">
+                        <div style="font-size:2rem; margin-bottom:10px;">🚢</div>
+                        Batalla Naval<br><br><small>¡Hundí su flota!</small>
                     </button>
                 </div>
             </div>
@@ -167,6 +180,30 @@
                     <span class="bm-reward-hint">🏆 Completá los 5 slots → <strong>200 🪙</strong></span>
                     <button class="mc-btn purple" style="width:auto;padding:8px 16px;font-size:0.82rem;" onclick="openBeatComposer()">🎼 Compositor</button>
                 </div>
+            </div>
+
+            <div id="view-puzzle" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                    <h3 style="margin:0;">🔤 Encontrá la letra</h3>
+                    <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Volver</button>
+                </div>
+                <div id="puzzleGameArea"></div>
+            </div>
+
+            <div id="view-coordenadas" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                    <h3 style="margin:0;">🐾 Buscá el Animal</h3>
+                    <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Volver</button>
+                </div>
+                <div id="coordGameArea"></div>
+            </div>
+
+            <div id="view-batallaNaval" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                    <h3 style="margin:0;">🚢 Batalla Naval</h3>
+                    <button class="mc-btn gray" style="width:auto;" onclick="showDashboard()">← Volver</button>
+                </div>
+                <div id="bnGameArea"></div>
             </div>
         </main>
 

@@ -2200,7 +2200,8 @@ let player = {
         prodigio: { matematica: 1, compu: 1, teclado: 1, ingles: 1, Geografia: 1, claves: 1, Algoritmos: 1, python: 1 }
     },
     inventory: ['t1', 'l1', 'h1'],
-    skin: { head: '#ffcc80', torso: '#29b6f6', legs: '#3f51b5', arm: '#ffcc80', pupil: '#1e3a8a' }
+    skin: { head: '#ffcc80', torso: '#29b6f6', legs: '#3f51b5', arm: '#ffcc80', pupil: '#1e3a8a' },
+    puzzleLevel: 0
 };
 let localDB = { customLevels: [], shopItems: DEFAULT_SHOP, beatChars: {} };
 let currentSession = { subject: null, level: 1, startTime: null, backspaces: 0, pythonValid: [], pythonOut: "", sequence: [], seqPoolId: null };
@@ -2225,6 +2226,7 @@ window.onload = function () {
             });
             player = saved;
             if (!player.answered) player.answered = [];
+            if (player.puzzleLevel === undefined) player.puzzleLevel = 0;
         } catch (e) { console.error("Error save", e); }
     }
     if (localStorage.getItem('eduDB')) {
@@ -2255,6 +2257,8 @@ function updateUI() {
     document.getElementById('lbl-geografia').innerText = p.Geografia;
     document.getElementById('lbl-algoritmos').innerText = p.Algoritmos;
     document.getElementById('lbl-python').innerText = p.python;
+    const puzzleEl = document.getElementById('lbl-puzzle');
+    if (puzzleEl) puzzleEl.innerText = player.puzzleLevel;
 
     applyTexture('avHead', player.skin.head || '#ffcc80');
     applyTexture('avTorso', player.skin.torso);
@@ -2362,6 +2366,7 @@ function showDashboard() {
     if (beatVisualizerInterval) { clearInterval(beatVisualizerInterval); beatVisualizerInterval = null; }
     beatSlots = [null, null, null, null, null];
     beatCompleted = false;
+    puzzleCleanup();
     setView('view-dashboard');
 }
 
@@ -2780,7 +2785,7 @@ function bcClear() {
 
 function showShop() { setView('view-shop'); renderShop(); }
 function setView(id) {
-    ['view-dashboard', 'view-map', 'view-shop', 'view-beatmaker-menu', 'view-beatmaker-game'].forEach(v => document.getElementById(v).style.display = 'none');
+    ['view-dashboard', 'view-map', 'view-shop', 'view-beatmaker-menu', 'view-beatmaker-game', 'view-puzzle', 'view-coordenadas', 'view-batallaNaval'].forEach(v => document.getElementById(v).style.display = 'none');
     document.getElementById(id).style.display = 'block';
 }
 
@@ -3845,4 +3850,693 @@ function buySkip() {
         btn.classList.add('shake-anim');
         setTimeout(() => btn.classList.remove('shake-anim'), 500);
     }
+}
+
+// ==========================================
+// ROMPECABEZAS DE TECLADO — PRIMER CICLO
+// ==========================================
+const PUZZLE_WORDS = [
+    { emoji: "🌞", word: "SOL"      },
+    { emoji: "🍞", word: "PAN"      },
+    { emoji: "🐻", word: "OSO"      },
+    { emoji: "🐟", word: "PEZ"      },
+    { emoji: "🍇", word: "UVA"      },
+    { emoji: "🦆", word: "PATO"     },
+    { emoji: "🐱", word: "GATO"     },
+    { emoji: "🐄", word: "VACA"     },
+    { emoji: "🐸", word: "RANA"     },
+    { emoji: "🌙", word: "LUNA"     },
+    { emoji: "🏠", word: "CASA"     },
+    { emoji: "🌺", word: "FLOR"     },
+    { emoji: "🦁", word: "LEON"     },
+    { emoji: "🚗", word: "AUTO"     },
+    { emoji: "🐶", word: "PERRO"    },
+    { emoji: "🎈", word: "GLOBO"    },
+    { emoji: "🐝", word: "ABEJA"    },
+    { emoji: "✈️",  word: "AVION"    },
+    { emoji: "🍌", word: "BANANA"   },
+    { emoji: "🌻", word: "GIRASOL"  }
+];
+
+let puzzleActive = false;
+let puzzleState = {
+    sessionWords: [],
+    currentIdx: 0,
+    hiddenIndices: [],
+    currentHiddenPos: 0
+};
+
+function openPuzzle() {
+    puzzleActive = true;
+    setView('view-puzzle');
+    puzzleState.sessionWords = [...PUZZLE_WORDS];
+    puzzleState.currentIdx = 0;
+    document.addEventListener('keydown', puzzleKeyHandler);
+    renderPuzzleWord();
+}
+
+function puzzleCleanup() {
+    puzzleActive = false;
+    document.removeEventListener('keydown', puzzleKeyHandler);
+}
+
+function puzzleGetHiddenIndices(word) {
+    const len = word.length;
+    const count = len <= 4 ? 1 : 2;
+    const pool = Array.from({ length: len }, (_, i) => i);
+    const picked = [];
+    for (let i = 0; i < count; i++) {
+        const r = Math.floor(Math.random() * pool.length);
+        picked.push(...pool.splice(r, 1));
+    }
+    return picked.sort((a, b) => a - b);
+}
+
+function renderPuzzleWord() {
+    const area = document.getElementById('puzzleGameArea');
+    if (!area) return;
+
+    const wordObj = puzzleState.sessionWords[puzzleState.currentIdx];
+    const { emoji, word } = wordObj;
+    const total = puzzleState.sessionWords.length;
+    const current = puzzleState.currentIdx + 1;
+
+    puzzleState.hiddenIndices = puzzleGetHiddenIndices(word);
+    puzzleState.currentHiddenPos = 0;
+
+    const firstHiddenLetter = word[puzzleState.hiddenIndices[0]];
+    const progressPct = ((current - 1) / total) * 100;
+
+    const tilesHTML = word.split('').map((letter, i) => {
+        const isHidden = puzzleState.hiddenIndices.includes(i);
+        const isNextToType = i === puzzleState.hiddenIndices[0];
+        if (isHidden) {
+            return `<div class="puzzle-tile blank${isNextToType ? ' active' : ''}" id="ptile-${i}"></div>`;
+        }
+        return `<div class="puzzle-tile" id="ptile-${i}">${letter}</div>`;
+    }).join('');
+
+    area.innerHTML = `
+        <div class="puzzle-container">
+            <div class="puzzle-progress">
+                Palabra <strong>${current}</strong> de <strong>${total}</strong>
+                <div class="puzzle-progress-bar">
+                    <div class="puzzle-progress-fill" style="width:${progressPct}%"></div>
+                </div>
+            </div>
+            <div class="puzzle-emoji-display">${emoji}</div>
+            <div class="puzzle-tiles-row">${tilesHTML}</div>
+            <div class="puzzle-instruction">⌨️ ¡Presioná la tecla que falta!</div>
+            <div class="puzzle-key-hint">
+                Buscá la letra: <span id="puzzleTargetKey">${firstHiddenLetter}</span>
+            </div>
+            <div class="puzzle-hint" id="puzzleHint"></div>
+        </div>`;
+}
+
+function puzzleKeyHandler(e) {
+    if (!puzzleActive) return;
+    if (e.key.length !== 1) return;
+
+    const typed = e.key.toUpperCase();
+    const wordObj = puzzleState.sessionWords[puzzleState.currentIdx];
+    const word = wordObj.word;
+    const hiddenIdx = puzzleState.hiddenIndices[puzzleState.currentHiddenPos];
+    if (hiddenIdx === undefined) return;
+
+    const expected = word[hiddenIdx];
+    const tile = document.getElementById(`ptile-${hiddenIdx}`);
+    const hintEl = document.getElementById('puzzleHint');
+
+    if (typed === expected) {
+        if (tile) {
+            tile.textContent = expected;
+            tile.classList.remove('blank', 'active');
+            tile.classList.add('correct-fill');
+        }
+        if (hintEl) { hintEl.textContent = '✅ ¡Muy bien!'; hintEl.style.color = '#16a34a'; }
+
+        puzzleState.currentHiddenPos++;
+
+        const nextHiddenIdx = puzzleState.hiddenIndices[puzzleState.currentHiddenPos];
+        if (nextHiddenIdx !== undefined) {
+            const nextTile = document.getElementById(`ptile-${nextHiddenIdx}`);
+            if (nextTile) nextTile.classList.add('active');
+            const keySpan = document.getElementById('puzzleTargetKey');
+            if (keySpan) keySpan.textContent = word[nextHiddenIdx];
+        }
+
+        if (puzzleState.currentHiddenPos >= puzzleState.hiddenIndices.length) {
+            puzzleActive = false;
+            setTimeout(() => puzzleWordComplete(wordObj), 750);
+        }
+
+    } else {
+        if (tile) {
+            tile.classList.add('wrong-shake');
+            setTimeout(() => tile.classList.remove('wrong-shake'), 450);
+        }
+        if (hintEl) {
+            hintEl.textContent = `❌ ¡Esa no es! La letra es: ${expected}`;
+            hintEl.style.color = '#dc2626';
+            setTimeout(() => { if (hintEl) hintEl.textContent = ''; }, 1800);
+        }
+    }
+}
+
+function puzzleWordComplete(wordObj) {
+    player.coins += 150;
+    player.puzzleLevel = Math.max(player.puzzleLevel, puzzleState.currentIdx + 1);
+    saveData();
+    updateUI();
+    showToast(`🧩 ¡${wordObj.word}! +150 🪙`);
+
+    const area = document.getElementById('puzzleGameArea');
+    if (area) {
+        area.innerHTML = `
+            <div class="puzzle-container" style="padding:40px 20px; text-align:center;">
+                <div style="font-size:7rem; animation:puzzleBounce 0.6s ease-in-out;">${wordObj.emoji}</div>
+                <div style="font-family:var(--font-game); font-size:2.8rem; color:#16a34a; letter-spacing:5px; margin-top:10px;">
+                    ¡${wordObj.word}!
+                </div>
+                <div style="font-family:var(--font-ui); font-size:1.1rem; color:#64748b; margin-top:8px;">
+                    ⭐ +150 monedas
+                </div>
+            </div>`;
+    }
+
+    puzzleState.currentIdx++;
+
+    setTimeout(() => {
+        if (puzzleState.currentIdx >= puzzleState.sessionWords.length) {
+            if (area) {
+                area.innerHTML = `
+                    <div class="puzzle-container" style="padding:40px 20px; text-align:center;">
+                        <div style="font-size:5rem;">🏆</div>
+                        <div style="font-family:var(--font-game); font-size:2rem; color:#f59e0b; margin:15px 0;">
+                            ¡Completaste todas las palabras!
+                        </div>
+                        <div style="font-family:var(--font-ui); color:#64748b; margin-bottom:24px;">
+                            ¡Sos un campeón del teclado! 🌟
+                        </div>
+                        <button class="mc-btn orange" style="margin-bottom:12px;" onclick="openPuzzle()">🔄 Jugar de nuevo</button>
+                        <button class="mc-btn gray" onclick="showDashboard()">← Volver al menú</button>
+                    </div>`;
+            }
+            puzzleCleanup();
+        } else {
+            puzzleActive = true;
+            renderPuzzleWord();
+        }
+    }, 2000);
+}
+
+// ==========================================
+// BUSCÁ EL ANIMAL — COORDENADAS
+// ==========================================
+const COORD_ANIMALS = [
+    '🐱','🐶','🐻','🦁','🐯','🐸','🐼','🦊',
+    '🐧','🦆','🐮','🐷','🐨','🦋','🐰','🐬',
+    '🦅','🐹','🦉','🐙'
+];
+
+let coordState = {
+    hiddenX: 1, hiddenY: 1,
+    animal: '🐱',
+    attempts: 0,
+    found: false,
+    history: [],
+    selectedX: null,
+    selectedY: null
+};
+
+function openCoordenadas() {
+    setView('view-coordenadas');
+    newAnimalGame();
+}
+
+function newAnimalGame() {
+    coordState.hiddenX  = Math.floor(Math.random() * 5) + 1;
+    coordState.hiddenY  = Math.floor(Math.random() * 5) + 1;
+    coordState.animal   = COORD_ANIMALS[Math.floor(Math.random() * COORD_ANIMALS.length)];
+    coordState.attempts = 0;
+    coordState.found    = false;
+    coordState.history  = [];
+    coordState.selectedX = null;
+    coordState.selectedY = null;
+    renderCoordenadas();
+}
+
+function coordSelectX(val) {
+    coordState.selectedX = val;
+    document.querySelectorAll('.coord-sel-x').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === val);
+    });
+    const lbl = document.getElementById('coordLblX');
+    if (lbl) lbl.textContent = val;
+}
+
+function coordSelectY(val) {
+    coordState.selectedY = val;
+    document.querySelectorAll('.coord-sel-y').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === val);
+    });
+    const lbl = document.getElementById('coordLblY');
+    if (lbl) lbl.textContent = val;
+}
+
+function checkCoords() {
+    const x = coordState.selectedX;
+    const y = coordState.selectedY;
+
+    if (!x || !y) {
+        showToast('¡Elegí un número para X y uno para Y!', 'error');
+        return;
+    }
+
+    coordState.attempts++;
+
+    if (x === coordState.hiddenX && y === coordState.hiddenY) {
+        coordState.found = true;
+        const stars  = coordState.attempts <= 3 ? 3 : coordState.attempts <= 6 ? 2 : 1;
+        const coins  = stars * 150;
+        player.coins += coins;
+        saveData();
+        updateUI();
+        showToast(`${coordState.animal} ¡Lo encontraste! +${coins} 🪙`, 'success');
+        renderCoordenadas();
+    } else {
+        const dist = Math.max(Math.abs(x - coordState.hiddenX), Math.abs(y - coordState.hiddenY));
+        const fb   = dist === 1 ? { text: '🔥 ¡Caliente!', cls: 'fb-hot' }
+                   : dist === 2 ? { text: '🌡️ ¡Tibio!',    cls: 'fb-warm' }
+                   :              { text: '🥶 ¡Frío!',      cls: 'fb-cold' };
+        coordState.history.push({ x, y, fb });
+        coordState.selectedX = null;
+        coordState.selectedY = null;
+        renderCoordenadas();
+    }
+}
+
+function renderCoordenadas() {
+    const area = document.getElementById('coordGameArea');
+    if (!area) return;
+    const { hiddenX, hiddenY, animal, found, attempts, history, selectedX, selectedY } = coordState;
+
+    // ── 5×5 grid (rows from top: y=5 down to y=1) ──
+    let gridHTML = '';
+    for (let row = 5; row >= 1; row--) {
+        for (let col = 1; col <= 5; col++) {
+            const isFound    = found && col === hiddenX && row === hiddenY;
+            const wasGuessed = history.some(h => h.x === col && h.y === row);
+            const cls = ['coord-cell',
+                isFound    ? 'coord-found'   : '',
+                wasGuessed ? 'coord-guessed' : ''
+            ].filter(Boolean).join(' ');
+            const content = isFound ? animal : wasGuessed ? '✗' : '';
+            gridHTML += `<div class="${cls}" data-cx="${col}" data-cy="${row}"
+                              onmouseenter="coordHover(${col},${row})"
+                              onmouseleave="coordUnhover()">${content}</div>`;
+        }
+    }
+
+    // ── X selectors ──
+    const xBtns = [1,2,3,4,5].map(n =>
+        `<button class="coord-sel-btn coord-sel-x${selectedX===n?' active':''}"
+                 onclick="coordSelectX(${n})">${n}</button>`
+    ).join('');
+
+    // ── Y selectors ──
+    const yBtns = [1,2,3,4,5].map(n =>
+        `<button class="coord-sel-btn coord-sel-y${selectedY===n?' active':''}"
+                 onclick="coordSelectY(${n})">${n}</button>`
+    ).join('');
+
+    // ── Attempt history ──
+    const histItems = history.length === 0
+        ? `<div class="coord-hist-empty">Todavía no intentaste nada...</div>`
+        : [...history].reverse().map(h =>
+            `<div class="coord-hist-item ${h.fb.cls}">(${h.x}, ${h.y}) → ${h.fb.text}</div>`
+          ).join('');
+
+    // ── Stars block if found ──
+    const stars = attempts <= 3 ? 3 : attempts <= 6 ? 2 : 1;
+    const starStr = found ? '⭐'.repeat(stars) + '☆'.repeat(3 - stars) : '';
+
+    area.innerHTML = `
+    <div class="coord-container">
+
+        <!-- LEFT: grid + axes -->
+        <div>
+            <div style="display:flex; align-items:flex-start; gap:6px;">
+                <!-- Y numbers (5 → 1 top to bottom) -->
+                <div class="coord-y-nums">
+                    ${[5,4,3,2,1].map(n =>
+                        `<div class="coord-y-num">${n}</div>`
+                    ).join('')}
+                </div>
+                <!-- Grid -->
+                <div class="coord-grid" id="coordGrid">${gridHTML}</div>
+            </div>
+            <!-- X numbers row -->
+            <div class="coord-x-row">
+                <div class="coord-x-spacer"></div>
+                ${[1,2,3,4,5].map(n => `<div class="coord-x-num">${n}</div>`).join('')}
+            </div>
+            <div class="coord-axis-labels">
+                <span>👉 X = cuánto va para la derecha</span>
+            </div>
+            <div style="text-align:right; font-family:var(--font-game); font-size:0.8rem; color:#475569; margin-top:2px; padding-right:4px;">
+                ☝️ Y = cuánto sube hacia arriba
+            </div>
+        </div>
+
+        <!-- RIGHT: controls + history -->
+        <div class="coord-panel">
+            ${!found ? `
+                <div class="coord-selector-group">
+                    <div class="coord-sel-label">→ X (derecha): <strong id="coordLblX">${selectedX || '?'}</strong></div>
+                    <div class="coord-btns">${xBtns}</div>
+                </div>
+                <div class="coord-selector-group">
+                    <div class="coord-sel-label">↑ Y (arriba): <strong id="coordLblY">${selectedY || '?'}</strong></div>
+                    <div class="coord-btns">${yBtns}</div>
+                </div>
+                <button class="mc-btn blue" onclick="checkCoords()" style="background:#0f766e; border-color:#134e4a; box-shadow:0 6px 0 #134e4a;">
+                    🔍 ¡Buscar!
+                </button>
+            ` : `
+                <div style="text-align:center; padding: 10px 0;">
+                    <div class="coord-stars">${starStr}</div>
+                    <div class="coord-found-msg" style="margin-top:8px;">
+                        ¡Encontrado en <strong>${attempts}</strong> ${attempts===1?'intento':'intentos'}!
+                    </div>
+                    <button class="mc-btn green" style="margin-top:16px;" onclick="newAnimalGame()">
+                        🐾 Nuevo Animal
+                    </button>
+                </div>
+            `}
+
+            <div class="coord-history">
+                <div class="coord-hist-title">📋 Intentos anteriores</div>
+                ${histItems}
+            </div>
+        </div>
+    </div>`;
+}
+
+function coordHover(cx, cy) {
+    document.querySelectorAll('#coordGrid .coord-cell').forEach(cell => {
+        const cellX = +cell.getAttribute('data-cx');
+        const cellY = +cell.getAttribute('data-cy');
+        cell.classList.toggle('hl-col',   cellX === cx);
+        cell.classList.toggle('hl-row',   cellY === cy);
+        cell.classList.toggle('hl-cross', cellX === cx && cellY === cy);
+    });
+}
+
+function coordUnhover() {
+    document.querySelectorAll('#coordGrid .coord-cell').forEach(cell => {
+        cell.classList.remove('hl-col', 'hl-row', 'hl-cross');
+    });
+}
+
+// ==========================================
+// BATALLA NAVAL
+// ==========================================
+const BN_SIZE = 7;
+const BN_SHIPS_DEF = [
+    { id: 'acorazado', emoji: '🚢', name: 'Acorazado',  size: 3, cls: 'ship-acorazado' },
+    { id: 'crucero',   emoji: '🛥️', name: 'Crucero',    size: 2, cls: 'ship-crucero'   },
+    { id: 'destructor',emoji: '⛵', name: 'Destructor', size: 2, cls: 'ship-destructor' },
+    { id: 'submarino', emoji: '🤿', name: 'Submarino',  size: 1, cls: 'ship-submarino'  }
+];
+
+let bnState = {
+    phase: 'setup',
+    playerGrid: [], enemyGrid: [],
+    playerShots: new Set(), enemyShots: new Set(),
+    playerShips: [], enemyShips: [],
+    lastMsg: '', shotCount: 0
+};
+
+function openBatallaNaval() {
+    setView('view-batallaNaval');
+    bnNewGame();
+}
+
+function bnNewGame() {
+    bnState.playerGrid  = Array.from({length: BN_SIZE}, () => Array(BN_SIZE).fill(null));
+    bnState.enemyGrid   = Array.from({length: BN_SIZE}, () => Array(BN_SIZE).fill(null));
+    bnState.playerShots = new Set();
+    bnState.enemyShots  = new Set();
+    bnState.playerShips = bnAutoPlace(bnState.playerGrid);
+    bnState.enemyShips  = bnAutoPlace(bnState.enemyGrid);
+    bnState.phase       = 'setup';
+    bnState.lastMsg     = '';
+    bnState.shotCount   = 0;
+    renderBatallaNaval();
+}
+
+function bnAutoPlace(grid) {
+    // Clear
+    for (let r = 0; r < BN_SIZE; r++) grid[r].fill(null);
+    const ships = [];
+    for (const def of BN_SHIPS_DEF) {
+        let placed = false, tries = 0;
+        while (!placed && tries++ < 500) {
+            const horiz = Math.random() < 0.5;
+            const maxR  = horiz ? BN_SIZE     : BN_SIZE - def.size;
+            const maxC  = horiz ? BN_SIZE - def.size : BN_SIZE;
+            const r = Math.floor(Math.random() * (maxR));
+            const c = Math.floor(Math.random() * (maxC + 1 > BN_SIZE ? BN_SIZE : maxC + 1));
+            const cells = [];
+            let ok = true;
+            for (let i = 0; i < def.size; i++) {
+                const cr = horiz ? r     : r + i;
+                const cc = horiz ? c + i : c;
+                if (cr >= BN_SIZE || cc >= BN_SIZE || grid[cr][cc]) { ok = false; break; }
+                cells.push({r: cr, c: cc});
+            }
+            if (ok) {
+                cells.forEach(({r, c}) => grid[r][c] = def.id);
+                ships.push({ ...def, cells, hits: new Set(), sunk: false });
+                placed = true;
+            }
+        }
+    }
+    return ships;
+}
+
+function bnRedistribuir() {
+    bnState.playerShips = bnAutoPlace(bnState.playerGrid);
+    renderBatallaNaval();
+}
+
+function bnStartBattle() {
+    bnState.phase   = 'battle';
+    bnState.lastMsg = '⚓ ¡Comenzó la batalla! Hacé clic en el Mar Enemigo para disparar.';
+    renderBatallaNaval();
+}
+
+function bnPlayerShoot(r, c) {
+    if (bnState.phase !== 'battle') return;
+    const key = `${r},${c}`;
+    if (bnState.playerShots.has(key)) { showToast('¡Ya disparaste ahí!', 'error'); return; }
+
+    bnState.playerShots.add(key);
+    bnState.shotCount++;
+
+    if (bnState.enemyGrid[r][c]) {
+        const ship = bnState.enemyShips.find(s => s.id === bnState.enemyGrid[r][c]);
+        if (ship) {
+            ship.hits.add(key);
+            if (ship.hits.size >= ship.size) {
+                ship.sunk = true;
+                bnState.lastMsg = `💥 ¡Hundiste el ${ship.emoji} ${ship.name}!`;
+                showToast(`💥 ¡${ship.name} hundido!`, 'success');
+            } else {
+                bnState.lastMsg = `🔥 ¡Tocado! El ${ship.emoji} ${ship.name} está dañado.`;
+            }
+        }
+    } else {
+        bnState.lastMsg = '💦 ¡Agua! No le diste a ningún barco.';
+    }
+
+    if (bnState.enemyShips.every(s => s.sunk)) {
+        bnState.phase = 'won';
+        const coins = Math.max(500 - bnState.shotCount * 8, 150);
+        player.coins += coins;
+        saveData(); updateUI();
+        showToast(`🏆 ¡Ganaste! +${coins} 🪙`, 'success');
+        renderBatallaNaval(); return;
+    }
+
+    renderBatallaNaval();
+    setTimeout(bnEnemyTurn, 700);
+}
+
+function bnEnemyTurn() {
+    if (bnState.phase !== 'battle') return;
+    const available = [];
+    for (let r = 0; r < BN_SIZE; r++)
+        for (let c = 0; c < BN_SIZE; c++)
+            if (!bnState.enemyShots.has(`${r},${c}`)) available.push({r, c});
+    if (!available.length) return;
+
+    // Smart AI: follow up on partial hits
+    let target = null;
+    const partial = bnState.playerShips.find(s => s.hits.size > 0 && !s.sunk);
+    if (partial) {
+        const hitList = [...partial.hits].map(k => { const [r,c] = k.split(',').map(Number); return {r,c}; });
+        const neighbors = [];
+        hitList.forEach(({r,c}) => {
+            [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc]) => {
+                if (nr>=0 && nr<BN_SIZE && nc>=0 && nc<BN_SIZE && !bnState.enemyShots.has(`${nr},${nc}`))
+                    neighbors.push({r:nr,c:nc});
+            });
+        });
+        if (neighbors.length) target = neighbors[Math.floor(Math.random() * neighbors.length)];
+    }
+    if (!target) target = available[Math.floor(Math.random() * available.length)];
+
+    const {r, c} = target;
+    const key = `${r},${c}`;
+    bnState.enemyShots.add(key);
+
+    const enemyNote = bnState.playerGrid[r][c]
+        ? (() => {
+            const ship = bnState.playerShips.find(s => s.id === bnState.playerGrid[r][c]);
+            if (ship) {
+                ship.hits.add(key);
+                if (ship.hits.size >= ship.size) { ship.sunk = true; return `El enemigo hundió tu ${ship.emoji} ${ship.name}! 😱`; }
+                return `El enemigo te tocó el ${ship.emoji} ${ship.name}! 😬`;
+            }
+            return '';
+          })()
+        : 'El enemigo falló (💦 agua). 😌';
+
+    bnState.lastMsg += ' — ' + enemyNote;
+
+    if (bnState.playerShips.every(s => s.sunk)) {
+        bnState.phase = 'lost';
+        showToast('💀 ¡Hundieron toda tu flota!', 'error');
+    }
+    renderBatallaNaval();
+}
+
+function renderBatallaNaval() {
+    const area = document.getElementById('bnGameArea');
+    if (!area) return;
+    const { phase, playerGrid, enemyGrid, playerShots, enemyShots, playerShips, enemyShips, lastMsg, shotCount } = bnState;
+
+    // Y and X labels
+    const yLabels = Array.from({length: BN_SIZE}, (_, i) => BN_SIZE - i)
+        .map(n => `<div class="bn-y-num">${n}</div>`).join('');
+    const xLabels = Array.from({length: BN_SIZE}, (_, i) => i + 1)
+        .map(n => `<div class="bn-x-num">${n}</div>`).join('');
+
+    function buildGrid(grid, shots, ships, isEnemy) {
+        let html = '<div class="bn-grid" id="' + (isEnemy ? 'bnEnemyGrid' : 'bnPlayerGrid') + '">';
+        for (let r = BN_SIZE - 1; r >= 0; r--) {
+            for (let c = 0; c < BN_SIZE; c++) {
+                const key = `${r},${c}`;
+                const shot = shots.has(key);
+                const hasShip = !!grid[r][c];
+                const def = BN_SHIPS_DEF.find(d => d.id === grid[r][c]);
+
+                let cls = 'bn-cell';
+                let content = '';
+
+                if (shot && hasShip) {
+                    cls += ' bn-hit'; content = '💥';
+                } else if (shot && !hasShip) {
+                    cls += ' bn-miss'; content = '○';
+                } else if (!isEnemy && hasShip) {
+                    const ship = ships.find(s => s.id === grid[r][c]);
+                    cls += ship && ship.sunk ? ' bn-ship-sunk' : ` bn-ship ${def ? def.cls : ''}`;
+                } else if (isEnemy && phase === 'won' && hasShip) {
+                    cls += ' bn-ship-revealed'; content = def ? def.emoji : '🚢';
+                }
+
+                const clickable = isEnemy && phase === 'battle' && !shot;
+                if (clickable) cls += ' bn-clickable';
+
+                html += `<div class="${cls}"
+                    data-br="${r}" data-bc="${c}"
+                    ${clickable ? `onclick="bnPlayerShoot(${r},${c})"` : ''}
+                    ${isEnemy && phase === 'battle' && !shot
+                        ? `onmouseenter="bnHover(${c},${r})" onmouseleave="bnUnhover()"`
+                        : ''}
+                >${content}</div>`;
+            }
+        }
+        return html + '</div>';
+    }
+
+    function gridBlock(grid, shots, ships, isEnemy, title) {
+        return `<div class="bn-grid-wrapper">
+            <div class="bn-grid-title">${title}</div>
+            <div style="display:flex; gap:5px; align-items:flex-start;">
+                <div class="bn-y-nums">${yLabels}</div>
+                ${buildGrid(grid, shots, ships, isEnemy)}
+            </div>
+            <div class="bn-x-row">${xLabels}</div>
+        </div>`;
+    }
+
+    // Ship status badges
+    const myBadges   = playerShips.map(s => `<span class="bn-ship-tag${s.sunk?' sunk':''}">${s.emoji} ${s.name}</span>`).join('');
+    const enemyBadges = enemyShips.map(s => `<span class="bn-ship-tag${s.sunk?' sunk':' hidden'}">${s.sunk ? s.emoji+' ✗' : '???'}</span>`).join('');
+
+    if (phase === 'setup') {
+        area.innerHTML = `
+        <div class="bn-setup">
+            ${gridBlock(playerGrid, new Set(), playerShips, false, '📍 Tus barcos')}
+            <div class="bn-setup-panel">
+                <div style="font-family:var(--font-game); font-size:1.05rem; color:var(--color-blue-dark);">🚢 Barcos en juego</div>
+                <div class="bn-ships-list">
+                    ${BN_SHIPS_DEF.map(d => `<div class="bn-ship-info">${d.emoji} ${d.name} — ${d.size} casilla${d.size>1?'s':''}</div>`).join('')}
+                </div>
+                <button class="mc-btn gray" onclick="bnRedistribuir()">🔀 Redistribuir barcos</button>
+                <button class="mc-btn green" onclick="bnStartBattle()">⚓ ¡Comenzar Batalla!</button>
+            </div>
+        </div>`;
+        return;
+    }
+
+    area.innerHTML = `
+        <div class="bn-battle">
+            ${gridBlock(playerGrid, enemyShots, playerShips, false, '🛡️ Mi Flota')}
+            ${gridBlock(enemyGrid, playerShots, enemyShips, true,
+                phase === 'battle' ? '🎯 Mar Enemigo — ¡Hacé clic para disparar!' : '🎯 Mar Enemigo')}
+        </div>
+        <div class="bn-status-bar">
+            <div class="bn-msg">${lastMsg || '⚓ ¡Tu turno! Hacé clic en el Mar Enemigo.'}</div>
+            <div class="bn-ships-status">
+                <span style="font-family:var(--font-game); font-size:0.8rem;">Mi flota:</span> ${myBadges}
+                &nbsp;
+                <span style="font-family:var(--font-game); font-size:0.8rem;">Enemigo:</span> ${enemyBadges}
+            </div>
+            <div style="font-family:var(--font-ui); font-size:0.8rem; color:#94a3b8;">Disparos realizados: <strong>${shotCount}</strong></div>
+        </div>
+        ${phase === 'won' ? `<div class="bn-result won">🏆 ¡Ganaste en ${shotCount} disparos!<br>
+            <button class="mc-btn green" style="margin-top:12px; width:auto; padding:10px 25px;" onclick="bnNewGame()">🔄 Nueva Partida</button></div>` : ''}
+        ${phase === 'lost' ? `<div class="bn-result lost">💀 ¡El enemigo hundió toda tu flota!<br>
+            <button class="mc-btn orange" style="margin-top:12px; width:auto; padding:10px 25px;" onclick="bnNewGame()">🔄 Revancha</button></div>` : ''}`;
+}
+
+function bnHover(cx, cy) {
+    document.querySelectorAll('#bnEnemyGrid .bn-cell').forEach(cell => {
+        const cr = +cell.getAttribute('data-br');
+        const cc = +cell.getAttribute('data-bc');
+        cell.classList.toggle('bn-hl-col',   cc === cx);
+        cell.classList.toggle('bn-hl-row',   cr === cy);
+        cell.classList.toggle('bn-hl-cross', cc === cx && cr === cy);
+    });
+}
+
+function bnUnhover() {
+    document.querySelectorAll('#bnEnemyGrid .bn-cell').forEach(cell => {
+        cell.classList.remove('bn-hl-col', 'bn-hl-row', 'bn-hl-cross');
+    });
 }
