@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué es SQL?</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&family=Fira+Code:wght@500&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="sqlToast"></div>
+
+    <div class="sql-app">
+
+        <header class="sql-header">
+            <a class="sql-back" href="../index.html">⬅️ Volver a los juegos</a>
+            <h1>🗄️ ¿Qué es una Base de Datos? 🗣️</h1>
+            <p class="sql-subtitle">Aprendé el idioma que usan las computadoras para guardar y buscar información: el SQL</p>
+        </header>
+
+        <nav class="sql-tabs">
+            <button class="sql-tab active" data-tab="vocab" onclick="setTab('vocab')">📖 Vocabulario</button>
+            <button class="sql-tab" data-tab="probar" onclick="setTab('probar')">🧪 Probalo Vos</button>
+            <button class="sql-tab" data-tab="desafios" onclick="setTab('desafios')">🎯 Desafíos</button>
+        </nav>
+
+        <!-- ===================== TAB VOCABULARIO ===================== -->
+        <section class="sql-panel" id="panel-vocab">
+            <p class="sql-intro">
+                Imaginate una base de datos como un <strong>armario gigante lleno de carpetas</strong> bien
+                ordenadas. El <strong>SQL</strong> es el idioma que usamos para pedirle cosas a ese armario,
+                como "mostrame todas las carpetas de color rojo" o "agregá una carpeta nueva".
+            </p>
+            <div class="sql-vocab-grid" id="vocabGrid"></div>
+        </section>
+
+        <!-- ===================== TAB PROBAR ===================== -->
+        <section class="sql-panel" id="panel-probar" style="display:none;">
+            <p class="sql-intro">
+                Esta es la tabla <code>mascotas</code>. Armá tu propia consulta apretando los bloques y
+                mirá qué pasa. ¡No hace falta escribir código!
+            </p>
+
+            <div class="sql-builder">
+                <div class="qb-row">
+                    <span class="qb-label">MOSTRAR</span>
+                    <select id="qbColumns" class="qb-select" multiple size="4"></select>
+                    <span class="qb-hint">(tocá una o varias; con nada elegido = todas)</span>
+                </div>
+
+                <div class="qb-row">
+                    <span class="qb-label">DE</span>
+                    <span class="qb-fixed">mascotas</span>
+                </div>
+
+                <div class="qb-row">
+                    <label class="qb-toggle"><input type="checkbox" id="qbWhereToggle" onchange="renderBuilderState()"> DONDE (filtrar)</label>
+                    <select id="qbWhereCol" class="qb-select-inline"></select>
+                    <select id="qbWhereOp" class="qb-select-inline">
+                        <option value="=">es igual a</option>
+                        <option value=">">es mayor que</option>
+                        <option value="<">es menor que</option>
+                        <option value="contiene">contiene</option>
+                    </select>
+                    <input type="text" id="qbWhereVal" class="qb-input" placeholder="valor">
+                </div>
+
+                <div class="qb-row">
+                    <label class="qb-toggle"><input type="checkbox" id="qbOrderToggle" onchange="renderBuilderState()"> ORDENAR POR</label>
+                    <select id="qbOrderCol" class="qb-select-inline"></select>
+                    <select id="qbOrderDir" class="qb-select-inline">
+                        <option value="ASC">de menor a mayor (A-Z)</option>
+                        <option value="DESC">de mayor a menor (Z-A)</option>
+                    </select>
+                </div>
+
+                <button class="sql-run-btn" onclick="runBuilderQuery()">▶️ Ejecutar</button>
+            </div>
+
+            <div class="sql-code-box" id="sqlCodeBox">SELECT * FROM mascotas;</div>
+
+            <h3 class="sql-result-title">Resultado:</h3>
+            <div id="resultTableWrap"></div>
+
+            <div class="sql-crud">
+                <h3>➕ Agregar una mascota nueva (INSERT)</h3>
+                <div class="crud-form">
+                    <input type="text" id="newNombre" placeholder="nombre">
+                    <input type="text" id="newTipo" placeholder="tipo (perro, gato...)">
+                    <input type="number" id="newEdad" placeholder="edad">
+                    <input type="text" id="newColor" placeholder="color">
+                    <button class="sql-run-btn small" onclick="insertMascota()">Agregar</button>
+                </div>
+                <h3>📋 Tabla completa (tocá 🗑️ para borrar una fila = DELETE)</h3>
+                <div id="fullTableWrap"></div>
+                <button class="sql-reset-btn" onclick="resetData(true)">🔄 Reiniciar tabla</button>
+            </div>
+        </section>
+
+        <!-- ===================== TAB DESAFIOS ===================== -->
+        <section class="sql-panel" id="panel-desafios" style="display:none;">
+            <div class="sql-quiz-score">⭐ <span id="challengeScore">0</span> / <span id="challengeTotal">0</span></div>
+            <div class="sql-challenge-box">
+                <h3 id="challengeText"></h3>
+                <p class="sql-hint">Armá la consulta acá abajo (son los mismos bloques de "Probalo Vos") y apretá "Comprobar".</p>
+            </div>
+
+            <div class="sql-builder">
+                <div class="qb-row">
+                    <span class="qb-label">MOSTRAR</span>
+                    <select id="chColumns" class="qb-select" multiple size="4"></select>
+                    <span class="qb-hint">(tocá una o varias; con nada elegido = todas)</span>
+                </div>
+                <div class="qb-row">
+                    <span class="qb-label">DE</span>
+                    <span class="qb-fixed">mascotas</span>
+                </div>
+                <div class="qb-row">
+                    <label class="qb-toggle"><input type="checkbox" id="chWhereToggle"> DONDE (filtrar)</label>
+                    <select id="chWhereCol" class="qb-select-inline"></select>
+                    <select id="chWhereOp" class="qb-select-inline">
+                        <option value="=">es igual a</option>
+                        <option value=">">es mayor que</option>
+                        <option value="<">es menor que</option>
+                        <option value="contiene">contiene</option>
+                    </select>
+                    <input type="text" id="chWhereVal" class="qb-input" placeholder="valor">
+                </div>
+                <div class="qb-row">
+                    <label class="qb-toggle"><input type="checkbox" id="chOrderToggle"> ORDENAR POR</label>
+                    <select id="chOrderCol" class="qb-select-inline"></select>
+                    <select id="chOrderDir" class="qb-select-inline">
+                        <option value="ASC">de menor a mayor (A-Z)</option>
+                        <option value="DESC">de mayor a menor (Z-A)</option>
+                    </select>
+                </div>
+                <button class="sql-run-btn" onclick="checkChallenge()">✅ Comprobar</button>
+            </div>
+
+            <div class="sql-code-box" id="challengeCodeBox"></div>
+            <div class="sql-challenge-feedback" id="challengeFeedback"></div>
+        </section>
+
+        <p class="sql-credit">Base de datos de ejemplo generada localmente — no se conecta a ningún servidor real.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

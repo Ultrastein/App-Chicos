@@ -1,0 +1,390 @@
+:root {
+    --sql-blue: #1e88e5;
+    --sql-green: #43a047;
+    --sql-orange: #fb8c00;
+    --sql-red: #e53935;
+    --sql-purple: #8e24aa;
+    --sql-panel: #ffffff;
+    --sql-text: #2c3e50;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+    color: var(--sql-text);
+    min-height: 100vh;
+}
+
+h1, h2 {
+    font-family: 'Fredoka One', cursive;
+    font-weight: normal;
+}
+
+.sql-app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+}
+
+.sql-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sql-back {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: var(--sql-blue);
+    text-decoration: none;
+    font-weight: 700;
+    background: var(--sql-panel);
+    padding: 8px 14px;
+    border-radius: 999px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+}
+
+.sql-header h1 {
+    font-size: 1.7rem;
+    color: var(--sql-purple);
+    margin: 6px 0;
+}
+
+.sql-subtitle {
+    color: #607d8b;
+    font-weight: 700;
+    margin: 0;
+}
+
+.sql-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.sql-tab {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 999px;
+    background: var(--sql-panel);
+    color: var(--sql-text);
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+}
+
+.sql-tab.active {
+    background: var(--sql-purple);
+    color: white;
+}
+
+.sql-panel {
+    background: var(--sql-panel);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.sql-intro {
+    background: #f3e5f5;
+    border-radius: 14px;
+    padding: 14px 16px;
+    line-height: 1.5;
+    color: #4a148c;
+    margin-top: 0;
+}
+
+.sql-intro code {
+    background: #e1bee7;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+/* Vocabulario */
+.sql-vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.sql-vocab-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 14px;
+    border: 2px solid #e3eefc;
+}
+
+.sql-vocab-card .vc-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.sql-vocab-card .vc-emoji {
+    font-size: 1.6rem;
+}
+
+.sql-vocab-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--sql-blue);
+}
+
+.sql-vocab-card .vc-tag {
+    display: inline-block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    background: #263238;
+    color: #a5d6a7;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+
+.sql-vocab-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #546e7a;
+    line-height: 1.4;
+}
+
+/* Query builder */
+.sql-builder {
+    background: #f1f8ff;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.qb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.qb-label {
+    font-family: 'Fredoka One', cursive;
+    background: var(--sql-blue);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.qb-fixed {
+    font-family: 'Fira Code', monospace;
+    background: #eceff1;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.qb-toggle {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--sql-orange);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.qb-select, .qb-select-inline, .qb-input {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    border: 2px solid #cfd8dc;
+    border-radius: 10px;
+    padding: 6px 10px;
+}
+
+.qb-select {
+    min-width: 140px;
+}
+
+.qb-hint {
+    font-size: 0.75rem;
+    color: #90a4ae;
+}
+
+.sql-run-btn {
+    font-family: 'Fredoka One', cursive;
+    background: var(--sql-green);
+    color: white;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 0 #2e7d32;
+}
+
+.sql-run-btn.small {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    box-shadow: 0 3px 0 #2e7d32;
+}
+
+.sql-reset-btn {
+    margin-top: 10px;
+    background: #eceff1;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #607d8b;
+}
+
+.sql-code-box {
+    font-family: 'Fira Code', monospace;
+    background: #1e272e;
+    color: #7ee787;
+    padding: 14px 16px;
+    border-radius: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.85rem;
+}
+
+.sql-result-title {
+    margin: 18px 0 8px;
+}
+
+table.sql-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+table.sql-table th {
+    background: var(--sql-blue);
+    color: white;
+    padding: 8px;
+    text-align: left;
+}
+
+table.sql-table td {
+    padding: 8px;
+    border-bottom: 1px solid #eceff1;
+}
+
+table.sql-table tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.sql-empty {
+    padding: 14px;
+    color: #90a4ae;
+    font-style: italic;
+}
+
+.sql-crud {
+    margin-top: 26px;
+    border-top: 2px dashed #cfd8dc;
+    padding-top: 18px;
+}
+
+.crud-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.crud-form input {
+    flex: 1 1 120px;
+    border: 2px solid #cfd8dc;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-family: 'Nunito', sans-serif;
+}
+
+.del-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* Desafios */
+.sql-quiz-score {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--sql-orange);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.sql-challenge-box {
+    background: #fff8e1;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+.sql-challenge-box h3 {
+    margin: 0 0 6px;
+    color: #8d6e00;
+}
+
+.sql-hint {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #a1887f;
+}
+
+.sql-challenge-feedback {
+    margin-top: 12px;
+    font-weight: 900;
+    text-align: center;
+    min-height: 26px;
+}
+
+.sql-credit {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #90a4ae;
+    margin-top: 20px;
+}
+
+#sqlToast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.sql-toast-item {
+    background: var(--sql-text);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+    .sql-header h1 { font-size: 1.3rem; }
+    .qb-row { flex-direction: column; align-items: stretch; }
+}
