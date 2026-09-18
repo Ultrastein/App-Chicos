@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partes de la Computadora</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="pcToast"></div>
+
+    <div class="pc-app">
+
+        <header class="pc-header">
+            <a class="pc-back" href="../index.html">⬅️ Volver a los juegos</a>
+            <h1>🖥️ Partes de la Computadora 🔧</h1>
+            <p class="pc-subtitle">Tocá cada pieza y descubrí para qué sirve</p>
+        </header>
+
+        <nav class="pc-tabs">
+            <button class="pc-tab active" data-cat="exterior" onclick="setCategory('exterior')">🖥️ Por Fuera</button>
+            <button class="pc-tab" data-cat="interior" onclick="setCategory('interior')">⚙️ Por Dentro</button>
+        </nav>
+
+        <div class="pc-grid" id="partsGrid"></div>
+
+        <button class="pc-quiz-btn" onclick="startQuiz()">🎯 ¡Jugar al Quiz!</button>
+
+        <p class="pc-credit">Fotos: Wikipedia · cargadas en vivo desde tu navegador</p>
+    </div>
+
+    <!-- Modal de detalle -->
+    <div class="pc-modal-overlay" id="pcModalOverlay" onclick="closeModalOutside(event)">
+        <div class="pc-modal">
+            <button class="pc-modal-close" onclick="closeModal()">✖️</button>
+            <div class="pc-modal-media" id="pcModalMedia"></div>
+            <h2 id="pcModalTitle"></h2>
+            <p id="pcModalDesc"></p>
+            <div class="pc-modal-fun" id="pcModalFun"></div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Quiz -->
+    <div class="pc-quiz-overlay" id="pcQuizOverlay">
+        <div class="pc-quiz-box">
+            <button class="pc-modal-close" onclick="closeQuiz()">✖️</button>
+            <div class="pc-quiz-score">⭐ <span id="quizScore">0</span> / <span id="quizTotal">10</span></div>
+            <div class="pc-quiz-media" id="quizMedia"></div>
+            <h2 id="quizQuestion">¿Qué pieza es esta?</h2>
+            <div class="pc-quiz-options" id="quizOptions"></div>
+            <div class="pc-quiz-feedback" id="quizFeedback"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
